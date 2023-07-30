@@ -1,0 +1,86 @@
+version: '3'
+
+networks:
+  test_network:
+    driver: bridge
+
+services:
+  redis:
+    container_name: test_redis
+    image: redis:7.0.5
+    restart: always
+    volumes:
+      - test_redis_volume:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    expose:
+      - "6379"
+    ports:
+      - "6379:6379"
+    networks:
+      - test_network
+
+  elasticsearch:
+    container_name: test_elastic
+    image: elasticsearch:8.6.2
+    restart: always
+    environment:
+      - "xpack.security.enabled=false"
+      - "discovery.type=single-node"
+    expose:
+      - '9200'
+    ports:
+      - "9200:9200"
+    networks:
+      - test_network
+    volumes:
+      - test_elastic_volume:/opt/elasticsearch/data
+    healthcheck:
+      test: curl --fail http://elasticsearch:9200/_cat/indices?v || exit 1
+      interval: 5s
+      retries: 3
+
+  elastic_migrate:
+    container_name: test_elastic_migrate
+    build: ./deploy/elastic_migrate
+    env_file:
+      - .env
+    networks:
+      - test_network
+
+  api:
+    container_name: test_api
+    build: ./api
+    image: movies_api
+    depends_on:
+      elastic_migrate:
+        condition: service_completed_successfully
+      elasticsearch:
+        condition: service_started
+      redis:
+        condition: service_started
+    expose:
+      - "8001"
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    networks:
+      - test_network
+
+  tests:
+    container_name: tests
+    build: ./tests
+    env_file:
+      - .env
+    depends_on:
+      - api
+    networks:
+      - test_network
+
+volumes:
+  test_elastic_volume:
+  test_redis_volume:

@@ -1,0 +1,15 @@
+/media/*
+/assets/*
+*.DS_Store
+*__pycache__
+.env
+poetry.lock
+venv/
+.idea/
+/etl/storage.json
+/etl/logging.log
+logging.*
+*.log
+.pytest_cache
+.vscode/
+storage.*

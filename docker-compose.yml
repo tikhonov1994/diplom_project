@@ -1,0 +1,127 @@
+version: '3'
+
+networks:
+  application_network:
+    driver: bridge
+
+services:
+  db:
+    container_name: postgres
+    image: postgres:13.0-alpine
+    volumes:
+      - pg_volume:/var/lib/postgresql/data/
+      - ./deploy/dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro
+    env_file:
+      - .env
+    networks:
+      - application_network
+
+  redis:
+    container_name: redis
+    image: redis:7.0.5
+    restart: always
+    volumes:
+      - redis_volume:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    expose:
+      - 6379
+    networks:
+      - application_network
+
+  elasticsearch:
+    container_name: elastic
+    image: elasticsearch:8.6.2
+    restart: always
+    environment:
+      - "xpack.security.enabled=false"
+      - "discovery.type=single-node"
+    expose:
+      - '9200'
+    networks:
+      - application_network
+    volumes:
+      - elastic_volume:/opt/elasticsearch/data
+    healthcheck:
+      test: curl --fail http://elasticsearch:9200/_cat/indices?v || exit 1
+      interval: 5s
+      retries: 3
+
+  elastic_migrate:
+    container_name: elastic_migrate
+    build: ./deploy/elastic_migrate
+    env_file:
+      - .env
+    networks:
+      - application_network
+
+  etl:
+    container_name: etl
+    build:
+      context: etl
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      elastic_migrate:
+        condition: service_completed_successfully
+      db:
+        condition: service_started
+    networks:
+      - application_network
+
+  api:
+    container_name: api
+    build: ./api
+    image: movies_api
+    depends_on:
+      etl:
+        condition: service_started
+      elasticsearch:
+        condition: service_started
+      redis:
+        condition: service_started
+    expose:
+      - "8001"
+    env_file:
+      - .env
+    networks:
+      - application_network
+
+  auth:
+    container_name: auth
+    build: ./auth
+    image: movies_auth
+    depends_on:
+      redis:
+        condition: service_started
+    expose:
+      - "8002"
+    env_file:
+      - .env
+    networks:
+      - application_network
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/configs:/etc/nginx/conf.d:ro
+      - nginx_volume:/opt/app/static
+    depends_on:
+      api:
+        condition: service_started
+    ports:
+      - "80:80"
+    networks:
+      - application_network
+
+volumes:
+  pg_volume:
+  nginx_volume:
+  elastic_volume:
+  redis_volume:
