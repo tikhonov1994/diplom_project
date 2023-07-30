@@ -31,6 +31,14 @@ class AppConfig(BaseSettings):
     redis_host: str
     redis_port: int
 
+    # Postgres
+    postgres_host: str
+    postgres_port: int
+    postgres_driver: str
+    postgres_db: str
+    postgres_user: str
+    postgres_password: str
+
     class Config:
         env_file = _ENV_FILE_LOC
 
