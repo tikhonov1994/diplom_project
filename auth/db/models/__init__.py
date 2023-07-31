@@ -1,5 +1,8 @@
+from uuid import UUID, uuid4
+
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Mapped, mapped_column
 
 name_convention = {
     'all_column_names': lambda constraint, table: '_'.join([
@@ -19,4 +22,8 @@ class Base(DeclarativeBase):
     metadata = metadata
 
 
-__all__ = ['metadata', 'Base']
+class BaseWithId(Base):
+    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+
+
+__all__ = ['metadata', 'Base', 'BaseWithId']
