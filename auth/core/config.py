@@ -39,6 +39,11 @@ class AppConfig(BaseSettings):
     postgres_user: str
     postgres_password: str
 
+    @property
+    def postgres_dsn(self) -> str:
+        return f'postgresql://{self.postgres_user}:{self.postgres_password}' \
+               f'@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}'
+
     class Config:
         env_file = _ENV_FILE_LOC
 
