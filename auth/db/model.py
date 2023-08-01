@@ -30,11 +30,14 @@ class IdMixin:
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
 
-class User(Base, IdMixin):
+class UserInfo(Base, IdMixin):
     __tablename__ = 'user_info'
 
-    email: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
+    user_role_id: Mapped[UUID] = mapped_column(ForeignKey('user_role.id'))
+
+    role: Mapped['UserRole'] = relationship()
     active_sessions: Mapped['UserSession'] = relationship()
 
 
@@ -48,7 +51,10 @@ class UserSession(Base, IdMixin):
 
     user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id'))
     refresh_token: Mapped[str]
-    session_type = mapped_column(SaEnum(UserSessionType))
+    session_type = mapped_column(SaEnum(UserSessionType, inherit_schema=True))
 
 
-__all__ = ['metadata', 'Base', 'IdMixin']
+class UserRole(Base, IdMixin):
+    __tablename__ = 'user_role'
+
+    name: Mapped[str]
