@@ -2,7 +2,6 @@ import os
 
 from pydantic import BaseSettings
 
-
 _ENV_FILE_LOC = '.env'
 
 
@@ -35,9 +34,14 @@ class AppConfig(BaseSettings):
     postgres_host: str
     postgres_port: int
     postgres_driver: str
-    postgres_db: str
+    postgres_auth_db: str
     postgres_user: str
     postgres_password: str
+
+    @property
+    def postgres_dsn(self) -> str:
+        return f'postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}' \
+               f'@{self.postgres_host}:{self.postgres_port}/{self.postgres_auth_db}'
 
     class Config:
         env_file = _ENV_FILE_LOC
