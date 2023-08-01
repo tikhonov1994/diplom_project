@@ -1,5 +1,7 @@
 from enum import Enum, auto
+from uuid import UUID
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import ENUM
 
@@ -23,5 +25,6 @@ UserSessionTypeEnum: ENUM = ENUM(
 class UserSession(BaseWithId):
     __tablename__ = 'user_session'
 
+    user_id: Mapped[UUID] = mapped_column(ForeignKey('user.id'))
     refresh_token: Mapped[str]
     session_type = mapped_column(UserSessionTypeEnum)
