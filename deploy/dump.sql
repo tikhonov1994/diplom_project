@@ -21,6 +21,7 @@ SET row_security = off;
 --
 
 CREATE SCHEMA content;
+CREATE SCHEMA IF NOT EXISTS auth;
 
 
 ALTER SCHEMA content OWNER TO app;
