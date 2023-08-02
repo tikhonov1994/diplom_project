@@ -2,9 +2,11 @@ from enum import Enum, auto
 from uuid import UUID, uuid4
 
 from sqlalchemy import MetaData, ForeignKey
+from sqlalchemy import Enum as SaEnum
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import ENUM
+
+from core.config import app_config
 
 name_convention = {
     'all_column_names': lambda constraint, table: '_'.join([
@@ -17,7 +19,7 @@ name_convention = {
     'pk': 'pk__%(table_name)s'
 }
 
-metadata = MetaData(naming_convention=name_convention)
+metadata = MetaData(naming_convention=name_convention, schema=app_config.api.db_schema)
 
 
 class Base(DeclarativeBase):
@@ -28,11 +30,14 @@ class IdMixin:
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
 
-class User(Base, IdMixin):
+class UserInfo(Base, IdMixin):
     __tablename__ = 'user_info'
 
-    email: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
+    user_role_id: Mapped[UUID] = mapped_column(ForeignKey('user_role.id'))
+
+    role: Mapped['UserRole'] = relationship()
     active_sessions: Mapped['UserSession'] = relationship()
 
 
@@ -41,21 +46,15 @@ class UserSessionType(str, Enum):
     ...
 
 
-UserSessionTypeEnum: ENUM = ENUM(
-    UserSessionType,
-    name="user_session_type",
-    create_constraint=True,
-    metadata=Base.metadata,
-    validate_strings=True,
-)
-
-
 class UserSession(Base, IdMixin):
     __tablename__ = 'user_session'
 
     user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id'))
     refresh_token: Mapped[str]
-    session_type = mapped_column(UserSessionTypeEnum)
+    session_type = mapped_column(SaEnum(UserSessionType, inherit_schema=True))
 
 
-__all__ = ['metadata', 'Base', 'IdMixin']
+class UserRole(Base, IdMixin):
+    __tablename__ = 'user_role'
+
+    name: Mapped[str]
