@@ -20,7 +20,7 @@ class UserEmailNotFoundException(GenericStorageException):
         return f'User with email: \'{self._instance_email}\' not found'
 
 
-class UserService(GenericStorage):
+class UserService:
 
     def __init__(self, storage: DbSessionDep) -> None:
         super().__init__(storage)
