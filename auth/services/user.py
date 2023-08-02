@@ -5,7 +5,7 @@ from typing import Annotated
 
 from fastapi import Depends
 from db.model import User
-from db.storage import DbSessionDep
+from db.storage import UserInfoStorageDep
 from db.storage.generic_storage import GenericStorage, GenericStorageException
 
 from sqlalchemy import select
@@ -22,12 +22,12 @@ class UserEmailNotFoundException(GenericStorageException):
 
 class UserService:
 
-    def __init__(self, storage: DbSessionDep) -> None:
-        super().__init__(storage)
+    def __init__(self, storage: UserInfoStorageDep) -> None:
+        self._storage = storage
 
     async def get_user_by_email(self, email: str) -> User:
         stmt = select(User).where(User.email == email)
-        if result := await self._session.execute(stmt).first():
+        if result := await self._storage.execute(stmt).first():
             return result
         raise UserEmailNotFoundException(item_type=User, email=email)
 
