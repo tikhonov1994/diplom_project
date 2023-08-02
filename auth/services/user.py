@@ -4,9 +4,9 @@ import hashlib
 from typing import Annotated
 
 from fastapi import Depends
-from db.model import User
+from db.model import UserInfo
 from db.storage import UserInfoStorageDep
-from db.storage.generic_storage import GenericStorage, GenericStorageException
+from db.storage.generic_storage import GenericStorageException
 
 from sqlalchemy import select
 
@@ -25,11 +25,11 @@ class UserService:
     def __init__(self, storage: UserInfoStorageDep) -> None:
         self._storage = storage
 
-    async def get_user_by_email(self, email: str) -> User:
-        stmt = select(User).where(User.email == email)
+    async def get_user_by_email(self, email: str) -> UserInfo:
+        stmt = select(UserInfo).where(UserInfo.email == email)
         if result := await self._storage.execute(stmt).first():
             return result
-        raise UserEmailNotFoundException(item_type=User, email=email)
+        raise UserEmailNotFoundException(item_type=UserInfo, email=email)
 
     @staticmethod
     def generate_hashed_password(password: str):
@@ -39,7 +39,7 @@ class UserService:
         return key + salt
 
     @staticmethod
-    def check_password(pass_to_check: str, user: User):
+    def check_password(pass_to_check: str, user: UserInfo):
         password = user.password_hash
         salt = password[-32:]
         new_key = hashlib.pbkdf2_hmac(

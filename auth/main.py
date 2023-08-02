@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 
 from core.config import app_config as config
 from core.logger import LOGGING
+from auth.user import router as user_router
 
 logging_config.dictConfig(LOGGING)
 
@@ -25,6 +26,7 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
 )
 
+app.include_router(user_router, prefix='/auth', tags=['users'])
 
 if __name__ == '__main__':
     uvicorn.run(
