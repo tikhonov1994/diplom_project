@@ -1,8 +1,8 @@
 from typing import Generic, TypeVar, Type
 from uuid import UUID
 
-from db.storage import DbSessionDep
-from db.models import BaseWithId
+from db.storage.session import DbSessionDep
+from db.model import Base
 
 DbModelType = TypeVar('DbModelType')
 
@@ -12,7 +12,7 @@ class GenericStorageException(Exception):
 
 
 class ItemNotFoundException(GenericStorageException):
-    def __init__(self, item_type: Type[BaseWithId], item_id: UUID) -> None:
+    def __init__(self, item_type: Type[Base], item_id: UUID) -> None:
         super().__init__()
         self._instance_t = item_type
         self._instance_id = item_id
