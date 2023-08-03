@@ -1,7 +1,4 @@
 from uuid import UUID
-import json
-
-from pydantic import BaseModel
 
 
 class ServiceExceptionBase(Exception):
@@ -9,7 +6,7 @@ class ServiceExceptionBase(Exception):
 
 
 class ServiceSingleElementException(ServiceExceptionBase):
-    def __init__(self, item_name: str, item_id: UUID, *args, **kwargs) -> None:
+    def __init__(self, item_name: str, item_id: UUID) -> None:
         super().__init__()
         self._item_name = item_name
         self._item_id = item_id
