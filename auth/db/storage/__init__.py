@@ -2,14 +2,14 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from db.storage.generic_storage import GenericStorage, ItemNotFoundException
-from db.model import UserInfo, UserRole, UserSession
+from db.storage.generic_storage import ItemNotFoundException, DbConflictException
+from db.storage.user_info_storage import UserInfoStorage
+from db.storage.role_storage import RoleStorage
 
-UserInfoStorageDep = Annotated[GenericStorage[UserInfo], Depends()]
-UserRoleStorageDep = Annotated[GenericStorage[UserRole], Depends()]
-UserSessionStorageDep = Annotated[GenericStorage[UserSession], Depends()]
+UserInfoStorageDep = Annotated[UserInfoStorage, Depends()]
+UserRoleStorageDep = Annotated[RoleStorage, Depends()]
 
 __all__ = ['UserInfoStorageDep',
            'UserRoleStorageDep',
-           'UserSessionStorageDep',
-           'ItemNotFoundException']
+           'ItemNotFoundException',
+           'DbConflictException']
