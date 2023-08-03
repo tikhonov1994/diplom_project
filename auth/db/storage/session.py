@@ -13,8 +13,6 @@ async def get_session() -> AsyncSession:
     session = __session()
     try:
         yield session
-    except:
-        await session.close()
     finally:
         await session.commit()
         await session.close()
