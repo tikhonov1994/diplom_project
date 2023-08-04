@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 from core.config import app_config as config
 from core.logger import LOGGING
 from api.v1 import users, roles
-from auth.user import router as user_router
 
 logging_config.dictConfig(LOGGING)
 
@@ -28,7 +27,6 @@ app = FastAPI(
 root_router = APIRouter(prefix='/auth/api')
 root_router.include_router(users.router, prefix='/v1/users', tags=['users'])
 root_router.include_router(roles.router, prefix='/v1/roles', tags=['roles'])
-root_router.include_router(user_router, prefix='/auth', tags=['users'])
 app.include_router(root_router)
 
 if __name__ == '__main__':
