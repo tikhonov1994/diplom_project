@@ -57,4 +57,4 @@ class UserSession(Base, IdMixin):
 class UserRole(Base, IdMixin):
     __tablename__ = 'user_role'
 
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(unique=True)
