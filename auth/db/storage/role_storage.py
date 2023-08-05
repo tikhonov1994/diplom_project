@@ -12,8 +12,8 @@ class RoleStorage(GenericStorageMixin):
 
     async def get_default_role(self) -> UserRole:
         stmt = select(UserRole).where(UserRole.name == 'user')
-        if role := await self._session.execute(stmt):
-            return role.first()
+        if role := (await self._session.execute(stmt)).first():
+            return role[0]
         role = UserRole(name='user')
-        await self._session.add(role)
+        await self._generic.add(role)
         return role

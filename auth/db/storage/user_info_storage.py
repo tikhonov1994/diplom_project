@@ -18,4 +18,4 @@ class UserInfoStorage(GenericStorageMixin):
             raise ItemNotFoundException(UserInfo, user_id)
     
     async def add_user(self, user: UserInfo):
-        await self._session.add(user)
+        await self._generic.add(user)
