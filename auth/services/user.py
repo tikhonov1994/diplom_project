@@ -80,7 +80,8 @@ class UserService:
             return False
     
     async def save_user(self, email: str, hashed_password: str):
-        user = UserInfo(email=email, password_hash=hashed_password)
+        role = await self._role_storage.get_default_role()
+        user = UserInfo(email=email, password_hash=hashed_password, user_role_id=role.id)
         await self._user_info_storage.add_user(user)
 
 
