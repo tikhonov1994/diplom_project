@@ -2,12 +2,20 @@ import asyncio
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import pool
+from sqlalchemy import pool, create_engine, schema
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from core.config import app_config
 from db.model import metadata
+
+
+def create_schema_if_not_exists() -> None:
+    _engine = create_engine(app_config.postgres_dsn)
+    _conn = _engine.connect()
+    if not _engine.dialect.has_schema(_conn, app_config.api.db_schema):
+        _conn.execute(schema.CreateSchema(app_config.api.db_schema))
+
 
 config = context.config
 if config.config_file_name is not None:
@@ -17,6 +25,7 @@ config.set_main_option(
     str(app_config.postgres_dsn))
 
 target_metadata = metadata
+create_schema_if_not_exists()
 
 
 def run_migrations_offline() -> None:
