@@ -1,6 +1,6 @@
 import uvicorn
 from logging import config as logging_config
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 from sqlalchemy import create_engine
 
@@ -19,13 +19,15 @@ engine = create_engine(
 
 app = FastAPI(
     title=config.api.project_name,
-    docs_url='/api/openapi',
-    openapi_url='/api/openapi.json',
+    docs_url='/auth/api/openapi',
+    openapi_url='/auth/api/openapi.json',
     default_response_class=ORJSONResponse,
 )
 
-app.include_router(users.router, prefix='/api/v1/users', tags=['users'])
-app.include_router(roles.router, prefix='/api/v1/roles', tags=['roles'])
+root_router = APIRouter(prefix='/auth/api')
+root_router.include_router(users.router, prefix='/v1/users', tags=['users'])
+root_router.include_router(roles.router, prefix='/v1/roles', tags=['roles'])
+app.include_router(root_router)
 
 if __name__ == '__main__':
     uvicorn.run(
