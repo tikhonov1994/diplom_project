@@ -15,5 +15,5 @@ class RoleStorage(GenericStorageMixin):
         if role := (await self._session.execute(stmt)).first():
             return role[0]
         role = UserRole(name='user')
-        await self._generic.add(role)
+        await self.generic.add(role)
         return role
