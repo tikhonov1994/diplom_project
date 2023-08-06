@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 import uvicorn
 from logging import config as logging_config
 from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -36,17 +36,17 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title=config.api.project_name,
-    docs_url='/api/openapi',
-    openapi_url='/api/openapi.json',
+    docs_url='/content/api/openapi',
+    openapi_url='/content/api/openapi.json',
     default_response_class=ORJSONResponse,
     lifespan=lifespan
 )
 
-# Подключаем роутер к серверу, указав префикс /v1/films
-# Теги указываем для удобства навигации по документации
-app.include_router(films.router, prefix='/api/v1/films', tags=['films'])
-app.include_router(genres.router, prefix='/api/v1/genres', tags=['genres'])
-app.include_router(persons.router, prefix='/api/v1/persons', tags=['persons'])
+root_router = APIRouter(prefix='/content/api')
+root_router.include_router(films.router, prefix='/v1/films', tags=['films'])
+root_router.include_router(genres.router, prefix='/v1/genres', tags=['genres'])
+root_router.include_router(persons.router, prefix='/v1/persons', tags=['persons'])
+app.include_router(root_router)
 
 if __name__ == '__main__':
     uvicorn.run(

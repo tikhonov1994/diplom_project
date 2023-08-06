@@ -16,3 +16,6 @@ class UserInfoStorage(GenericStorageMixin):
             await self._session.flush((user,))
         else:
             raise ItemNotFoundException(UserInfo, user_id)
+
+    async def add_user(self, user: UserInfo):
+        await self.generic.add(user)
