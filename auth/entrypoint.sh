@@ -1,3 +1,4 @@
 #!/bin/sh
 
-gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8002
+alembic upgrade head
+gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:8001
