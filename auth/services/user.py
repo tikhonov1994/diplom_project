@@ -1,11 +1,4 @@
-import os
-import hashlib
-
-from typing import Annotated
-
-from fastapi import Depends
 from db.model import UserInfo
-from db.storage import UserInfoStorageDep
 from db.storage.generic_storage import GenericStorageException
 from uuid import UUID
 
@@ -56,33 +49,8 @@ class UserService:
         if (await self._user_info_storage.generic._session.execute(stmt)).first():
             return True
         return False
-
-    @staticmethod
-    async def generate_hashed_password(password: str):
-        salt = os.urandom(32)
-        key = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-
-        return key + salt
-
-    @staticmethod
-    async def check_password(pass_to_check: str, user: UserInfo):
-        password = user.password_hash
-        salt = password[-32:]
-        new_key = hashlib.pbkdf2_hmac(
-            'sha256',
-            pass_to_check.encode('utf-8'), # Конвертирование пароля в байты
-            salt, 
-            100000
-        )
-        if new_key == password:
-            return True
-        else:
-            return False
     
     async def save_user(self, email: str, hashed_password: str):
         role = await self._role_storage.get_default_role()
         user = UserInfo(email=email, password_hash=hashed_password, user_role_id=role.id)
         await self._user_info_storage.add_user(user)
-
-
-UserServiceDep = Annotated[UserService, Depends()]
