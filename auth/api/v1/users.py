@@ -1,12 +1,14 @@
 from uuid import UUID
 from pydantic import EmailStr
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 
 from schemas.role import PatchUserRoleSchema
 
 from services import UserServiceDep, ServiceItemNotFound, UtilServiceDep
+from utils.deps import require_user
+from db.model import UserInfo
 
 router = APIRouter()
 
@@ -15,7 +17,8 @@ router = APIRouter()
 async def grant_role_to_user(
         user_id: UUID,
         role_info: PatchUserRoleSchema,
-        service: UserServiceDep) -> None:
+        service: UserServiceDep,
+        user: UserInfo = Depends(require_user)) -> None:
     try:
         await service.grant_role_to_user(user_id, role_info.role_id)
     except ServiceItemNotFound as exc:

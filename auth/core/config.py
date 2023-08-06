@@ -39,6 +39,14 @@ class AppConfig(BaseSettings):
     postgres_user: str
     postgres_password: str
 
+    # Token settings
+    jwt_algorithm: str
+    auth_token_expire_minutes: int
+    refresh_token_expire_minutes: int
+    jwt_public_key: str
+    jwt_private_key: str
+
+
     @property
     def postgres_dsn(self) -> str:
         return f'postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}' \
