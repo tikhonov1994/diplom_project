@@ -6,7 +6,7 @@ networks:
 
 services:
   db:
-    container_name: postgressss
+    container_name: postgres
     image: postgres:13.0-alpine
     volumes:
       - pg_volume:/var/lib/postgresql/data/
@@ -118,8 +118,6 @@ services:
       - nginx_volume:/opt/app/static
     depends_on:
       api:
-        condition: service_started
-      auth:
         condition: service_started
     ports:
       - "80:80"
