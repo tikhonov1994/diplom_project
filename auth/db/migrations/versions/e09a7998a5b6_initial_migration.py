@@ -38,6 +38,7 @@ def upgrade() -> None:
     op.create_table('user_session',
                     sa.Column('user_info_id', sa.Uuid(), nullable=False),
                     sa.Column('refresh_token', sa.String(), nullable=False),
+                    # todo добавить user-agent, дата-аутентификации
                     sa.Column('session_type',
                               sa.Enum('NATIVE', name='usersessiontype', schema='auth', inherit_schema=True),
                               nullable=True),

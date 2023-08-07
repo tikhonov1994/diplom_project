@@ -48,6 +48,7 @@ async def login(
 #     except Exception as e:
 #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid token")
 #
+    # todo закинуть старый токен
 #     # todo текущий рефреш токен удалить/отключить
 #     current_user = Authorize.get_jwt_subject()
 #
