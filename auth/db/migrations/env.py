@@ -1,18 +1,48 @@
 import asyncio
+from time import sleep
+from typing import Literal
+import logging
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import pool, create_engine, schema
 from sqlalchemy.engine import Connection
+from sqlalchemy.sql.schema import SchemaItem
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from core.config import app_config
 from db.model import metadata
 
+SaSchemaObjType = Literal[
+                      "schema",
+                      "table",
+                      "column",
+                      "index",
+                      "unique_constraint",
+                      "foreign_key_constraint",
+                  ],
+
+
+def include_object(obj: SchemaItem, _: str | None, type_: SaSchemaObjType, *__):
+    if type_ == 'table' and obj.schema != app_config.api.db_schema:
+        return False
+    return True
+
 
 def create_schema_if_not_exists() -> None:
     _engine = create_engine(app_config.postgres_dsn)
-    _conn = _engine.connect()
+    _conn_attempts = 10
+    _conn = None
+
+    while _conn_attempts:
+        try:
+            _conn = _engine.connect()
+            break
+        except Exception as exc:
+            logging.warning('Alembic failed to connect to \'%s\': %s', app_config.postgres_dsn, str(exc))
+        sleep(1)
+        _conn_attempts -= 1
+
     if not _engine.dialect.has_schema(_conn, app_config.api.db_schema):
         _conn.execute(schema.CreateSchema(app_config.api.db_schema))
 
@@ -57,6 +87,7 @@ def do_run_migrations(connection: Connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
+        include_object=include_object,
         version_table_schema=app_config.api.db_schema
     )
 

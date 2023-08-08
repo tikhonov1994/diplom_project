@@ -3,6 +3,7 @@ from sqlalchemy import select
 from db.storage.generic_storage import GenericStorageMixin
 from db.storage.session import DbSessionDep
 from db.model import UserRole
+from core.config import app_config
 
 
 class RoleStorage(GenericStorageMixin):
@@ -11,9 +12,9 @@ class RoleStorage(GenericStorageMixin):
         self._session = session
 
     async def get_default_role(self) -> UserRole:
-        stmt = select(UserRole).where(UserRole.name == 'user')
+        stmt = select(UserRole).where(UserRole.name == app_config.api.default_user_role)
         if role := (await self._session.execute(stmt)).first():
             return role[0]
-        role = UserRole(name='user')
+        role = UserRole(name=app_config.api.default_user_role)
         await self.generic.add(role)
         return role
