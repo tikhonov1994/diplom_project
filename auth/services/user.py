@@ -42,7 +42,7 @@ class UserService:
         stmt = select(UserInfo).where(UserInfo.email == email)
         if result := (await self._user_info_storage.generic._session.execute(stmt)).first():
             return result
-        raise UserEmailNotFoundException(item_type=UserInfo, email=email)
+        raise UserEmailNotFoundException(email=email)
 
     async def check_user_by_email(self, email: str) -> bool:
         stmt = select(UserInfo).where(UserInfo.email == email)

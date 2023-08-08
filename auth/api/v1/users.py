@@ -26,6 +26,6 @@ async def user_registration(user_service: UserServiceDep, email: EmailStr,
                             password: str, util_service: UtilServiceDep) -> bool:
     if await user_service.check_user_by_email(email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'User with email {email} already exists!')
-    hashed_password = await util_service.generate_hashed_password(password)
+    hashed_password = util_service.generate_hashed_password(password)
     await user_service.save_user(email, hashed_password)
     return True
