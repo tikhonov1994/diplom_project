@@ -28,11 +28,11 @@ def upgrade() -> None:
     admin_role_id = uuid4()
     admin_password = get_superuser_password()
     op.execute(f'INSERT INTO auth.user_role (id, name) VALUES (\'{admin_role_id}\', \'admin\');')
-    op.execute(f'INSERT INTO auth.user_role (id, name) VALUES (\'{uuid4()}\', \'user\');')
+    op.execute(f'INSERT INTO auth.user_role (id, name) VALUES (\'{uuid4()}\', \'{app_config.api.default_user_role}\');')
     op.execute(f'INSERT INTO auth.user_info (id, email, password_hash, user_role_id) '
                f'VALUES (\'{uuid4()}\', \'{app_config.api.admin_email}\', \'{admin_password}\', \'{admin_role_id}\');')
 
 
 def downgrade() -> None:
     op.execute(f'DELETE FROM auth.user_info WHERE email = \'{app_config.api.admin_email}\';')
-    op.execute('DELETE FROM auth.user_role WHERE name IN (\'admin\', \'user\');')
+    op.execute(f'DELETE FROM auth.user_role WHERE name IN (\'admin\', \'{app_config.api.default_user_role}\');')

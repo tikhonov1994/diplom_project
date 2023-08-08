@@ -12,6 +12,7 @@ class AuthConfig(BaseSettings):
     db_schema: str
     admin_email: str
     admin_password: str
+    default_user_role: str = 'user'
 
     cache_expire_seconds: int = 60
     logging_level: int = 20
