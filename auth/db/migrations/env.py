@@ -1,4 +1,6 @@
 import asyncio
+from time import sleep
+import logging
 from logging.config import fileConfig
 
 from alembic import context
@@ -12,7 +14,18 @@ from db.model import metadata
 
 def create_schema_if_not_exists() -> None:
     _engine = create_engine(app_config.postgres_dsn)
-    _conn = _engine.connect()
+    _conn_attempts = 10
+    _conn = None
+
+    while _conn_attempts:
+        try:
+            _conn = _engine.connect()
+            break
+        except Exception as exc:
+            logging.warning('Alembic failed to connect to \'%s\': %s', app_config.postgres_dsn, str(exc))
+        sleep(1)
+        _conn_attempts -= 1
+
     if not _engine.dialect.has_schema(_conn, app_config.api.db_schema):
         _conn.execute(schema.CreateSchema(app_config.api.db_schema))
 
