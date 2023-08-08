@@ -1,15 +1,32 @@
 import asyncio
 from time import sleep
+from typing import Literal
 import logging
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import pool, create_engine, schema
 from sqlalchemy.engine import Connection
+from sqlalchemy.sql.schema import SchemaItem
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from core.config import app_config
 from db.model import metadata
+
+SaSchemaObjType = Literal[
+                      "schema",
+                      "table",
+                      "column",
+                      "index",
+                      "unique_constraint",
+                      "foreign_key_constraint",
+                  ],
+
+
+def include_object(obj: SchemaItem, _: str | None, type_: SaSchemaObjType, *__):
+    if type_ == 'table' and obj.schema != app_config.api.db_schema:
+        return False
+    return True
 
 
 def create_schema_if_not_exists() -> None:
@@ -70,6 +87,7 @@ def do_run_migrations(connection: Connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
+        include_object=include_object,
         version_table_schema=app_config.api.db_schema
     )
 
