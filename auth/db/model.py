@@ -52,6 +52,7 @@ class UserSession(Base, IdMixin):
     user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id'))
     refresh_token: Mapped[str]
     session_type = mapped_column(SaEnum(UserSessionType, inherit_schema=True))
+    user_agent: Mapped[str] = mapped_column(nullable=True)
 
 
 class UserRole(Base, IdMixin):
