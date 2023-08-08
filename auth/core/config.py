@@ -10,6 +10,8 @@ class AuthConfig(BaseSettings):
     host: str
     port: int
     db_schema: str
+    admin_email: str
+    admin_password: str
 
     cache_expire_seconds: int = 60
     logging_level: int = 20

@@ -11,4 +11,4 @@ aiohttp==3.8.5
 SQLAlchemy==2.0.19
 psycopg==3.1.9
 psycopg-binary==3.1.9
-pydantic[email]
+email_validator==2.0.0.post2
