@@ -13,7 +13,7 @@ from sqlalchemy import create_engine
 from core.config import app_config as config
 from core.logger import LOGGING
 from api.v1 import users, roles
-from db.redis import redis
+from db import redis
 
 logging_config.dictConfig(LOGGING)
 
@@ -21,10 +21,10 @@ logging_config.dictConfig(LOGGING)
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     redis_retry = Retry(backoff=ExponentialBackoff(), retries=10)
-    redis = Redis(host=config.redis_host, port=config.redis_port, retry=redis_retry,
+    redis.redis = Redis(host=config.redis_host, port=config.redis_port, retry=redis_retry,
                               retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
     yield
-    await redis.close()
+    await redis.redis.close()
 
 engine = create_engine(
     'postgresql+%s://%s:%s@%s:%s/%s' % (

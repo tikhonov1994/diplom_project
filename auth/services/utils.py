@@ -23,7 +23,7 @@ class UtilService:
             salt,
             100000
         )
-        if new_key == password:
+        if (new_key + salt) == password:
             return True
         else:
             return False
