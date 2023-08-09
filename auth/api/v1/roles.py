@@ -12,12 +12,16 @@ router = APIRouter()
 
 
 @router.get('', response_model=list[UserRoleSchema], description='Получить список пользовтельских ролей')
-async def roles_list(service: RoleServiceDep, user: UserInfo = Depends(require_user)) -> list[UserRoleSchema]:
+async def roles_list(service: RoleServiceDep
+                     # , user: UserInfo = Depends(require_user)
+                     ) -> list[UserRoleSchema]:
     return await service.get_roles()
 
 
 @router.post('', description='Добавить пользовательскую роль')
-async def add_role(new_role: AddUserRoleSchema, service: RoleServiceDep, user: UserInfo = Depends(require_user)) -> None:
+async def add_role(new_role: AddUserRoleSchema, service: RoleServiceDep
+                   # , user: UserInfo = Depends(require_user)
+                   ) -> None:
     try:
         await service.add_role(new_role.name)
     except ServiceConflictOnAddError as err:

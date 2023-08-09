@@ -7,36 +7,26 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 
-from starlette.responses import JSONResponse
-
-from schemas.auth import Tokens
+from schemas.auth import TokensSchema
 from services import RoleServiceDep, AuthServiceDep, ServiceItemNotFound, ServiceConflictOnDeleteError, ServiceConflictOnAddError
 
+from auth.schemas.auth import LoginSchema
+
 router = APIRouter()
-
-# todo сгенерить и положить в енв и конфиг
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
 
 
 @router.post(
     path='/login',
     description='Аутентификация юзера',
-    # response_model=Tokens
+    response_model=TokensSchema
 )
 async def login(
-    # form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    request: LoginRequest,
-    # email: str,
-    # password: str,
+    validated_data: LoginSchema,
+    request: Request,
     service: AuthServiceDep,
 ):
-    result = await service.login(request.email, request.password)
+    user_agent = request.headers.get('user-agent')
+    result = await service.login(validated_data.email, validated_data.password, user_agent)
 
     return result
 

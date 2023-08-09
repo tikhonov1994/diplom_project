@@ -17,6 +17,7 @@ class Settings(BaseModel):
         app_config.jwt_public_key).decode('utf-8')
     authjwt_private_key: str = base64.b64decode(
         app_config.jwt_private_key).decode('utf-8')
+    authjwt_secret_key: str = app_config.jwt_secret_key
 
 
 @AuthJWT.load_config

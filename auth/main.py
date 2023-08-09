@@ -21,11 +21,19 @@ engine = create_engine(
     )
 )
 
-# @asynccontextmanager
-# async def lifespan(_: FastAPI):
-#     redis_db.redis = Redis(host=config.redis_host, port=config.redis_port, db=0, decode_responses=True)
-#     yield
-#     await redis_db.redis.close()
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    redis_db.redis = Redis(host=config.redis_host, port=config.redis_port, db=0, decode_responses=True)
+    yield
+    await redis_db.redis.close()
+
+# app = FastAPI(
+#     title=config.api.project_name,
+#     docs_url='/auth/api/openapi',
+#     openapi_url='/auth/api/openapi.json',
+#     default_response_class=ORJSONResponse,
+#     lifespan=lifespan,
+# )
 
 app = FastAPI(
     title=config.api.project_name,
@@ -42,8 +50,14 @@ root_router.include_router(auth.router, prefix='/v1/auth', tags=['auth'])
 app.include_router(root_router)
 
 if __name__ == '__main__':
+    # uvicorn.run(
+    #     'main:app',
+    #     host=config.api.host,
+    #     port=config.api.port,
+    # )
+
     uvicorn.run(
         'main:app',
-        host=config.api.host,
-        port=config.api.port,
+        host='0.0.0.0',
+        port=8000,
     )
