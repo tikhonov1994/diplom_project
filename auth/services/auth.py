@@ -59,7 +59,6 @@ class AuthService:
 
     @staticmethod
     async def check_password(pass_to_check: str, user: UserInfo):
-        # todo убрать / в начале и потом в байты перевести
         password = user.password_hash.decode('utf-8')
         salt = password[-32:]
         new_key = hashlib.pbkdf2_hmac(
