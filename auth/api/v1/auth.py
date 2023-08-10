@@ -1,11 +1,4 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Depends, HTTPException, Response, Request, status, Security
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel
-from passlib.context import CryptContext
-from datetime import datetime, timedelta
-from pydantic import BaseModel
+from fastapi import APIRouter, Request
 
 from schemas.auth import TokensSchema
 from services import RoleServiceDep, AuthServiceDep, ServiceItemNotFound, ServiceConflictOnDeleteError, ServiceConflictOnAddError
@@ -31,7 +24,7 @@ async def login(
 
 
 @router.post('/refresh',
-             description='Обновление токена',
+             description='Обновление токенов',
              response_model=TokensSchema)
 async def refresh(refresh_token : str, request: Request, service: AuthServiceDep):
     result = await service.refresh(refresh_token, request.headers.get('user-agent'))
