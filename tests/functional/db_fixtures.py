@@ -27,6 +27,7 @@ def db_engine_sync() -> Engine:
 @pytest.fixture(scope='session', autouse=True)
 def db_clean_up(db_engine_sync) -> None:
     db_engine_sync: AsyncEngine
+    _conn = db_engine_sync.connect()
 
     inspector = inspect(db_engine_sync)
     schemas = inspector.get_schema_names()
@@ -35,6 +36,7 @@ def db_clean_up(db_engine_sync) -> None:
         for table_name in inspector.get_table_names(schema=schema):
             # noinspection SqlWithoutWhere
             query = text(f'DELETE * FROM {schema}.{table_name};')
+            _conn.execute(query)
 
 
 @pytest.fixture(scope='session')
