@@ -25,25 +25,15 @@ async def login(
     request: Request,
     service: AuthServiceDep,
 ):
-    user_agent = request.headers.get('user-agent')
-    result = await service.login(validated_data.email, validated_data.password, user_agent)
+    result = await service.login(validated_data.email, validated_data.password, request.headers.get('user-agent'))
 
     return result
 
 
-# @router.post('/refresh')
-# def refresh(Authorize: AuthJWT = Depends()):
-#     try:
-#         Authorize.jwt_refresh_token_required()
-#     except Exception as e:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="Invalid token")
-#
-    # todo закинуть старый токен
-#     # todo текущий рефреш токен удалить/отключить
-#     current_user = Authorize.get_jwt_subject()
-#
-#     new_access_token = Authorize.create_access_token(subject=current_user)
-#     new_refresh_token = Authorize.create_refresh_token(subject=current_user)
-#
-#     # todo save to redis
-#     return {"new_access_token": new_access_token}
+@router.post('/refresh',
+             description='Обновление токена',
+             response_model=TokensSchema)
+async def refresh(refresh_token : str, request: Request, service: AuthServiceDep):
+    result = await service.refresh(refresh_token, request.headers.get('user-agent'))
+
+    return result
