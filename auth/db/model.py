@@ -41,17 +41,12 @@ class UserInfo(Base, IdMixin):
     active_sessions: Mapped['UserSession'] = relationship()
 
 
-class UserSessionType(str, Enum):
-    NATIVE = auto()
-    ...
-
 
 class UserSession(Base, IdMixin):
     __tablename__ = 'user_session'
 
     user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id'))
     refresh_token: Mapped[str]
-    session_type = mapped_column(SaEnum(UserSessionType, inherit_schema=True))
     user_agent: Mapped[str] = mapped_column(nullable=True)
 
 
