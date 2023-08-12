@@ -4,7 +4,7 @@ from aiohttp import ClientSession
 import pytest
 from http import HTTPStatus
 
-from functional.utils.db import insert_into_db
+from functional.utils.db import insert_into_db, delete_from_db
 
 ENDPOINT = '/auth/api/v1/roles/'
 pytestmark = pytest.mark.asyncio
@@ -31,7 +31,35 @@ async def test_add_role(http_auth_client) -> None:
 
 
 async def test_db_utils_examples(db_session) -> None:
+    _id = str(uuid.uuid4())
+
+    # insert into table
+    await insert_into_db(db_session,
+                         'user_role',
+                         {'id': _id,
+                          'name': 'new'}, 'auth')
+
+    # delete by id
+    await delete_from_db(db_session,
+                         'user_role',
+                         ('id', _id),
+                         'auth')
+
+    # delete when item doesn't exist (nothing happens)
+    await delete_from_db(db_session,
+                         'user_role',
+                         ('id', uuid.uuid4()),
+                         'auth')
+
+    # insert again
     await insert_into_db(db_session,
                          'user_role',
                          {'id': str(uuid.uuid4()),
-                          'name': 'new'}, 'auth')
+                          'name': 'newest'}, 'auth')
+
+    # delete by arbitrary field
+    await delete_from_db(db_session,
+                         'user_role',
+                         ('name', 'newest'),
+                         'auth')
+
