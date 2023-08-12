@@ -5,7 +5,7 @@ import pytest
 
 from functional.test_data.es_data import test_films, FANTASY_GENRE_FILM, FILM_FOR_TEST_CACHE
 
-ENDPOINT = '/api/v1/films/'
+ENDPOINT = '/content/api/v1/films/'
 
 pytestmark = pytest.mark.asyncio
 
