@@ -3,7 +3,7 @@ from fastapi import APIRouter, Request
 from schemas.auth import TokensSchema
 from services import RoleServiceDep, AuthServiceDep, ServiceItemNotFound, ServiceConflictOnDeleteError, ServiceConflictOnAddError
 
-from auth.schemas.auth import LoginSchema
+from schemas.auth import LoginSchema
 
 router = APIRouter()
 
