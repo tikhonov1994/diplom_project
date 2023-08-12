@@ -29,6 +29,13 @@ def include_object(obj: SchemaItem, _: str | None, type_: SaSchemaObjType, *__):
     return True
 
 
+def include_name(name, type_, _):
+    if type_ == "schema":
+        return name == app_config.api.db_schema
+    else:
+        return True
+
+
 def create_schema_if_not_exists() -> None:
     _engine = create_engine(app_config.postgres_dsn)
     _conn_attempts = 10
@@ -89,7 +96,9 @@ def do_run_migrations(connection: Connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
+        include_schemas=True,
         include_object=include_object,
+        include_name=include_name,
         version_table_schema=app_config.api.db_schema
     )
 
