@@ -1,3 +1,5 @@
+from typing import Generator
+
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,3 +24,15 @@ async def delete_from_db(session: AsyncSession,
     query = text(f'DELETE FROM {schema}.{table_name} WHERE {cond_field_name} = :{cond_field_name};')
     await session.execute(query, {cond_field_name: cond_field_val})
     await session.commit()
+
+
+async def get_from_db(session: AsyncSession,
+                      table_name: str,
+                      eq_condition: tuple[str, any],
+                      schema: str = 'public') -> dict[str, any] | None:
+    cond_field_name, cond_field_val = eq_condition
+    query = text(f'SELECT * FROM {schema}.{table_name} WHERE {cond_field_name} = :{cond_field_name};')
+    q_result = await session.execute(query, {cond_field_name: cond_field_val})
+    if items := q_result.mappings().all():
+        return dict(items[0])
+    return None
