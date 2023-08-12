@@ -1,5 +1,5 @@
 import hashlib
-from datetime import timedelta
+import datetime as dt
 
 from db.storage import UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep, ItemNotFoundException, DbConflictException
 from fastapi import HTTPException, status
@@ -43,7 +43,8 @@ class AuthService:
         tokens = await self._create_tokens(user, claims)
 
         token_jti = await self.Authorize.get_jti(tokens.refresh_token)
-        user_session = UserSession(id=token_jti, user_info_id=user.id, refresh_token=tokens.refresh_token, user_agent=user_agent)
+        user_session = UserSession(id=token_jti, user_info_id=user.id, refresh_token=tokens.refresh_token,
+                                   user_agent=user_agent, refresh_token_jti=token_jti, start_at=dt.datetime.now())
         await self._user_session_storage.add_session(user_session)
 
         return tokens
@@ -76,16 +77,25 @@ class AuthService:
 
         return False
 
+    async def get_session_by_jti(self, refresh_jti: str):
+        stmt = select(UserSession).where(UserSession.refresh_token_jti == refresh_jti)
+        if user_session := (await self._user_session_storage.generic._session.execute(stmt)).first():
+            return user_session[0]
+        raise ItemNotFoundException(UserSession, user_session)
+
     async def _create_tokens(self, user, claims) -> TokensSchema:
         access_token = await self.Authorize.create_access_token(
             subject=str(user.id),
-            expires_time=timedelta(minutes=app_config.auth_token_expire_minutes),
+            expires_time=dt.timedelta(minutes=app_config.auth_token_expire_minutes),
             user_claims=claims
         )
 
         refresh_token = await self.Authorize.create_refresh_token(
             subject=str(user.id),
-            expires_time=timedelta(minutes=app_config.refresh_token_expire_minutes),
+            expires_time=dt.timedelta(minutes=app_config.refresh_token_expire_minutes),
         )
 
         return TokensSchema(access_token=access_token, refresh_token=refresh_token)
+
+    async def close_session(self, user_session: UserSession):
+        await self._user_session_storage.close_session(user_session)

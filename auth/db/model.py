@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from enum import Enum, auto
 from uuid import UUID, uuid4
 
@@ -48,6 +50,9 @@ class UserSession(Base, IdMixin):
     user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id'))
     refresh_token: Mapped[str]
     user_agent: Mapped[str] = mapped_column(nullable=True)
+    refresh_token_jti: Mapped[str]
+    start_at: Mapped[datetime]
+    end_at: Mapped[datetime] = mapped_column(nullable=True)
 
 
 class UserRole(Base, IdMixin):

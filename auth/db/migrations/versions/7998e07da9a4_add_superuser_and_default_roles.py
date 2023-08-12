@@ -10,7 +10,7 @@ from uuid import uuid4
 from alembic import op
 
 from core.config import app_config
-from services.utils import UtilService
+from services.utils import generate_hashed_password
 
 # revision identifiers, used by Alembic.
 revision = '7998e07da9a4'
@@ -20,7 +20,7 @@ depends_on = None
 
 
 def get_superuser_password() -> tuple[str, str]:
-    hashed_su_password = UtilService().generate_hashed_password(app_config.api.admin_password)
+    hashed_su_password = generate_hashed_password(app_config.api.admin_password)
     return '\\x' + hashed_su_password.hex()
 
 
