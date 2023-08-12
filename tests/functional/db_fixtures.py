@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
 
-from sqlalchemy import inspect, create_engine, Engine, text
+from sqlalchemy import inspect, create_engine, Engine, text, MetaData
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncEngine, AsyncSession
 from settings import test_settings as config
 
@@ -26,17 +26,27 @@ def db_engine_sync() -> Engine:
 
 @pytest.fixture(scope='session', autouse=True)
 def db_clean_up(db_engine_sync) -> None:
-    db_engine_sync: AsyncEngine
+    db_engine_sync: Engine
     _conn = db_engine_sync.connect()
 
     inspector = inspect(db_engine_sync)
     schemas = inspector.get_schema_names()
 
+    allowed_schemas = ['public',
+                       'content',
+                       config.auth_db_schema]
+
     for schema in schemas:
-        for table_name in inspector.get_table_names(schema=schema):
+        if schema not in allowed_schemas:
+            continue
+        m = MetaData()
+        m.reflect(db_engine_sync, schema)
+        for table_name in m.sorted_tables[::-1]:
             # noinspection SqlWithoutWhere
-            query = text(f'DELETE * FROM {schema}.{table_name};')
+            query = text(f'DELETE FROM {table_name} WHERE TRUE;')
             _conn.execute(query)
+    _conn.commit()
+    _conn.close()
 
 
 @pytest.fixture(scope='session')

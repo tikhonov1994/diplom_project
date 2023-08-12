@@ -5,6 +5,9 @@ class TestSettings(BaseSettings):
     api_host: str
     api_port: int
 
+    auth_host: str
+    auth_port: int
+
     elastic_host: str
     elastic_port: int
 
@@ -12,7 +15,7 @@ class TestSettings(BaseSettings):
     redis_port: str
 
     postgres_host: str
-    postgres_port = int
+    postgres_port: int
     postgres_db: str
     postgres_user: str
     postgres_password: str

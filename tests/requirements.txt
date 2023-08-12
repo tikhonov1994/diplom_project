@@ -4,3 +4,6 @@ pytest==7.4.0
 pytest-asyncio==0.21.1
 pydantic[dotenv]==1.10.11
 aiohttp==3.8.4
+SQLAlchemy==2.0.19
+psycopg==3.1.9
+psycopg-binary==3.1.9
