@@ -3,7 +3,7 @@ from pydantic import EmailStr
 
 from fastapi import APIRouter, HTTPException, Request
 from starlette import status
-from schemas.auth import TokensSchema
+from schemas.auth import TokensSchema, HistorySchema
 
 from schemas.role import PatchUserRoleSchema
 
@@ -37,3 +37,9 @@ async def user_registration(user_service: UserServiceDep, email: EmailStr,
 async def logout(auth_service: AuthServiceDep) -> dict:
     await auth_service.logout()
     return {"detail": "Refresh token has been revoke"}
+
+
+@router.get('/history', description='История входов в аккаунт', response_model=list[HistorySchema])
+async def get_history(auth_service: AuthServiceDep):
+    sessions = await auth_service.get_user_history()
+    return [HistorySchema.parse_obj(item_obj) for item_obj in sessions]
