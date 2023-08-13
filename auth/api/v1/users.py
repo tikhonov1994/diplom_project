@@ -8,7 +8,7 @@ from schemas.auth import TokensSchema, HistorySchema
 from schemas.role import PatchUserRoleSchema
 from schemas.user import PatchUserInfoSchema
 
-from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep
+from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep, ServiceUniqueFieldViolation
 
 router = APIRouter()
 
@@ -28,8 +28,11 @@ async def grant_role_to_user(
 async def register_user(user_service: UserServiceDep, email: EmailStr,
                         password: str, auth_service: AuthServiceDep,
                         request: Request):
-    await user_service.save_user(email, password)
-    return await auth_service.login(email, password, request.headers.get('user-agent'))
+    try:
+        await user_service.save_user(email, password)
+        return await auth_service.login(email, password, request.headers.get('user-agent'))
+    except ServiceUniqueFieldViolation as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
 
 
 @router.delete('/logout', description='Выход из системы')
@@ -42,9 +45,13 @@ async def logout(auth_service: AuthServiceDep) -> dict:
 async def update_credentials(auth_service: AuthServiceDep,
                              user_service: UserServiceDep,
                              changes: PatchUserInfoSchema) -> None:
-    user_id = await auth_service.get_user_id()
+    if not changes.email and not changes.password:
+        raise HTTPException(status_code=status.HTTP_304_NOT_MODIFIED)
     try:
+        user_id = await auth_service.get_user_id()
         await user_service.update_credentials(user_id, changes)
+    except ServiceUniqueFieldViolation as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
     except ServiceItemNotFound as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 

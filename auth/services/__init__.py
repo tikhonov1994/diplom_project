@@ -7,7 +7,9 @@ from services.user import UserService
 from services.auth import AuthService
 from services.exceptions import (ServiceItemNotFound,
                                  ServiceConflictOnAddError,
-                                 ServiceConflictOnDeleteError)
+                                 ServiceConflictOnDeleteError,
+                                 ServiceUniqueFieldViolation,
+                                 ServiceItemSearchException)
 
 RoleServiceDep = Annotated[RoleService, Depends()]
 UserServiceDep = Annotated[UserService, Depends()]
@@ -18,4 +20,6 @@ __all__ = ['RoleServiceDep',
            'AuthServiceDep',
            'ServiceItemNotFound',
            'ServiceConflictOnAddError',
-           'ServiceConflictOnDeleteError']
+           'ServiceConflictOnDeleteError',
+           'ServiceUniqueFieldViolation',
+           'ServiceItemSearchException']

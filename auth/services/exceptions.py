@@ -27,6 +27,11 @@ class ServiceItemSearchException(ServiceExceptionBase):
         return f'Can\'t find {self._item_name} with \'{self._s_field}\' == \'{self._s_val}\''
 
 
+class ServiceUniqueFieldViolation(ServiceItemSearchException):
+    def __str__(self) -> str:
+        return f'{self._item_name} with \'{self._s_field}\' = \'{self._s_val}\' already exists'
+
+
 class ServiceConflictOnAddError(ServiceExceptionBase):
     def __init__(self, item_dict: dict[str, any]) -> None:
         self._schema_json = item_dict
