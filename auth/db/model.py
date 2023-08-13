@@ -43,7 +43,6 @@ class UserInfo(Base, IdMixin):
     active_sessions: Mapped['UserSession'] = relationship()
 
 
-
 class UserSession(Base, IdMixin):
     __tablename__ = 'user_session'
 

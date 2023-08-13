@@ -3,7 +3,8 @@ import time
 import datetime as dt
 
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
-                        ItemNotFoundException, DbConflictException, RedisDep)
+                        ItemNotFoundException, DbConflictException)
+from db.redis import RedisDep
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from db.model import UserInfo, UserSession
@@ -23,13 +24,13 @@ class AuthService:
                  user_info_storage: UserInfoStorageDep,
                  user_session_storage: UserSessionStorageDep,
                  role_storage: UserRoleStorageDep,
-                 Authorize: AuthDep,
+                 authorize: AuthDep,
                  redis: RedisDep,
                  ) -> None:
         self._user_info_storage = user_info_storage
         self._user_session_storage = user_session_storage
         self._role_storage = role_storage
-        self.Authorize = Authorize
+        self.Authorize = authorize
         self.redis = redis
 
     async def login(self, email: str, password: str, user_agent: str) -> TokensSchema:
@@ -62,7 +63,7 @@ class AuthService:
         salt = password[-32:]
         new_key = hashlib.pbkdf2_hmac(
             'sha256',
-            pass_to_check.encode('utf-8'), # Конвертирование пароля в байты
+            pass_to_check.encode('utf-8'),  # Конвертирование пароля в байты
             salt,
             100000
         )
