@@ -108,10 +108,7 @@ class AuthService:
         await self._user_session_storage.close_session(user_session)
 
     async def logout(self):
-        try:
-            await self.Authorize.jwt_required()
-        except JWTDecodeError:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is invalid!')
+        await self.get_token()
         decrypted_token = await self.Authorize.get_raw_jwt()
         jti = decrypted_token['jti']
         refresh_jti = decrypted_token['refresh_jti']
@@ -120,3 +117,25 @@ class AuthService:
         self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
         self.redis.setex(refresh_jti, (refresh_exp - int(time.time())), 'true')
         await self.close_session(user_session)
+
+    async def get_token(self):
+        try:
+            await self.Authorize.jwt_required()
+        except JWTDecodeError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is invalid!')
+    
+    async def get_user_history(self):
+        await self.get_token()
+        user_id = await self.Authorize.get_jwt_subject()
+        stmt = select(UserSession).where(UserSession.user_info_id == user_id)
+        if sessions := await self._user_info_storage.generic._session.execute(stmt):
+            res = []
+            for i in sessions:
+                res.append({
+                    'session_started': i[0].start_at,
+                    'session_ended': i[0].end_at,
+                    'user_agent': i[0].user_agent
+                })
+            print(res)
+            return res
+        return None
