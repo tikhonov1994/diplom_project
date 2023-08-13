@@ -1,12 +1,13 @@
 from uuid import UUID
 from pydantic import EmailStr
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Request
 from starlette import status
+from schemas.auth import TokensSchema
 
 from schemas.role import PatchUserRoleSchema
 
-from services import UserServiceDep, ServiceItemNotFound, UtilServiceDep
+from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep, UtilServiceDep
 from utils.deps import require_user
 from db.model import UserInfo
 
@@ -24,11 +25,18 @@ async def grant_role_to_user(
     except ServiceItemNotFound as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 
-@router.post('/register', description='Регистрация пользователя')
+
+@router.post('/register', description='Регистрация пользователя', response_model=TokensSchema)
 async def user_registration(user_service: UserServiceDep, email: EmailStr,
-                            password: str, util_service: UtilServiceDep) -> bool:
-    if await user_service.check_user_by_email(email):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'User with email {email} already exists!')
-    hashed_password = util_service.generate_hashed_password(password)
-    await user_service.save_user(email, hashed_password)
-    return True
+                            password: str, auth_service: AuthServiceDep,
+                            request: Request):
+    await user_service.save_user(email, password)
+    result = await auth_service.login(email, password, request.headers.get('user-agent'))
+
+    return result
+
+
+@router.delete('/logout', description='Выход из системы')
+async def logout(auth_service: AuthServiceDep) -> dict:
+    await auth_service.logout()
+    return {"detail": "Refresh token has been revoke"}

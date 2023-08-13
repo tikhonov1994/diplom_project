@@ -1,19 +1,17 @@
 import hashlib
 import time
-from datetime import timedelta
+import datetime as dt
 
-from db.storage import UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep, ItemNotFoundException, DbConflictException
-from passlib.context import CryptContext
-from db.redis_db import RedisDep
-from fastapi import APIRouter, Depends, HTTPException, Response, Request, status
+from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
+                        ItemNotFoundException, DbConflictException, RedisDep)
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from db.model import UserInfo, UserSession
 from schemas.auth import TokensSchema
 from core.config import app_config
+
 import logging
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 
 logging.basicConfig(filename='logging.log', level=int(20),
                     format='%(asctime)s  %(message)s')
@@ -25,8 +23,8 @@ class AuthService:
                  user_info_storage: UserInfoStorageDep,
                  user_session_storage: UserSessionStorageDep,
                  role_storage: UserRoleStorageDep,
+                 Authorize: AuthDep,
                  redis: RedisDep,
-                 Authorize: AuthDep
                  ) -> None:
         self._user_info_storage = user_info_storage
         self._user_session_storage = user_session_storage
@@ -52,10 +50,13 @@ class AuthService:
 
         token_jti = await self.Authorize.get_jti(tokens.refresh_token)
         user_session = UserSession(id=token_jti,user_info_id=user.id, refresh_token=tokens.refresh_token, user_agent=user_agent)
+        user_session = UserSession(id=token_jti, user_info_id=user.id, refresh_token=tokens.refresh_token,
+                                   user_agent=user_agent, refresh_token_jti=token_jti, start_at=dt.datetime.now())
         await self._user_session_storage.add_session(user_session)
 
         return tokens
 
+<<<<<<< HEAD
     async def refresh(self, refresh_token: str, user_agent: str) -> TokensSchema:
         try:
             await self.Authorize._verify_jwt_in_request(token=refresh_token, type_token='refresh', token_from='headers')
@@ -111,6 +112,11 @@ class AuthService:
 
     @staticmethod
     async def check_password(pass_to_check: str, user: UserInfo):
+=======
+    @staticmethod
+    async def check_password(pass_to_check: str, user: UserInfo):
+        # FIXME
+>>>>>>> main
         password = user.password_hash.decode('utf-8')
         salt = password[-32:]
         new_key = hashlib.pbkdf2_hmac(
@@ -136,16 +142,53 @@ class AuthService:
 
         return False
 
+<<<<<<< HEAD
     async def _create_tokens(self, user, claims) -> TokensSchema:
         access_token = await self.Authorize.create_access_token(
             subject=str(user.id),
             expires_time=timedelta(minutes=app_config.auth_token_expire_minutes),
+=======
+    async def get_session_by_jti(self, refresh_jti: str):
+        stmt = select(UserSession).where(UserSession.refresh_token_jti == refresh_jti)
+        if user_session := (await self._user_session_storage.generic._session.execute(stmt)).first():
+            return user_session[0]
+        raise ItemNotFoundException(UserSession, user_session)
+
+    async def _create_tokens(self, user, claims) -> TokensSchema:
+        access_token = await self.Authorize.create_access_token(
+            subject=str(user.id),
+            expires_time=dt.timedelta(minutes=app_config.auth_token_expire_minutes),
+>>>>>>> main
             user_claims=claims
         )
 
         refresh_token = await self.Authorize.create_refresh_token(
             subject=str(user.id),
+<<<<<<< HEAD
             expires_time=timedelta(minutes=app_config.refresh_token_expire_minutes),
         )
 
         return TokensSchema(access_token=access_token, refresh_token=refresh_token)
+=======
+            expires_time=dt.timedelta(minutes=app_config.refresh_token_expire_minutes),
+        )
+
+        return TokensSchema(access_token=access_token, refresh_token=refresh_token)
+
+    async def close_session(self, user_session: UserSession):
+        await self._user_session_storage.close_session(user_session)
+
+    async def logout(self):
+        try:
+            await self.Authorize.jwt_required()
+        except JWTDecodeError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is invalid!')
+        decrypted_token = await self.Authorize.get_raw_jwt()
+        jti = decrypted_token['jti']
+        refresh_jti = decrypted_token['refresh_jti']
+        user_session = await self.get_session_by_jti(refresh_jti)
+        refresh_exp = (await self.Authorize.get_raw_jwt(user_session.refresh_token))['exp']
+        self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
+        self.redis.setex(refresh_jti, (refresh_exp - int(time.time())), 'true')
+        await self.close_session(user_session)
+>>>>>>> main

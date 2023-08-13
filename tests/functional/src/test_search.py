@@ -25,7 +25,7 @@ async def test_search_films_by_title(http_client, search_query, expected_answer)
         'page_number': 1,
         'page_size': 25
     }
-    async with http_client.get(url=f'/api/v1/films/search/', params=params) as response:
+    async with http_client.get(url=f'/content/api/v1/films/search/', params=params) as response:
         data = await response.json()
 
         assert response.status == expected_answer['status_code']
@@ -47,7 +47,7 @@ async def test_search_films_by_person(http_client, search_query, expected_answer
         'page_number': 1,
         'page_size': 25
     }
-    async with http_client.get(url=f'/api/v1/persons/search/', params=params) as response:
+    async with http_client.get(url=f'/content/api/v1/persons/search/', params=params) as response:
         data = await response.json()
 
         assert response.status == expected_answer['status_code']

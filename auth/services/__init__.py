@@ -8,7 +8,6 @@ from services.auth import AuthService
 from services.exceptions import (ServiceItemNotFound,
                                  ServiceConflictOnAddError,
                                  ServiceConflictOnDeleteError)
-from services.utils import UtilService
 
 RoleServiceDep = Annotated[RoleService, Depends()]
 UserServiceDep = Annotated[UserService, Depends()]

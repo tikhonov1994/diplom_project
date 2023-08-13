@@ -44,11 +44,9 @@ class AppConfig(BaseSettings):
 
     # Token settings
     jwt_algorithm: str
+    jwt_secret_key: str
     auth_token_expire_minutes: int
     refresh_token_expire_minutes: int
-    jwt_public_key: str
-    jwt_private_key: str
-    jwt_secret_key: str
 
 
     @property

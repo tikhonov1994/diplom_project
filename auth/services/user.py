@@ -1,3 +1,6 @@
+from fastapi import HTTPException
+from starlette import status
+
 from db.model import UserInfo
 from db.storage.generic_storage import GenericStorageException
 from uuid import UUID
@@ -5,6 +8,7 @@ from uuid import UUID
 from db.storage import UserInfoStorageDep, UserRoleStorageDep, ItemNotFoundException
 from services.exceptions import ServiceItemNotFound
 from schemas.user import UserInfoSchema
+from services.utils import generate_hashed_password
 
 from sqlalchemy import select
 
@@ -50,7 +54,10 @@ class UserService:
             return True
         return False
     
-    async def save_user(self, email: str, hashed_password: str):
+    async def save_user(self, email: str, password: str):
+        if await self.check_user_by_email(email):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'User with email {email} already exists!')
+        hashed_password = generate_hashed_password(password)
         role = await self._role_storage.get_default_role()
         user = UserInfo(email=email, password_hash=hashed_password, user_role_id=role.id)
         await self._user_info_storage.add_user(user)
