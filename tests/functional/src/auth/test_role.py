@@ -1,3 +1,5 @@
+import time
+
 from aiohttp import ClientSession
 from sqlalchemy.ext.asyncio import AsyncSession
 import pytest
@@ -18,8 +20,9 @@ async def test_add_role(http_auth_client: ClientSession, db_session: AsyncSessio
 
     async with http_auth_client.post(ENDPOINT, json={'name': new_role_name}) as response:
         assert response.status == HTTPStatus.OK
-        # wait for response from client, so get_from_db() will run strictly after Auth services' session commit
-        _ = await response.json()
+
+    # wait for auth service to commit changes
+    time.sleep(0.2)
 
     role_in_db = await get_from_db(db_session, 'user_role', ('name', new_role_name), 'auth')
     assert role_in_db is not None
@@ -63,6 +66,9 @@ async def test_delete_role(http_auth_client: ClientSession, db_session: AsyncSes
 
     async with http_auth_client.delete(ENDPOINT + id_to_delete) as response:
         assert response.status == HTTPStatus.OK
+
+    # wait for auth service to commit changes
+    time.sleep(0.2)
 
     assert await get_from_db(db_session, 'user_role', ('id', id_to_delete), 'auth') is None
 
