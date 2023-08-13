@@ -6,7 +6,7 @@ import pytest
 from http import HTTPStatus
 import uuid
 
-from functional.utils.db import insert_into_db, get_from_db, clear_db_table
+from functional.utils.db import insert_into_db, get_from_db
 from functional.test_data.db_data import test_user_info
 
 ENDPOINT = '/auth/api/v1/roles/'
