@@ -4,7 +4,7 @@ import pytest
 from http import HTTPStatus
 import uuid
 
-from functional.utils.db import insert_into_db, delete_from_db, get_from_db, clear_db_table
+from functional.utils.db import insert_into_db, get_from_db, clear_db_table
 from functional.test_data.db_data import test_user_info
 
 ENDPOINT = '/auth/api/v1/roles/'
@@ -18,6 +18,8 @@ async def test_add_role(http_auth_client: ClientSession, db_session: AsyncSessio
 
     async with http_auth_client.post(ENDPOINT, json={'name': new_role_name}) as response:
         assert response.status == HTTPStatus.OK
+        # wait for response from client, so get_from_db() will run strictly after Auth services' session commit
+        _ = await response.json()
 
     role_in_db = await get_from_db(db_session, 'user_role', ('name', new_role_name), 'auth')
     assert role_in_db is not None
