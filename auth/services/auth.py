@@ -1,6 +1,7 @@
 import hashlib
 import time
 import datetime as dt
+from uuid import UUID
 
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
                         ItemNotFoundException, DbConflictException)
@@ -123,7 +124,11 @@ class AuthService:
             await self.Authorize.jwt_required()
         except JWTDecodeError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is invalid!')
-    
+
+    async def get_user_id(self) -> UUID:
+        await self.get_token()
+        return UUID(await self.Authorize.get_jwt_subject())
+
     async def get_user_history(self):
         await self.get_token()
         user_id = await self.Authorize.get_jwt_subject()

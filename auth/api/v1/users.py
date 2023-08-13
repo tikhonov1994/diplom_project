@@ -6,6 +6,7 @@ from starlette import status
 from schemas.auth import TokensSchema, HistorySchema
 
 from schemas.role import PatchUserRoleSchema
+from schemas.user import PatchUserInfoSchema
 
 from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep
 
@@ -24,19 +25,28 @@ async def grant_role_to_user(
 
 
 @router.post('/register', description='Регистрация пользователя', response_model=TokensSchema)
-async def user_registration(user_service: UserServiceDep, email: EmailStr,
-                            password: str, auth_service: AuthServiceDep,
-                            request: Request):
+async def register_user(user_service: UserServiceDep, email: EmailStr,
+                        password: str, auth_service: AuthServiceDep,
+                        request: Request):
     await user_service.save_user(email, password)
-    result = await auth_service.login(email, password, request.headers.get('user-agent'))
-
-    return result
+    return await auth_service.login(email, password, request.headers.get('user-agent'))
 
 
 @router.delete('/logout', description='Выход из системы')
 async def logout(auth_service: AuthServiceDep) -> dict:
     await auth_service.logout()
-    return {"detail": "Refresh token has been revoke"}
+    return {"detail": "Refresh token has been revoked"}
+
+
+@router.patch('/credentials', description='Изменение данных пользователя')
+async def update_credentials(auth_service: AuthServiceDep,
+                             user_service: UserServiceDep,
+                             changes: PatchUserInfoSchema) -> None:
+    user_id = await auth_service.get_user_id()
+    try:
+        await user_service.update_credentials(user_id, changes)
+    except ServiceItemNotFound as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 
 
 @router.get('/history', description='История входов в аккаунт', response_model=list[HistorySchema])
