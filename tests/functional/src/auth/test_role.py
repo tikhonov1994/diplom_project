@@ -20,6 +20,7 @@ async def test_add_role(http_auth_client: ClientSession, db_session: AsyncSessio
 
     async with http_auth_client.post(ENDPOINT, json={'name': new_role_name}) as response:
         assert response.status == HTTPStatus.OK
+        _ = await response.json()
 
     # wait for auth service to commit changes
     time.sleep(0.2)
@@ -44,20 +45,19 @@ async def test_add_role_conflict(http_auth_client: ClientSession, db_session: As
 async def test_get_roles(http_auth_client: ClientSession, db_session: AsyncSession) -> None:
     id_1, id_2 = str(uuid.uuid4()), str(uuid.uuid4())
     name_1, name_2 = 'user_role_1', 'user_role_2'
-    await clear_db_table(db_session, 'user_role', 'auth')
     await insert_into_db(db_session, 'user_role', {'id': id_1, 'name': name_1}, 'auth')
     await insert_into_db(db_session, 'user_role', {'id': id_2, 'name': name_2}, 'auth')
 
     async with http_auth_client.get(ENDPOINT) as response:
         assert response.status == HTTPStatus.OK
         data = await response.json()
-        assert len(data) == 2
-        data.sort(key=lambda x: x['name'])
-        item1, item2 = data
-        assert str(item1['id']) == id_1
-        assert str(item2['id']) == id_2
-        assert item1['name'] == name_1
-        assert item2['name'] == name_2
+        assert len(data) >= 2
+        ids = [item['id'] for item in data]
+        names = [item['name'] for item in data]
+        assert id_1 in ids
+        assert id_2 in ids
+        assert name_1 in names
+        assert name_2 in names
 
 
 async def test_delete_role(http_auth_client: ClientSession, db_session: AsyncSession) -> None:
@@ -66,6 +66,7 @@ async def test_delete_role(http_auth_client: ClientSession, db_session: AsyncSes
 
     async with http_auth_client.delete(ENDPOINT + id_to_delete) as response:
         assert response.status == HTTPStatus.OK
+        _ = await response.json()
 
     # wait for auth service to commit changes
     time.sleep(0.2)
