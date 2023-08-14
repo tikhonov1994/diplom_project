@@ -1,8 +1,10 @@
+import datetime
 import hashlib
 import time
 import datetime as dt
 from uuid import UUID
 
+from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
                         ItemNotFoundException, DbConflictException)
 from db.redis import RedisDep
@@ -11,9 +13,10 @@ from sqlalchemy import select
 from db.model import UserInfo, UserSession
 from schemas.auth import TokensSchema
 from core.config import app_config
+from services.utils import check_password
+
 
 import logging
-from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 
 logging.basicConfig(filename='logging.log', level=int(20),
                     format='%(asctime)s  %(message)s')
@@ -25,14 +28,14 @@ class AuthService:
                  user_info_storage: UserInfoStorageDep,
                  user_session_storage: UserSessionStorageDep,
                  role_storage: UserRoleStorageDep,
-                 authorize: AuthDep,
-                 redis: RedisDep,
+                 Authorize: AuthDep,
+                 # redis: RedisDep,
                  ) -> None:
         self._user_info_storage = user_info_storage
         self._user_session_storage = user_session_storage
         self._role_storage = role_storage
-        self.Authorize = authorize
-        self.redis = redis
+        self.Authorize = Authorize
+        # self.redis = redis
 
     async def login(self, email: str, password: str, user_agent: str) -> TokensSchema:
         user = await self.authenticate_user(email, password)
@@ -103,28 +106,11 @@ class AuthService:
 
         return tokens
 
-    @staticmethod
-    async def check_password(pass_to_check: str, user: UserInfo):
-        # FIXME
-        password = user.password_hash.decode('utf-8')
-        salt = password[-32:]
-        new_key = hashlib.pbkdf2_hmac(
-            'sha256',
-            pass_to_check.encode('utf-8'),  # Конвертирование пароля в байты
-            salt,
-            100000
-        )
-
-        if (new_key + salt) == password:
-            return True
-        else:
-            return False
-
     async def authenticate_user(self, email: str, password: str) -> UserInfo:
         stmt = select(UserInfo).where(UserInfo.email == email)
         if user := (await self._user_info_storage.generic._session.execute(stmt)).first():
-            # fixme
-            # if not await self.check_password(password, user[0]):
+            # FIXME не работает
+            # if not await check_password(password, user[0]):
             #     return False
 
             return user[0]
@@ -162,8 +148,8 @@ class AuthService:
         refresh_jti = decrypted_token['refresh_jti']
         user_session = await self.get_session_by_jti(refresh_jti)
         refresh_exp = (await self.Authorize.get_raw_jwt(user_session.refresh_token))['exp']
-        self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
-        self.redis.setex(refresh_jti, (refresh_exp - int(time.time())), 'true')
+        # self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
+        # self.redis.setex(refresh_jti, (refresh_exp - int(time.time())), 'true')
         await self.close_session(user_session)
 
     async def get_token(self):
@@ -172,13 +158,7 @@ class AuthService:
         except JWTDecodeError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is invalid!')
 
-    async def get_user_id(self) -> UUID:
-        await self.get_token()
-        return UUID(await self.Authorize.get_jwt_subject())
-
-    async def get_user_history(self):
-        await self.get_token()
-        user_id = await self.Authorize.get_jwt_subject()
+    async def get_user_history(self, user_id: int):
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)
         if sessions := await self._user_info_storage.generic._session.execute(stmt):
             res = []

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 
 from schemas.role import UserRoleSchema, AddUserRoleSchema
@@ -10,19 +10,15 @@ from db.model import UserInfo
 
 router = APIRouter()
 
-# fixme почему-то на ручки даже не доходит запрос как-будто на все кроме логина - в network даже нет запроса на бэк
+
 @router.get('', response_model=list[UserRoleSchema],
             description='Получить список пользовтельских ролей',
-            tags=['authorize']
-            )
-async def roles_list(service: RoleServiceDep,
-                     user: UserInfo = Depends(require_user)
-                     ) -> list[UserRoleSchema]:
+            tags=['auth_protected_routes'])
+async def roles_list(service: RoleServiceDep, user: UserInfo = Depends(require_user)) -> list[UserRoleSchema]:
     return await service.get_roles()
 
 
-@router.post('', description='Добавить пользовательскую роль', tags=['authorize']
-             )
+@router.post('', description='Добавить пользовательскую роль', tags=['auth_protected_routes'])
 async def add_role(new_role: AddUserRoleSchema, service: RoleServiceDep, user: UserInfo = Depends(require_user)) -> None:
     try:
         await service.add_role(new_role.name)
@@ -30,7 +26,7 @@ async def add_role(new_role: AddUserRoleSchema, service: RoleServiceDep, user: U
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(err))
 
 
-@router.delete('/{role_id}', description='Удалить пользовательскую роль', tags=['authorize'])
+@router.delete('/{role_id}', description='Удалить пользовательскую роль', tags=['auth_protected_routes'])
 async def delete_role(role_id: UUID, service: RoleServiceDep, user: UserInfo = Depends(require_user)) -> None:
     try:
         await service.delete_role(role_id)

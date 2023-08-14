@@ -10,6 +10,7 @@ class Settings(BaseModel):
     authjwt_algorithm: str = app_config.jwt_algorithm
     authjwt_decode_algorithms: List[str] = [app_config.jwt_algorithm]
     authjwt_token_location: set = {'headers'}
+    authjwt_header_name: str = 'jwt-token'
     authjwt_cookie_csrf_protect: bool = False
     authjwt_secret_key: str = app_config.jwt_secret_key
 
@@ -19,8 +20,8 @@ def get_config():
     return Settings()
 
 
-@AuthJWT.token_in_denylist_loader
-async def check_if_token_in_denylist(decrypted_token):
-    jti = decrypted_token["jti"]
-    entry = redis.get(jti)
-    return entry and entry == "true"
+# @AuthJWT.token_in_denylist_loader
+# async def check_if_token_in_denylist(decrypted_token):
+#     jti = decrypted_token["jti"]
+#     entry = redis.get(jti)
+#     return entry and entry == "true"
