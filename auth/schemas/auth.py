@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class LoginSchema(BaseModel):
@@ -12,3 +13,9 @@ class TokensSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class HistorySchema(BaseModel):
+    session_started: datetime
+    session_ended: datetime | None
+    user_agent: str

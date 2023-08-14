@@ -26,6 +26,14 @@ async def delete_from_db(session: AsyncSession,
     await session.commit()
 
 
+async def clear_db_table(session: AsyncSession,
+                         table_name: str,
+                         schema: str = 'public') -> None:
+    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
+    await session.execute(query)
+    await session.commit()
+
+
 async def get_from_db(session: AsyncSession,
                       table_name: str,
                       eq_condition: tuple[str, any],

@@ -57,9 +57,9 @@ class GenericStorage(Generic[DbModelType]):
         _instance = await self.get(item_id)
         try:
             await self._session.delete(_instance)
+            await self._session.flush()
         except IntegrityError:
             raise DbConflictException
-        await self._session.flush()
 
 
 def get_generic_storage(item_type: Type[Base], session: AsyncSession) -> GenericStorage:

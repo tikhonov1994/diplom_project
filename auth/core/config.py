@@ -48,7 +48,6 @@ class AppConfig(BaseSettings):
     auth_token_expire_minutes: int
     refresh_token_expire_minutes: int
 
-
     @property
     def postgres_dsn(self) -> str:
         return f'postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}' \

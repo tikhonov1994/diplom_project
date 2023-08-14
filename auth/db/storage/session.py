@@ -11,10 +11,13 @@ __session = async_sessionmaker(__engine, expire_on_commit=False)
 
 async def get_session() -> AsyncSession:
     session = __session()
+    # noinspection PyBroadException
     try:
         yield session
-    finally:
         await session.commit()
+    except Exception:
+        await session.rollback()
+    finally:
         await session.close()
 
 

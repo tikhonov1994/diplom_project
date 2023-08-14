@@ -35,6 +35,12 @@ class AppConfig(BaseSettings):
     elastic_host: str
     elastic_port: int
 
+    # Token settings
+    jwt_algorithm: str
+    jwt_secret_key: str
+    auth_token_expire_minutes: int
+    refresh_token_expire_minutes: int
+
     class Config:
         env_file = _ENV_FILE_LOC
 

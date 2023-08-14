@@ -36,12 +36,16 @@ def db_clean_up(db_engine_sync) -> None:
                        'content',
                        config.auth_db_schema]
 
+    prohibited_tables = ['alembic_version']
+
     for schema in schemas:
         if schema not in allowed_schemas:
             continue
         m = MetaData()
         m.reflect(db_engine_sync, schema)
         for table_name in m.sorted_tables[::-1]:
+            if table_name.name in prohibited_tables:
+                continue
             # noinspection SqlWithoutWhere
             query = text(f'DELETE FROM {table_name} WHERE TRUE;')
             _conn.execute(query)
