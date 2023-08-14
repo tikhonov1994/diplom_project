@@ -14,3 +14,8 @@ test_user_info = {
     'password_hash': test_password_and_hash_pair.hash,
     'user_role_id': str(uuid4())
 }
+
+test_register = {
+    'email': 'new_user@test_service.com',
+    'password': 'hackme',
+}
