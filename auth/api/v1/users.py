@@ -1,7 +1,7 @@
 from uuid import UUID
 from pydantic import EmailStr
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from starlette import status
 from schemas.auth import TokensSchema, HistorySchema
 
@@ -9,6 +9,8 @@ from schemas.role import PatchUserRoleSchema
 from schemas.user import PatchUserInfoSchema
 
 from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep, ServiceUniqueFieldViolation
+from utils.deps import require_user
+from db.model import UserInfo
 
 router = APIRouter()
 
@@ -17,7 +19,8 @@ router = APIRouter()
 async def grant_role_to_user(
         user_id: UUID,
         role_info: PatchUserRoleSchema,
-        service: UserServiceDep) -> None:
+        service: UserServiceDep,
+        user: UserInfo = Depends(require_user)) -> None:
     try:
         await service.grant_role_to_user(user_id, role_info.role_id)
     except ServiceItemNotFound as exc:
@@ -36,7 +39,7 @@ async def register_user(user_service: UserServiceDep, email: EmailStr,
 
 
 @router.delete('/logout', description='Выход из системы')
-async def logout(auth_service: AuthServiceDep) -> dict:
+async def logout(auth_service: AuthServiceDep, user: UserInfo = Depends(require_user)) -> dict:
     await auth_service.logout()
     return {"detail": "Refresh token has been revoked"}
 

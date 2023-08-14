@@ -3,6 +3,7 @@ import time
 import datetime as dt
 from uuid import UUID
 
+from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
                         ItemNotFoundException, DbConflictException)
 from db.redis import RedisDep
@@ -13,7 +14,6 @@ from schemas.auth import TokensSchema
 from core.config import app_config
 
 import logging
-from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 
 logging.basicConfig(filename='logging.log', level=int(20),
                     format='%(asctime)s  %(message)s')
@@ -50,10 +50,58 @@ class AuthService:
         }
         tokens = await self._create_tokens(user, claims)
 
-        token_jti = await self.Authorize.get_jti(tokens.refresh_token)
-        user_session = UserSession(id=token_jti, user_info_id=user.id, refresh_token=tokens.refresh_token,
-                                   user_agent=user_agent, refresh_token_jti=token_jti, start_at=dt.datetime.now())
+        new_access_token_data = await self.Authorize.get_raw_jwt(tokens.access_token)
+        expire_time = datetime.datetime.fromtimestamp(new_access_token_data['exp'])
+        refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
+
+        # user_session = UserSession(user_info_id=user.id, refresh_token=refresh_token_jti, expires_in=expire_time, user_agent=user_agent)
+
+        user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti, start_at=dt.datetime.now(), end_at=expire_time)
+
         await self._user_session_storage.add_session(user_session)
+
+        return tokens
+
+    async def refresh(self, refresh_token: str, user_agent: str) -> TokensSchema:
+        try:
+            # используется protected метод т.к. публичный требует чтобы токен был в хедерах/куках
+            await self.Authorize._verify_jwt_in_request(token=refresh_token, type_token='refresh', token_from='headers')
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+
+        refresh_token_data = await self.Authorize.get_raw_jwt(refresh_token)
+        if not refresh_token_data['sub']:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail='Could not refresh access token')
+
+        if refresh_token_data['exp'] < time.time():
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Refresh token expired",
+            )
+
+        user = await self._user_info_storage.generic.get(refresh_token_data['sub'])
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail='The user belonging to this token not exist')
+
+        current_session = await self._user_session_storage.get_session_by_refresh_token(refresh_token_data['jti'])
+        if not current_session:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail='Could not refresh access token')
+
+        user_role = await self._role_storage.generic.get(user.user_role_id)
+        claims = {
+            'email': user.email,
+            'role': user_role.name,
+            'user_agent': user_agent,
+        }
+        tokens = await self._create_tokens(user, claims)
+
+        new_access_token_data = await self.Authorize.get_raw_jwt(tokens.access_token)
+        expire_time = datetime.datetime.fromtimestamp(new_access_token_data['exp'])
+        refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
+        await self._user_session_storage.refresh_session(current_session.id, refresh_token_jti, expire_time)
 
         return tokens
 
@@ -92,15 +140,16 @@ class AuthService:
         raise ItemNotFoundException(UserSession, user_session)
 
     async def _create_tokens(self, user, claims) -> TokensSchema:
+        refresh_token = await self.Authorize.create_refresh_token(
+            subject=str(user.id),
+            expires_time=dt.timedelta(minutes=app_config.refresh_token_expire_minutes),
+        )
+        claims["refresh_jti"] = await self.Authorize.get_jti(refresh_token)
+
         access_token = await self.Authorize.create_access_token(
             subject=str(user.id),
             expires_time=dt.timedelta(minutes=app_config.auth_token_expire_minutes),
             user_claims=claims
-        )
-
-        refresh_token = await self.Authorize.create_refresh_token(
-            subject=str(user.id),
-            expires_time=dt.timedelta(minutes=app_config.refresh_token_expire_minutes),
         )
 
         return TokensSchema(access_token=access_token, refresh_token=refresh_token)
