@@ -1,10 +1,8 @@
-import datetime
 import hashlib
 import time
 import datetime as dt
 from uuid import UUID
 
-from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
                         ItemNotFoundException, DbConflictException)
 from db.redis import RedisDep
@@ -15,6 +13,7 @@ from schemas.auth import TokensSchema
 from core.config import app_config
 
 import logging
+from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 
 logging.basicConfig(filename='logging.log', level=int(20),
                     format='%(asctime)s  %(message)s')
@@ -54,8 +53,6 @@ class AuthService:
         new_access_token_data = await self.Authorize.get_raw_jwt(tokens.access_token)
         expire_time = datetime.datetime.fromtimestamp(new_access_token_data['exp'])
         refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
-
-        # user_session = UserSession(user_info_id=user.id, refresh_token=refresh_token_jti, expires_in=expire_time, user_agent=user_agent)
 
         user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti, start_at=dt.datetime.now(), end_at=expire_time)
 
