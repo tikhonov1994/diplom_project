@@ -95,11 +95,6 @@ async def test_get_by_id_from_cache(http_client, add_data_to_index, delete_data_
 
     await add_data_to_index(index='movies', id_=FILM_FOR_TEST_CACHE['id'], document=FILM_FOR_TEST_CACHE)
 
-    # Почему-то в кэш запись попадает только после нескольких запросов
-    async with http_client.get(endpoint, headers=test_auth_headers) as new_response:
-        assert new_response.status == 200
-    async with http_client.get(endpoint, headers=test_auth_headers) as new_response:
-        assert new_response.status == 200
     async with http_client.get(endpoint, headers=test_auth_headers) as new_response:
         assert new_response.status == 200
 

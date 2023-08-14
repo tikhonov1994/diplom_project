@@ -29,9 +29,12 @@ async def lifespan(_: FastAPI):
     redis_retry = Retry(backoff=ExponentialBackoff(), retries=10)
     redis_cache.redis = Redis(host=config.redis_host, port=config.redis_port, retry=redis_retry,
                               retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
+    # noinspection HttpUrlsUsage
     elastic.es = AsyncElasticsearch(hosts=[f'http://{config.elastic_host}:{config.elastic_port}'],
                                     retry_on_timeout=True)
-    FastAPICache.init(RedisBackend(redis_cache.redis), prefix="fastapi-cache")
+    FastAPICache.init(RedisBackend(redis_cache.redis),
+                      prefix="fastapi-cache",
+                      key_builder=redis_cache.request_key_builder)
     yield
     await redis_cache.redis.close()
     await elastic.es.close()

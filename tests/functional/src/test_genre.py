@@ -41,11 +41,6 @@ async def test_get_by_id_from_cache(http_client, add_data_to_index, delete_data_
 
     await add_data_to_index(index='genres', id_=test_genre['id'], document=test_genre)
 
-    # Почему то в кэш запись попадает только после второго успешного запроса
-    async with http_client.get(f'{ENDPOINT}{test_genre.get("id")}', headers=test_auth_headers) as new_response:
-        assert new_response.status == HTTPStatus.OK
-    async with http_client.get(f'{ENDPOINT}{test_genre.get("id")}', headers=test_auth_headers) as new_response:
-        assert new_response.status == HTTPStatus.OK
     async with http_client.get(f'{ENDPOINT}{test_genre.get("id")}', headers=test_auth_headers) as new_response:
         assert new_response.status == HTTPStatus.OK
 
