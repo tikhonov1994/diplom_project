@@ -1,13 +1,13 @@
 from uuid import UUID
 from pydantic import EmailStr
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from starlette import status
 from schemas.auth import TokensSchema
 
 from schemas.role import PatchUserRoleSchema
 
-from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep, UtilServiceDep
+from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep
 from utils.deps import require_user
 from db.model import UserInfo
 
@@ -28,7 +28,8 @@ async def grant_role_to_user(
 
 @router.post('/register', description='Регистрация пользователя', response_model=TokensSchema)
 async def user_registration(user_service: UserServiceDep, email: EmailStr,
-                            password: str, auth_service: AuthServiceDep,
+                            password: str,
+                            auth_service: AuthServiceDep,
                             request: Request):
     await user_service.save_user(email, password)
     result = await auth_service.login(email, password, request.headers.get('user-agent'))
@@ -36,7 +37,7 @@ async def user_registration(user_service: UserServiceDep, email: EmailStr,
     return result
 
 
-@router.delete('/logout', description='Выход из системы')
-async def logout(auth_service: AuthServiceDep) -> dict:
+@router.delete('/logout', description='Выход из системы', operation_id="authorize")
+async def logout(auth_service: AuthServiceDep, user: UserInfo = Depends(require_user)) -> dict:
     await auth_service.logout()
     return {"detail": "Refresh token has been revoke"}

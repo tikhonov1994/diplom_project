@@ -12,11 +12,9 @@ from services.exceptions import (ServiceItemNotFound,
 RoleServiceDep = Annotated[RoleService, Depends()]
 UserServiceDep = Annotated[UserService, Depends()]
 AuthServiceDep = Annotated[AuthService, Depends()]
-UtilServiceDep = Annotated[UtilService, Depends()]
 
 __all__ = ['RoleServiceDep',
            'UserServiceDep',
-           'UtilServiceDep',
            'AuthServiceDep',
            'ServiceItemNotFound',
            'ServiceConflictOnAddError',

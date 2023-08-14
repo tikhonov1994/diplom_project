@@ -48,8 +48,7 @@ class UserSession(Base, IdMixin):
     __tablename__ = 'user_session'
 
     user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id'))
-    refresh_token: Mapped[str]
-    user_agent: Mapped[str] = mapped_column(nullable=True)
+    user_agent: Mapped[str] = mapped_column(nullable=False)
     refresh_token_jti: Mapped[str]
     start_at: Mapped[datetime]
     end_at: Mapped[datetime] = mapped_column(nullable=True)
