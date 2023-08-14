@@ -25,7 +25,9 @@ async def film_details(film_id: UUID, service: FilmServiceDep, _: UserRequiredDe
             description='Получение списка фильмов с фильтрацией и сортировкой.',
             response_model=FilmList)
 @cache(expire=config.api.cache_expire_seconds)
-async def films_filter(service: FilmServiceDep, sort: Optional[Literal["imdb_rating"]] = None, genre: UUID | None = None,
+async def films_filter(service: FilmServiceDep,
+                       sort: Optional[Literal["imdb_rating"]] = None,
+                       genre: UUID | None = None,
                        page_number: Annotated[int, Query(gt=0)] = 1,
                        page_size: Annotated[int, Query(gt=0, lt=10_000)] = 50) -> FilmList:
     return await service.get_list(
@@ -40,7 +42,9 @@ async def films_filter(service: FilmServiceDep, sort: Optional[Literal["imdb_rat
             description='Получение списка фильмов с поиском.',
             response_model=FilmList)
 @cache(expire=config.api.cache_expire_seconds)
-async def films_search(service: FilmServiceDep, query: str | None = None,
+async def films_search(service: FilmServiceDep,
+                       _: UserRequiredDep,
+                       query: str | None = None,
                        page_number: Annotated[int, Query(gt=0)] = 1,
                        page_size: Annotated[int, Query(gt=0, lt=10_000)] = 50) -> FilmList:
     return await service.get_list(

@@ -56,4 +56,4 @@ def current_user(valid_token: Annotated[dict, Depends(valid_access_token)]) -> C
 
 UserRequiredDep = Annotated[CurrentUser, Depends(current_user)]
 
-__all__ = ['UserRequiredDep']
+__all__ = ['UserRequiredDep', 'AuthExceptionBase']

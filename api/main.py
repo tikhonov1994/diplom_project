@@ -3,7 +3,8 @@ from contextlib import asynccontextmanager
 import uvicorn
 from logging import config as logging_config
 from elasticsearch import AsyncElasticsearch
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request
+from fastapi.responses import JSONResponse
 from fastapi.responses import ORJSONResponse
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -11,9 +12,11 @@ from redis.asyncio import Redis
 from redis.backoff import ExponentialBackoff
 from redis.asyncio.retry import Retry
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
+from starlette import status
 
 from api.v1 import films, genres, persons
 from core.config import app_config as config
+from core.auth import AuthExceptionBase
 from db.storage.backends import elastic
 from db import redis_cache
 from core.logger import LOGGING
@@ -41,6 +44,15 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan
 )
+
+
+@app.exception_handler(AuthExceptionBase)
+async def auth_exception_handler(_: Request, exc: AuthExceptionBase):
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content={'message': str(exc)},
+    )
+
 
 root_router = APIRouter(prefix='/content/api')
 root_router.include_router(films.router, prefix='/v1/films', tags=['films'])
