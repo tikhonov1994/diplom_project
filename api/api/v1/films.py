@@ -6,6 +6,7 @@ from fastapi_cache.decorator import cache
 from starlette import status
 
 from core.config import app_config as config
+from core.auth import UserRequiredDep
 from models.film import Film, FilmList
 from services.film import FilmServiceDep
 
@@ -14,7 +15,7 @@ router = APIRouter()
 
 @router.get('/{film_id}', response_model=Film, description='Получить фильм по id')
 @cache(expire=config.api.cache_expire_seconds)
-async def film_details(film_id: UUID, service: FilmServiceDep) -> Film:
+async def film_details(film_id: UUID, service: FilmServiceDep, _: UserRequiredDep) -> Film:
     if film := await service.get_by_id(film_id):
         return film
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found')
