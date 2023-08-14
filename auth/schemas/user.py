@@ -10,6 +10,9 @@ class UserInfoSchema(BaseModel):
     email: str
     role: UserRoleSchema
 
+    class Config:
+        orm_mode = True
+
 
 class PatchUserInfoSchema(BaseModel):
     email: EmailStr | None = None

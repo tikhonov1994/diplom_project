@@ -70,14 +70,15 @@ root_router.include_router(roles.router, prefix='/v1/roles', tags=['roles'])
 root_router.include_router(auth.router, prefix='/v1/auth', tags=['auth'])
 app.include_router(root_router)
 
-def custom_openapi():
+
+def add_token_header_to_auth_routes():
     if app.openapi_schema:
         return app.openapi_schema
 
     openapi_schema = get_openapi(
-        title="Custom title",
+        title="Auth service",
         version="2.5.0",
-        description="This is a very custom OpenAPI schema",
+        description="Сервис авторизации",
         routes=app.routes,
     )
 
@@ -90,19 +91,15 @@ def custom_openapi():
     }
 
     # Get routes from index 4 because before that fastapi define router for /openapi.json, /redoc, /docs, etc
-    # Get all router where operation_id is authorize
     router_authorize = [
-        # route for route in app.routes[4:] if route.operation_id is not None and "authorize" in route.operation_id
-        route for route in app.routes[4:] if "authorize" in route.tags
+        route for route in app.routes[4:] if "auth_protected_routes" in route.tags
     ]
 
     for route in router_authorize:
         method = list(route.methods)[0].lower()
         try:
-            # If the router has another parameter
             openapi_schema["paths"][route.path][method]["parameters"].append(headers)
         except Exception:
-            # If the router doesn't have a parameter
             openapi_schema["paths"][route.path][method].update(
                 {"parameters": [headers]}
             )
@@ -110,7 +107,8 @@ def custom_openapi():
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
-app.openapi = custom_openapi
+
+app.openapi = add_token_header_to_auth_routes
 
 
 if __name__ == '__main__':

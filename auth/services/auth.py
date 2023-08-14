@@ -179,9 +179,7 @@ class AuthService:
         await self.get_token()
         return UUID(await self.Authorize.get_jwt_subject())
 
-    async def get_user_history(self):
-        await self.get_token()
-        user_id = await self.Authorize.get_jwt_subject()
+    async def get_user_history(self, user_id: int):
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)
         if sessions := await self._user_info_storage.generic._session.execute(stmt):
             res = []

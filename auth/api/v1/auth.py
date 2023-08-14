@@ -1,14 +1,9 @@
-from typing import Annotated
-
-from fastapi import APIRouter, Request, Header, Depends
+from fastapi import APIRouter, Request
 
 from schemas.auth import TokensSchema
 from services import RoleServiceDep, AuthServiceDep, ServiceItemNotFound, ServiceConflictOnDeleteError, ServiceConflictOnAddError
 
 from schemas.auth import LoginSchema
-
-from auth.db.model import UserInfo
-from auth.utils.deps import require_user
 
 router = APIRouter()
 
