@@ -9,9 +9,7 @@ from db.redis import redis
 class Settings(BaseModel):
     authjwt_algorithm: str = app_config.jwt_algorithm
     authjwt_decode_algorithms: List[str] = [app_config.jwt_algorithm]
-    authjwt_token_location: set = {'cookies', 'headers'}
-    authjwt_access_cookie_key: str = 'access_token'
-    authjwt_refresh_cookie_key: str = 'refresh_token'
+    authjwt_token_location: set = {'headers'}
     authjwt_cookie_csrf_protect: bool = False
     authjwt_secret_key: str = app_config.jwt_secret_key
 
