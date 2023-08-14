@@ -13,7 +13,6 @@ from schemas.auth import TokensSchema
 from core.config import app_config
 from services.utils import check_password
 
-
 import logging
 
 logging.basicConfig(filename='logging.log', level=int(20),
@@ -43,10 +42,9 @@ class AuthService:
                 detail="Incorrect username or password",
             )
 
-        user_role = await self._role_storage.generic.get(user.user_role_id)
         claims = {
             'email': email,
-            'role': user_role.name,
+            'role': user.role.name,
             'user_agent': user_agent,
         }
         tokens = await self._create_tokens(user, claims)
@@ -55,7 +53,8 @@ class AuthService:
         expire_time = datetime.datetime.fromtimestamp(new_access_token_data['exp'])
         refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
 
-        user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti, start_at=dt.datetime.now(), end_at=expire_time)
+        user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti,
+                                   start_at=dt.datetime.now(), end_at=expire_time)
 
         await self._user_session_storage.add_session(user_session)
 
@@ -104,16 +103,11 @@ class AuthService:
 
         return tokens
 
-    async def authenticate_user(self, email: str, password: str) -> UserInfo:
-        stmt = select(UserInfo).where(UserInfo.email == email)
-        if user := (await self._user_info_storage.generic._session.execute(stmt)).first():
-            # FIXME не работает
-            # if not await check_password(password, user[0]):
-            #     return False
-
-            return user[0]
-
-        return False
+    async def authenticate_user(self, email: str, password: str) -> UserInfo | None:
+        if user := await self._user_info_storage.get_user_by_email(email):
+            if check_password(password, user):
+                return user
+        return None
 
     async def get_session_by_jti(self, refresh_jti: str):
         stmt = select(UserSession).where(UserSession.refresh_token_jti == refresh_jti)
