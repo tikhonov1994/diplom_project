@@ -1,9 +1,13 @@
-from fastapi import APIRouter, Request
+from typing import Annotated
+
+from fastapi import APIRouter, Request, Header, Depends
 
 from schemas.auth import TokensSchema
 from services import RoleServiceDep, UserServiceDep, AuthServiceDep, ServiceItemNotFound, ServiceConflictOnDeleteError, ServiceConflictOnAddError
 
 from schemas.auth import LoginSchema, HistorySchema
+
+from db.model import UserInfo
 
 router = APIRouter()
 
@@ -19,6 +23,13 @@ async def login(
     service: AuthServiceDep,
 ):
     result = await service.login(validated_data.email, validated_data.password, request.headers.get('user-agent'))
+
+    return result
+
+
+@router.post('/refresh', description='Обновление токенов', response_model=TokensSchema)
+async def refresh(refresh_token : str, request: Request, service: AuthServiceDep):
+    result = await service.refresh(refresh_token, request.headers.get('user-agent'))
 
     return result
 
