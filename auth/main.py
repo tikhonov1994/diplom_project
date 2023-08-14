@@ -18,10 +18,6 @@ from db import redis
 
 logging_config.dictConfig(LOGGING)
 
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-]
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):

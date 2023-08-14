@@ -20,8 +20,8 @@ def get_config():
     return Settings()
 
 
-# @AuthJWT.token_in_denylist_loader
-# async def check_if_token_in_denylist(decrypted_token):
-#     jti = decrypted_token["jti"]
-#     entry = redis.get(jti)
-#     return entry and entry == "true"
+@AuthJWT.token_in_denylist_loader
+async def check_if_token_in_denylist(decrypted_token):
+    jti = decrypted_token["jti"]
+    entry = redis.get(jti)
+    return entry and entry == "true"

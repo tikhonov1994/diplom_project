@@ -1,8 +1,6 @@
 import datetime
-import hashlib
 import time
 import datetime as dt
-from uuid import UUID
 
 from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
@@ -29,13 +27,13 @@ class AuthService:
                  user_session_storage: UserSessionStorageDep,
                  role_storage: UserRoleStorageDep,
                  Authorize: AuthDep,
-                 # redis: RedisDep,
+                 redis: RedisDep,
                  ) -> None:
         self._user_info_storage = user_info_storage
         self._user_session_storage = user_session_storage
         self._role_storage = role_storage
         self.Authorize = Authorize
-        # self.redis = redis
+        self.redis = redis
 
     async def login(self, email: str, password: str, user_agent: str) -> TokensSchema:
         user = await self.authenticate_user(email, password)
@@ -148,8 +146,8 @@ class AuthService:
         refresh_jti = decrypted_token['refresh_jti']
         user_session = await self.get_session_by_jti(refresh_jti)
         refresh_exp = (await self.Authorize.get_raw_jwt(user_session.refresh_token))['exp']
-        # self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
-        # self.redis.setex(refresh_jti, (refresh_exp - int(time.time())), 'true')
+        self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
+        self.redis.setex(refresh_jti, (refresh_exp - int(time.time())), 'true')
         await self.close_session(user_session)
 
     async def get_token(self):
