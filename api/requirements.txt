@@ -8,3 +8,4 @@ fastapi-cache2==0.2.1
 gunicorn==20.1.0
 python-dotenv==1.0.0
 aiohttp==3.8.5
+python-jose==3.3.0

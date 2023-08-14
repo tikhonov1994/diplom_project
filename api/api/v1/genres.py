@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from starlette import status
 
 from core.config import app_config as config
+from core.auth import UserRequiredDep
 from services.genre import GenreServiceDep
 
 router = APIRouter()
@@ -20,7 +21,9 @@ class Genre(BaseModel):
             description='Получение жанра по его id.',
             response_model=Genre)
 @cache(expire=config.api.cache_expire_seconds)
-async def genre_details(genre_id: UUID, service: GenreServiceDep) -> Genre:
+async def genre_details(genre_id: UUID,
+                        _: UserRequiredDep,
+                        service: GenreServiceDep) -> Genre:
     if genre := await service.get_by_id(genre_id):
         return genre
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Genre not found')
