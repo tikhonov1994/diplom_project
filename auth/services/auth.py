@@ -13,6 +13,8 @@ from sqlalchemy import select
 from db.model import UserInfo, UserSession
 from schemas.auth import TokensSchema
 from core.config import app_config
+from services.utils import check_password
+
 
 import logging
 
@@ -104,28 +106,11 @@ class AuthService:
 
         return tokens
 
-    @staticmethod
-    async def check_password(pass_to_check: str, user: UserInfo):
-        # FIXME
-        password = user.password_hash.decode('utf-8')
-        salt = password[-32:]
-        new_key = hashlib.pbkdf2_hmac(
-            'sha256',
-            pass_to_check.encode('utf-8'),  # Конвертирование пароля в байты
-            salt,
-            100000
-        )
-
-        if (new_key + salt) == password:
-            return True
-        else:
-            return False
-
     async def authenticate_user(self, email: str, password: str) -> UserInfo:
         stmt = select(UserInfo).where(UserInfo.email == email)
         if user := (await self._user_info_storage.generic._session.execute(stmt)).first():
-            # fixme
-            # if not await self.check_password(password, user[0]):
+            # FIXME не работает
+            # if not await check_password(password, user[0]):
             #     return False
 
             return user[0]
@@ -172,10 +157,6 @@ class AuthService:
             await self.Authorize.jwt_required()
         except JWTDecodeError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is invalid!')
-
-    async def get_user_id(self) -> UUID:
-        await self.get_token()
-        return UUID(await self.Authorize.get_jwt_subject())
 
     async def get_user_history(self, user_id: int):
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)

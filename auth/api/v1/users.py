@@ -58,7 +58,10 @@ async def update_credentials(user_service: UserServiceDep,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 
 
-@router.get('/history', description='История входов в аккаунт', response_model=list[HistorySchema])
+@router.get('/history',
+            description='История входов в аккаунт',
+            response_model=list[HistorySchema],
+            tags=['auth_protected_routes'])
 async def get_history(auth_service: AuthServiceDep, user: UserInfo = Depends(require_user)):
     sessions = await auth_service.get_user_history(user.id)
     return [HistorySchema.parse_obj(item_obj) for item_obj in sessions]
