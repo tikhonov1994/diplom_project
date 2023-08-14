@@ -7,3 +7,4 @@ aiohttp==3.8.4
 SQLAlchemy==2.0.19
 psycopg==3.1.9
 psycopg-binary==3.1.9
+python-jose==3.3.0

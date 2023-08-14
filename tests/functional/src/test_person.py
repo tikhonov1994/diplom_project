@@ -4,20 +4,26 @@ import uuid
 from http import HTTPStatus
 
 from functional.test_data.es_data import test_persons
+from functional.test_data.auth_data import test_auth_headers
 
 ENDPOINT = '/content/api/v1/persons/'
 pytestmark = pytest.mark.asyncio
 
 
-async def test_get_by_id(http_client) -> None:
+async def test_get_by_id_auth(http_client) -> None:
     async with http_client.get(f'{ENDPOINT}{test_persons[0]["id"]}') as response:
+        assert response.status == HTTPStatus.FORBIDDEN
+
+
+async def test_get_by_id(http_client) -> None:
+    async with http_client.get(f'{ENDPOINT}{test_persons[0]["id"]}', headers=test_auth_headers) as response:
         data = await response.json()
         assert response.status == HTTPStatus.OK
         assert data.get('full_name') == 'George Lucas'
 
 
 async def test_get_invalid_id(http_client) -> None:
-    async with http_client.get(f'{ENDPOINT}{uuid.uuid4().hex}') as response:
+    async with http_client.get(f'{ENDPOINT}{uuid.uuid4().hex}', headers=test_auth_headers) as response:
         assert response.status == HTTPStatus.NOT_FOUND
 
 
@@ -32,20 +38,20 @@ async def test_get_films_by_person_id(http_client) -> None:
 async def test_get_by_id_from_cache(http_client, add_data_to_index, delete_data_from_index) -> None:
     test_person = {'id': '32c426ed-69d8-4306-829a-1aa8f3363b2c', 'full_name': 'Test Person', 'films': []}
 
-    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}') as new_response:
+    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}', headers=test_auth_headers) as new_response:
         assert new_response.status == HTTPStatus.NOT_FOUND
 
     await add_data_to_index(index='persons', id_=test_person['id'], document=test_person)
 
     # Почему то в кэш запись попадает только после второго успешного запроса
-    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}') as new_response:
+    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}', headers=test_auth_headers) as new_response:
         assert new_response.status == HTTPStatus.OK
-    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}') as new_response:
+    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}', headers=test_auth_headers) as new_response:
         assert new_response.status == HTTPStatus.OK
 
     await delete_data_from_index(index='persons', id_=test_person['id'])
 
-    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}') as new_response:
+    async with http_client.get(f'{ENDPOINT}{test_person.get("id")}', headers=test_auth_headers) as new_response:
         new_data = await new_response.json()
         assert new_response.status == HTTPStatus.OK
         assert new_data.get('full_name') == 'Test Person'

@@ -22,6 +22,10 @@ class TestSettings(BaseSettings):
     postgres_driver: str
     auth_db_schema: str
 
+    # Token settings
+    jwt_algorithm: str
+    jwt_secret_key: str
+
     @property
     def postgres_dsn(self) -> str:
         return f'postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}' \
