@@ -15,7 +15,7 @@ from db.model import UserInfo
 router = APIRouter()
 
 
-@router.patch('/{user_id}/role', description='Установить роль для пользователя')
+@router.patch('/{user_id}/role', description='Установить роль для пользователя', tags=['authorize'])
 async def grant_role_to_user(
         user_id: UUID,
         role_info: PatchUserRoleSchema,

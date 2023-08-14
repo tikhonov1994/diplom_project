@@ -10,14 +10,12 @@ async def require_user(
         await Authorize._verifying_token(token)
         # await Authorize.jwt_required()
     except Exception as e:
-        kek = 'wqe'
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Access token is expired",
         )
 
     user_id = await Authorize.get_jwt_subject()
-    kek = ''
     current_user = await user_service.get_user_info(user_id)
     if not current_user:
         raise HTTPException(
