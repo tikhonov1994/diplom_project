@@ -55,8 +55,6 @@ class AuthService:
         expire_time = datetime.datetime.fromtimestamp(new_access_token_data['exp'])
         refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
 
-        # user_session = UserSession(user_info_id=user.id, refresh_token=refresh_token_jti, expires_in=expire_time, user_agent=user_agent)
-
         user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti, start_at=dt.datetime.now(), end_at=expire_time)
 
         await self._user_session_storage.add_session(user_session)
