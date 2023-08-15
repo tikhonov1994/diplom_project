@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from uuid import uuid4
 
 from jose import jwt
 
@@ -11,7 +12,8 @@ test_claims = {
     'email': test_user_info['email'],
     'role': 'test_user_role',
     'user_agent': 'test_user_agent',
-    'type': 'access'
+    'type': 'access',
+    'jti': str(uuid4())
 }
 
 test_access_token = jwt.encode(claims=test_claims,
