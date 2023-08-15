@@ -4,7 +4,7 @@ from uuid import UUID
 
 from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
-                        ItemNotFoundException, DbConflictException)
+                        ItemNotFoundException, DbConflictException, UserEmailNotFoundException)
 from db.redis import RedisDep
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -104,9 +104,12 @@ class AuthService:
         return tokens
 
     async def authenticate_user(self, email: str, password: str) -> UserInfo | None:
-        if user := await self._user_info_storage.get_user_by_email(email):
+        try:
+            user = await self._user_info_storage.get_user_by_email(email)
             if check_password(password, user):
                 return user
+        except UserEmailNotFoundException:
+            return False
         return None
 
     async def get_session_by_jti(self, refresh_jti: str):

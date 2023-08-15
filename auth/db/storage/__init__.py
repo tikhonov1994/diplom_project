@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from db.storage.generic_storage import ItemNotFoundException, DbConflictException
-from db.storage.user_info_storage import UserInfoStorage
+from db.storage.user_info_storage import UserInfoStorage, UserEmailNotFoundException
 from db.storage.user_session_storage import UserSessionStorage
 from db.storage.role_storage import RoleStorage
 from core.oauth2 import AuthJWT
@@ -18,4 +18,5 @@ __all__ = ['UserInfoStorageDep',
            'UserSessionStorageDep',
            'AuthDep',
            'ItemNotFoundException',
-           'DbConflictException']
+           'DbConflictException',
+           'UserEmailNotFoundException']
