@@ -21,3 +21,13 @@ test_access_token = jwt.encode(claims=test_claims,
                                algorithm=test_settings.jwt_algorithm)
 
 test_auth_headers = {'Authorization': f'Bearer {test_access_token}'}
+
+test_refresh_credentials = {
+    'email': 'test_refresh@mail.com',
+    'password': 'refresh_password',
+}
+
+test_login_negative_credentials = {
+    'email': 'invalid_email@mail.com',
+    'password': 'some_password',
+}

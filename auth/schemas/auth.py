@@ -7,6 +7,13 @@ class LoginSchema(BaseModel):
     password: str
 
 
+class RefreshSchema(BaseModel):
+    refresh_token: str
+
+    class Config:
+        orm_mode = True
+
+
 class TokensSchema(BaseModel):
     access_token: str
     refresh_token: str

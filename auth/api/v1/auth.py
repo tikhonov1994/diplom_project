@@ -7,7 +7,7 @@ from starlette import status
 from schemas.auth import TokensSchema, HistorySchema
 from services import UserServiceDep, AuthServiceDep, ServiceUniqueFieldViolation
 
-from schemas.auth import LoginSchema
+from schemas.auth import LoginSchema, RefreshSchema
 
 
 router = APIRouter()
@@ -25,9 +25,9 @@ async def login(validated_data: LoginSchema,
 
 
 @router.post('/refresh', description='Обновление токенов', response_model=TokensSchema)
-async def refresh(refresh_token : str, request: Request, service: AuthServiceDep) -> TokensSchema:
+async def refresh(validated_data: RefreshSchema, request: Request, service: AuthServiceDep) -> TokensSchema:
     try:
-        result = await service.refresh(refresh_token, request.headers.get('user-agent'))
+        result = await service.refresh(validated_data.refresh_token, request.headers.get('user-agent'))
     except RevokedTokenError as err:
         raise HTTPException(status_code=err.status_code, detail=err.message)
 
