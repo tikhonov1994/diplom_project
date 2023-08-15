@@ -1,14 +1,9 @@
 from datetime import datetime
-
-from enum import Enum, auto
 from uuid import UUID, uuid4
 
-from sqlalchemy import MetaData, ForeignKey
-from sqlalchemy import Enum as SaEnum
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from core.config import app_config
+from sqlalchemy import ForeignKey, MetaData
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 name_convention = {
     'all_column_names': lambda constraint, table: '_'.join([

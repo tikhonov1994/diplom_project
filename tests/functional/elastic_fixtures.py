@@ -49,4 +49,3 @@ def delete_data_from_index(elastic_client) -> Callable[[str, UUID], Awaitable[No
         await delete_document_from_index(elastic_client, index, id_)
 
     return inner
-

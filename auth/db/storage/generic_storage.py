@@ -1,11 +1,10 @@
-from typing import Generic, TypeVar, Type
+from typing import Generic, Type, TypeVar
 from uuid import UUID
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-
 from db.model import Base
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 DbModelType = TypeVar('DbModelType')
 

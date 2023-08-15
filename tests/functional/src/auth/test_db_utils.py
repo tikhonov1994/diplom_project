@@ -1,9 +1,9 @@
 import uuid
 
 import pytest
+from functional.utils.db import (clear_db_table, delete_from_db, get_from_db,
+                                 insert_into_db)
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from functional.utils.db import insert_into_db, delete_from_db, get_from_db, clear_db_table
 
 pytestmark = pytest.mark.asyncio
 

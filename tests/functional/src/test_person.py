@@ -1,10 +1,9 @@
-import pytest
 import uuid
-
 from http import HTTPStatus
 
-from functional.test_data.es_data import test_persons
+import pytest
 from functional.test_data.auth_data import test_auth_headers
+from functional.test_data.es_data import test_persons
 
 ENDPOINT = '/content/api/v1/persons/'
 pytestmark = pytest.mark.asyncio

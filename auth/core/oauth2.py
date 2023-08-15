@@ -1,9 +1,9 @@
-from async_fastapi_jwt_auth import AuthJWT
+from typing import List
 
+from async_fastapi_jwt_auth import AuthJWT
 from core.config import app_config
 from db.redis import get_redis
 from pydantic import BaseModel
-from typing import List
 
 
 class Settings(BaseModel):
@@ -14,7 +14,7 @@ class Settings(BaseModel):
     authjwt_cookie_csrf_protect: bool = False
     authjwt_secret_key: str = app_config.jwt_secret_key
     authjwt_denylist_enabled: bool = True
-    authjwt_denylist_token_checks: set = {"access","refresh"}
+    authjwt_denylist_token_checks: set = {"access", "refresh"}
 
 
 @AuthJWT.load_config

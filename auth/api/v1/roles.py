@@ -1,12 +1,13 @@
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Depends
-from starlette import status
-
 from db.model import UserInfo
-from schemas.role import UserRoleSchema, AddUserRoleSchema
-from services import RoleServiceDep, ServiceItemNotFound, ServiceConflictOnDeleteError, ServiceConflictOnAddError
+from fastapi import APIRouter, Depends, HTTPException
+from schemas.role import AddUserRoleSchema, UserRoleSchema
+from starlette import status
 from utils.deps import require_user
+
+from services import (RoleServiceDep, ServiceConflictOnAddError,
+                      ServiceConflictOnDeleteError, ServiceItemNotFound)
 
 router = APIRouter()
 

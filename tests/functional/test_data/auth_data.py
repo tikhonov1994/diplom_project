@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from jose import jwt
-
-from settings import test_settings
 from functional.test_data.db_data import test_user_info
+from jose import jwt
+from settings import test_settings
 
 test_claims = {
     'exp': (datetime.now() + timedelta(hours=1)).timestamp(),

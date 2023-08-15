@@ -3,7 +3,6 @@ import time
 
 from elasticsearch import Elasticsearch
 from redis import Redis
-
 from settings import test_settings as settings
 
 

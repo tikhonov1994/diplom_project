@@ -1,5 +1,5 @@
-import os
 import hashlib
+import os
 
 from db.model import UserInfo
 

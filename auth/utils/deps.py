@@ -1,15 +1,15 @@
 from async_fastapi_jwt_auth.exceptions import MissingTokenError
+from core.oauth2 import AuthJWT
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 
-from core.oauth2 import AuthJWT
 from services import UserServiceDep
-
 
 _bearer = HTTPBearer()
 
 
-async def require_user(user_service: UserServiceDep, _ = Depends(_bearer), authorize: AuthJWT = Depends()):
+async def require_user(user_service: UserServiceDep, _=Depends(_bearer),
+                       authorize: AuthJWT = Depends()):
     try:
         await authorize.jwt_required()
         user_id = await authorize.get_jwt_subject()

@@ -1,15 +1,14 @@
 from typing import Annotated
 
 from fastapi import Depends
-
+from services.auth import AuthService
+from services.exceptions import (ServiceConflictOnAddError,
+                                 ServiceConflictOnDeleteError,
+                                 ServiceItemNotFound,
+                                 ServiceItemSearchException,
+                                 ServiceUniqueFieldViolation)
 from services.role import RoleService
 from services.user import UserService
-from services.auth import AuthService
-from services.exceptions import (ServiceItemNotFound,
-                                 ServiceConflictOnAddError,
-                                 ServiceConflictOnDeleteError,
-                                 ServiceUniqueFieldViolation,
-                                 ServiceItemSearchException)
 
 RoleServiceDep = Annotated[RoleService, Depends()]
 UserServiceDep = Annotated[UserService, Depends()]

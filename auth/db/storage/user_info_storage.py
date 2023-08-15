@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from sqlalchemy import select
-
-from db.storage.generic_storage import GenericStorageMixin, ItemNotFoundException
-from db.storage.session import DbSessionDep
 from db.model import UserInfo, UserRole
+from db.storage.generic_storage import (GenericStorageMixin,
+                                        ItemNotFoundException)
+from db.storage.session import DbSessionDep
+from sqlalchemy import select
 
 
 class UserInfoStorageException(Exception):

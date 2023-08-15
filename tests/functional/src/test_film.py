@@ -1,11 +1,11 @@
 import uuid
-
 from http import HTTPStatus
+
 import pytest
 from aiohttp.client import ClientSession
-
-from functional.test_data.es_data import test_films, FANTASY_GENRE_FILM, FILM_FOR_TEST_CACHE
 from functional.test_data.auth_data import test_auth_headers
+from functional.test_data.es_data import (FANTASY_GENRE_FILM,
+                                          FILM_FOR_TEST_CACHE, test_films)
 
 ENDPOINT = '/content/api/v1/films/'
 

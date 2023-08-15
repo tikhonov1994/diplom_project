@@ -1,19 +1,19 @@
-import time
 import datetime as dt
+import logging
+import time
 from uuid import UUID
 
 from async_fastapi_jwt_auth.exceptions import JWTDecodeError
-from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
-                        ItemNotFoundException, DbConflictException, UserEmailNotFoundException)
-from db.redis import RedisDep
-from fastapi import HTTPException, status
-from sqlalchemy import select
-from db.model import UserInfo, UserSession
-from schemas.auth import TokensSchema
 from core.config import app_config
+from db.model import UserInfo, UserSession
+from db.redis import RedisDep
+from db.storage import (AuthDep, ItemNotFoundException,
+                        UserEmailNotFoundException, UserInfoStorageDep,
+                        UserRoleStorageDep, UserSessionStorageDep)
+from fastapi import HTTPException, status
+from schemas.auth import TokensSchema
 from services.utils import check_password
-
-import logging
+from sqlalchemy import select
 
 logging.basicConfig(filename='logging.log', level=int(20),
                     format='%(asctime)s  %(message)s')
@@ -64,7 +64,7 @@ class AuthService:
         try:
             # используется protected метод т.к. публичный требует чтобы токен был в хедерах/куках
             await self.Authorize._verify_jwt_in_request(token=refresh_token, type_token='refresh', token_from='headers')
-        except Exception as e:
+        except Exception:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
 
         refresh_token_data = await self.Authorize.get_raw_jwt(refresh_token)

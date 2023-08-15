@@ -1,14 +1,13 @@
 import time
-
-from aiohttp import ClientSession
-from sqlalchemy.ext.asyncio import AsyncSession
-import pytest
-from http import HTTPStatus
 import uuid
+from http import HTTPStatus
 
-from functional.utils.db import insert_into_db, get_from_db
-from functional.test_data.db_data import test_user_info
+import pytest
+from aiohttp import ClientSession
 from functional.test_data.auth_data import test_auth_headers
+from functional.test_data.db_data import test_user_info
+from functional.utils.db import get_from_db, insert_into_db
+from sqlalchemy.ext.asyncio import AsyncSession
 
 ENDPOINT = '/auth/api/v1/roles/'
 pytestmark = pytest.mark.asyncio

@@ -1,9 +1,10 @@
 from datetime import datetime
-from db.storage.generic_storage import GenericStorageMixin, ItemNotFoundException
-from db.storage.session import DbSessionDep
-from db.model import UserSession
 from uuid import UUID
 
+from db.model import UserSession
+from db.storage.generic_storage import (GenericStorageMixin,
+                                        ItemNotFoundException)
+from db.storage.session import DbSessionDep
 from sqlalchemy import select
 
 

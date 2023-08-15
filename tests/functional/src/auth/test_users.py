@@ -1,15 +1,14 @@
+import time
+from http import HTTPStatus
 from uuid import uuid4
 
 import pytest
-import time
-
 from aiohttp import ClientSession
-from http import HTTPStatus
+from functional.test_data.auth_data import (test_login_negative_credentials,
+                                            test_refresh_credentials)
+from functional.test_data.db_data import test_register
+from functional.utils.db import get_from_db
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from functional.utils.db import insert_into_db, get_from_db
-from functional.test_data.db_data import test_register, test_user_info
-from functional.test_data.auth_data import test_auth_headers, test_refresh_credentials, test_login_negative_credentials
 
 REGISTER_ENDPOINT = '/auth/api/v1/auth/register/'
 LOGIN_ENDPOINT = '/auth/api/v1/auth/login/'

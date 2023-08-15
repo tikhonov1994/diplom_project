@@ -1,7 +1,6 @@
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
-
 from schemas.role import UserRoleSchema
 
 

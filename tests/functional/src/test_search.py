@@ -1,6 +1,6 @@
-import pytest
 from http import HTTPStatus
 
+import pytest
 from functional.test_data.auth_data import test_auth_headers
 
 pytestmark = pytest.mark.asyncio
@@ -12,7 +12,7 @@ async def test_search_films_auth(http_client) -> None:
         'page_number': 1,
         'page_size': 25
     }
-    async with http_client.get(url=f'/content/api/v1/films/search/', params=params) as response:
+    async with http_client.get(url='/content/api/v1/films/search/', params=params) as response:
         assert response.status == HTTPStatus.FORBIDDEN
 
 
@@ -35,7 +35,7 @@ async def test_search_films_by_title(http_client, search_query, expected_answer)
         'page_number': 1,
         'page_size': 25
     }
-    async with http_client.get(url=f'/content/api/v1/films/search/', params=params,
+    async with http_client.get(url='/content/api/v1/films/search/', params=params,
                                headers=test_auth_headers) as response:
         data = await response.json()
 
@@ -58,7 +58,7 @@ async def test_search_films_by_person(http_client, search_query, expected_answer
         'page_number': 1,
         'page_size': 25
     }
-    async with http_client.get(url=f'/content/api/v1/persons/search/', params=params) as response:
+    async with http_client.get(url='/content/api/v1/persons/search/', params=params) as response:
         data = await response.json()
 
         assert response.status == expected_answer['status_code']

@@ -8,7 +8,6 @@ Create Date: 2023-08-08 09:54:22.593608
 from uuid import uuid4
 
 from alembic import op
-
 from core.config import app_config
 from services.utils import generate_hashed_password
 

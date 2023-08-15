@@ -1,11 +1,12 @@
 from uuid import UUID
 
-from db.storage import UserRoleStorageDep, ItemNotFoundException, DbConflictException
 from db.model import UserRole
+from db.storage import (DbConflictException, ItemNotFoundException,
+                        UserRoleStorageDep)
 from schemas.user import UserRoleSchema
-from services.exceptions import (ServiceItemNotFound,
-                                 ServiceConflictOnAddError,
-                                 ServiceConflictOnDeleteError)
+from services.exceptions import (ServiceConflictOnAddError,
+                                 ServiceConflictOnDeleteError,
+                                 ServiceItemNotFound)
 
 
 class RoleService:
@@ -25,6 +26,8 @@ class RoleService:
         try:
             await self._storage.generic.delete(role_id)
         except ItemNotFoundException as exc:
-            raise ServiceItemNotFound(item_name=exc.type_name, item_id=exc.item_id)
+            raise ServiceItemNotFound(item_name=exc.type_name,
+                                      item_id=exc.item_id)
         except DbConflictException:
-            raise ServiceConflictOnDeleteError(item_name='Role', item_id=role_id)
+            raise ServiceConflictOnDeleteError(item_name='Role',
+                                               item_id=role_id)

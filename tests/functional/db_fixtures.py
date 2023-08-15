@@ -1,12 +1,11 @@
 import pytest
 import pytest_asyncio
-
-from sqlalchemy import inspect, create_engine, Engine, text, MetaData
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncEngine, AsyncSession
-
-from settings import test_settings as config
-from functional.utils.db import insert_into_db
 from functional.test_data.db_data import test_user_info, test_user_role
+from functional.utils.db import insert_into_db
+from settings import test_settings as config
+from sqlalchemy import Engine, MetaData, create_engine, inspect, text
+from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
+                                    async_sessionmaker, create_async_engine)
 
 
 @pytest_asyncio.fixture(scope='session')

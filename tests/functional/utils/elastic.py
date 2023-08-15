@@ -1,8 +1,7 @@
 import logging
 from uuid import UUID
 
-from elasticsearch import helpers, Elasticsearch, AsyncElasticsearch
-
+from elasticsearch import AsyncElasticsearch, Elasticsearch, helpers
 from functional.test_data.es_data import index_list
 
 

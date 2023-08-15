@@ -1,18 +1,18 @@
 from contextlib import asynccontextmanager
+from logging import config as logging_config
 
 import uvicorn
-from logging import config as logging_config
-from fastapi import FastAPI, APIRouter
+from core.config import app_config as config
+from core.logger import LOGGING
+from fastapi import APIRouter, FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
-from redis.backoff import ExponentialBackoff
 from redis.asyncio.retry import Retry
+from redis.backoff import ExponentialBackoff
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
 from sqlalchemy import create_engine
 
-from core.config import app_config as config
-from core.logger import LOGGING
-from api.v1 import users, roles, auth
+from api.v1 import auth, roles, users
 from db import redis
 
 logging_config.dictConfig(LOGGING)

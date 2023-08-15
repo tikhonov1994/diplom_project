@@ -1,17 +1,16 @@
 import asyncio
-from time import sleep
-from typing import Literal
 import logging
 from logging.config import fileConfig
+from time import sleep
+from typing import Literal
 
 from alembic import context
-from sqlalchemy import pool, create_engine, schema
-from sqlalchemy.engine import Connection
-from sqlalchemy.sql.schema import SchemaItem
-from sqlalchemy.ext.asyncio import async_engine_from_config
-
 from core.config import app_config
 from db.model import metadata
+from sqlalchemy import create_engine, pool, schema
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.sql.schema import SchemaItem
 
 SaSchemaObjType = Literal[
                       "schema",

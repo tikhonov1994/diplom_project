@@ -1,6 +1,3 @@
-import uuid
-import random
-
 index_list = ['movies', 'persons', 'genres']
 
 test_genres = [

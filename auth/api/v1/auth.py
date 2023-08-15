@@ -1,14 +1,11 @@
-from fastapi import APIRouter, Request
-
-from fastapi import APIRouter, Request, HTTPException
 from async_fastapi_jwt_auth.exceptions import RevokedTokenError
+from fastapi import APIRouter, HTTPException, Request
+from schemas.auth import (HistorySchema, LoginSchema, RefreshSchema,
+                          TokensSchema)
 from starlette import status
 
-from schemas.auth import TokensSchema, HistorySchema
-from services import UserServiceDep, AuthServiceDep, ServiceUniqueFieldViolation
-
-from schemas.auth import LoginSchema, RefreshSchema
-
+from services import (AuthServiceDep, ServiceUniqueFieldViolation,
+                      UserServiceDep)
 
 router = APIRouter()
 

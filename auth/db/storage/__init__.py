@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from fastapi import Depends
-
-from db.storage.generic_storage import ItemNotFoundException, DbConflictException
-from db.storage.user_info_storage import UserInfoStorage, UserEmailNotFoundException
-from db.storage.user_session_storage import UserSessionStorage
-from db.storage.role_storage import RoleStorage
 from core.oauth2 import AuthJWT
+from db.storage.generic_storage import (DbConflictException,
+                                        ItemNotFoundException)
+from db.storage.role_storage import RoleStorage
+from db.storage.user_info_storage import (UserEmailNotFoundException,
+                                          UserInfoStorage)
+from db.storage.user_session_storage import UserSessionStorage
+from fastapi import Depends
 
 UserInfoStorageDep = Annotated[UserInfoStorage, Depends()]
 UserRoleStorageDep = Annotated[RoleStorage, Depends()]

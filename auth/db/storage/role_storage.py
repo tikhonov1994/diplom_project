@@ -1,9 +1,8 @@
-from sqlalchemy import select
-
+from core.config import app_config
+from db.model import UserRole
 from db.storage.generic_storage import GenericStorageMixin
 from db.storage.session import DbSessionDep
-from db.model import UserRole
-from core.config import app_config
+from sqlalchemy import select
 
 
 class RoleStorage(GenericStorageMixin):
