@@ -3,7 +3,10 @@ import pytest_asyncio
 
 from sqlalchemy import inspect, create_engine, Engine, text, MetaData
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncEngine, AsyncSession
+
 from settings import test_settings as config
+from functional.utils.db import insert_into_db
+from functional.test_data.db_data import test_user_info, test_user_role
 
 
 @pytest_asyncio.fixture(scope='session')
@@ -56,6 +59,15 @@ def db_clean_up(db_engine_sync) -> None:
 @pytest.fixture(scope='session')
 def db_session_factory(db_engine) -> async_sessionmaker:
     return async_sessionmaker(db_engine, expire_on_commit=False)
+
+
+@pytest_asyncio.fixture(scope='session', autouse=True)
+async def add_test_user(db_session_factory, db_clean_up) -> None:
+    _session = db_session_factory()
+    await insert_into_db(_session, 'user_role', test_user_role, 'auth')
+    await insert_into_db(_session, 'user_info', test_user_info, 'auth')
+    await _session.commit()
+    await _session.close()
 
 
 @pytest_asyncio.fixture(scope='function')

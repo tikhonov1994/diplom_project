@@ -13,6 +13,8 @@ match config.log_level:
         LOG_LEVEL = logging.ERROR
     case 'CRITICAL':
         LOG_LEVEL = logging.CRITICAL
+    case _:
+        LOG_LEVEL = logging.WARNING
 
 LOGGING = {
     'version': 1,

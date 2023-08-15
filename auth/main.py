@@ -9,7 +9,6 @@ from redis.backoff import ExponentialBackoff
 from redis.asyncio.retry import Retry
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
 from sqlalchemy import create_engine
-from fastapi.openapi.utils import get_openapi
 
 from core.config import app_config as config
 from core.logger import LOGGING
@@ -23,9 +22,10 @@ logging_config.dictConfig(LOGGING)
 async def lifespan(_: FastAPI):
     redis_retry = Retry(backoff=ExponentialBackoff(), retries=10)
     redis.redis = Redis(host=config.redis_host, port=config.redis_port, retry=redis_retry,
-                              retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
+                        retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
     yield
     await redis.redis.close()
+
 
 engine = create_engine(
     'postgresql+%s://%s:%s@%s:%s/%s' % (
@@ -47,46 +47,6 @@ root_router.include_router(users.router, prefix='/v1/users', tags=['users'])
 root_router.include_router(roles.router, prefix='/v1/roles', tags=['roles'])
 root_router.include_router(auth.router, prefix='/v1/auth', tags=['auth'])
 app.include_router(root_router)
-
-
-def add_token_header_to_auth_routes():
-    if app.openapi_schema:
-        return app.openapi_schema
-
-    openapi_schema = get_openapi(
-        title="Auth service",
-        version="2.5.0",
-        description="Сервис авторизации",
-        routes=app.routes,
-    )
-
-    headers = {
-        "name": "jwt-token",
-        "in": "header",
-        "required": True,
-        "schema": {"title": "auth-token", "type": "string"},
-    }
-
-    # Get routes from index 4 because before that fastapi define router for /openapi.json, /redoc, /docs, etc
-    router_authorize = [
-        route for route in app.routes[4:] if "auth_protected_routes" in route.tags
-    ]
-
-    for route in router_authorize:
-        method = list(route.methods)[0].lower()
-        try:
-            openapi_schema["paths"][route.path][method]["parameters"].append(headers)
-        except Exception:
-            openapi_schema["paths"][route.path][method].update(
-                {"parameters": [headers]}
-            )
-
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-
-app.openapi = add_token_header_to_auth_routes
-
 
 if __name__ == '__main__':
     uvicorn.run(

@@ -1,26 +1,24 @@
-from uuid import UUID
 from pydantic import EmailStr
+from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Request, Depends
-from starlette import status
 from schemas.auth import TokensSchema, HistorySchema
+from starlette import status
 
+from db.model import UserInfo
 from schemas.role import PatchUserRoleSchema
 from schemas.user import PatchUserInfoSchema
-
 from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep, ServiceUniqueFieldViolation
 from utils.deps import require_user
-from db.model import UserInfo
 
 router = APIRouter()
 
 
-@router.patch('/{user_id}/role', description='Установить роль для пользователя', tags=['auth_protected_routes'])
-async def grant_role_to_user(
-        user_id: UUID,
-        role_info: PatchUserRoleSchema,
-        service: UserServiceDep,
-        user: UserInfo = Depends(require_user)) -> None:
+@router.patch('/{user_id}/role', description='Установить роль для пользователя')
+async def grant_role_to_user(user_id: UUID,
+                             role_info: PatchUserRoleSchema,
+                             service: UserServiceDep,
+                             _: UserInfo = Depends(require_user)) -> None:
     try:
         await service.grant_role_to_user(user_id, role_info.role_id)
     except ServiceItemNotFound as exc:
@@ -28,9 +26,11 @@ async def grant_role_to_user(
 
 
 @router.post('/register', description='Регистрация пользователя', response_model=TokensSchema)
-async def register_user(user_service: UserServiceDep, email: EmailStr,
-                        password: str, auth_service: AuthServiceDep,
-                        request: Request):
+async def register_user(user_service: UserServiceDep,
+                        email: EmailStr,
+                        password: str,
+                        auth_service: AuthServiceDep,
+                        request: Request) -> TokensSchema:
     try:
         await user_service.save_user(email, password)
         return await auth_service.login(email, password, request.headers.get('user-agent'))
@@ -38,13 +38,14 @@ async def register_user(user_service: UserServiceDep, email: EmailStr,
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
 
 
-@router.delete('/logout', description='Выход из системы', operation_id="authorize", tags=['auth_protected_routes'])
-async def logout(auth_service: AuthServiceDep, user: UserInfo = Depends(require_user)) -> dict:
+@router.delete('/logout', description='Выход из системы', operation_id="authorize")
+async def logout(auth_service: AuthServiceDep,
+                 _: UserInfo = Depends(require_user)) -> dict:
     await auth_service.logout()
     return {"detail": "Refresh token has been revoked"}
 
 
-@router.patch('/credentials', description='Изменение данных пользователя', tags=['auth_protected_routes'])
+@router.patch('/credentials', description='Изменение данных пользователя')
 async def update_credentials(user_service: UserServiceDep,
                              changes: PatchUserInfoSchema,
                              user: UserInfo = Depends(require_user)) -> None:
@@ -60,8 +61,8 @@ async def update_credentials(user_service: UserServiceDep,
 
 @router.get('/history',
             description='История входов в аккаунт',
-            response_model=list[HistorySchema],
-            tags=['auth_protected_routes'])
-async def get_history(auth_service: AuthServiceDep, user: UserInfo = Depends(require_user)):
+            response_model=list[HistorySchema])
+async def get_history(auth_service: AuthServiceDep,
+                      user: UserInfo = Depends(require_user)) -> list[HistorySchema]:
     sessions = await auth_service.get_user_history(user.id)
     return [HistorySchema.parse_obj(item_obj) for item_obj in sessions]

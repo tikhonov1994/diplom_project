@@ -11,6 +11,7 @@ test_claims = {
     'email': test_user_info['email'],
     'role': 'test_user_role',
     'user_agent': 'test_user_agent',
+    'type': 'access'
 }
 
 test_access_token = jwt.encode(claims=test_claims,
