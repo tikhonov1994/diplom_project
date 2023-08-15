@@ -22,9 +22,10 @@ logging_config.dictConfig(LOGGING)
 async def lifespan(_: FastAPI):
     redis_retry = Retry(backoff=ExponentialBackoff(), retries=10)
     redis.redis = Redis(host=config.redis_host, port=config.redis_port, retry=redis_retry,
-                              retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
+                        retry_on_error=[BusyLoadingError, ConnectionError, TimeoutError])
     yield
     await redis.redis.close()
+
 
 engine = create_engine(
     'postgresql+%s://%s:%s@%s:%s/%s' % (

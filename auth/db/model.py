@@ -39,8 +39,8 @@ class UserInfo(Base, IdMixin):
     password_hash: Mapped[str]
     user_role_id: Mapped[UUID] = mapped_column(ForeignKey('user_role.id'))
 
-    role: Mapped['UserRole'] = relationship()
-    active_sessions: Mapped['UserSession'] = relationship()
+    role: Mapped['UserRole'] = relationship(lazy='joined')
+    active_sessions: Mapped['UserSession'] = relationship(lazy='joined')
 
 
 class UserSession(Base, IdMixin):

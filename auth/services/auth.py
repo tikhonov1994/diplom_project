@@ -1,8 +1,8 @@
-import hashlib
+import datetime
 import time
 import datetime as dt
-from uuid import UUID
 
+from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 from db.storage import (UserInfoStorageDep, AuthDep, UserRoleStorageDep, UserSessionStorageDep,
                         ItemNotFoundException, DbConflictException)
 from db.redis import RedisDep
@@ -11,9 +11,9 @@ from sqlalchemy import select
 from db.model import UserInfo, UserSession
 from schemas.auth import TokensSchema
 from core.config import app_config
+from services.utils import check_password
 
 import logging
-from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 
 logging.basicConfig(filename='logging.log', level=int(20),
                     format='%(asctime)s  %(message)s')
@@ -25,13 +25,13 @@ class AuthService:
                  user_info_storage: UserInfoStorageDep,
                  user_session_storage: UserSessionStorageDep,
                  role_storage: UserRoleStorageDep,
-                 authorize: AuthDep,
+                 Authorize: AuthDep,
                  redis: RedisDep,
                  ) -> None:
         self._user_info_storage = user_info_storage
         self._user_session_storage = user_session_storage
         self._role_storage = role_storage
-        self.Authorize = authorize
+        self.Authorize = Authorize
         self.redis = redis
 
     async def login(self, email: str, password: str, user_agent: str) -> TokensSchema:
@@ -42,10 +42,9 @@ class AuthService:
                 detail="Incorrect username or password",
             )
 
-        user_role = await self._role_storage.generic.get(user.user_role_id)
         claims = {
             'email': email,
-            'role': user_role.name,
+            'role': user.role.name,
             'user_agent': user_agent,
         }
         tokens = await self._create_tokens(user, claims)
@@ -54,7 +53,8 @@ class AuthService:
         expire_time = dt.datetime.fromtimestamp(new_access_token_data['exp'])
         refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
 
-        user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti, start_at=dt.datetime.now(), end_at=expire_time)
+        user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti,
+                                   start_at=dt.datetime.now(), end_at=expire_time)
 
         await self._user_session_storage.add_session(user_session)
 
@@ -103,33 +103,11 @@ class AuthService:
 
         return tokens
 
-    @staticmethod
-    async def check_password(pass_to_check: str, user: UserInfo):
-        # FIXME
-        password = user.password_hash.decode('utf-8')
-        salt = password[-32:]
-        new_key = hashlib.pbkdf2_hmac(
-            'sha256',
-            pass_to_check.encode('utf-8'),  # Конвертирование пароля в байты
-            salt,
-            100000
-        )
-
-        if (new_key + salt) == password:
-            return True
-        else:
-            return False
-
-    async def authenticate_user(self, email: str, password: str) -> UserInfo:
-        stmt = select(UserInfo).where(UserInfo.email == email)
-        if user := (await self._user_info_storage.generic._session.execute(stmt)).first():
-            # fixme
-            # if not await self.check_password(password, user[0]):
-            #     return False
-
-            return user[0]
-
-        return False
+    async def authenticate_user(self, email: str, password: str) -> UserInfo | None:
+        if user := await self._user_info_storage.get_user_by_email(email):
+            if check_password(password, user):
+                return user
+        return None
 
     async def get_session_by_jti(self, refresh_jti: str):
         stmt = select(UserSession).where(UserSession.refresh_token_jti == refresh_jti)
@@ -172,13 +150,7 @@ class AuthService:
         except JWTDecodeError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is invalid!')
 
-    async def get_user_id(self) -> UUID:
-        await self.get_token()
-        return UUID(await self.Authorize.get_jwt_subject())
-
-    async def get_user_history(self):
-        await self.get_token()
-        user_id = await self.Authorize.get_jwt_subject()
+    async def get_user_history(self, user_id: int):
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)
         if sessions := await self._user_info_storage.generic._session.execute(stmt):
             res = []

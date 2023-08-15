@@ -19,14 +19,9 @@ branch_labels = None
 depends_on = None
 
 
-def get_superuser_password() -> tuple[str, str]:
-    hashed_su_password = generate_hashed_password(app_config.api.admin_password)
-    return '\\x' + hashed_su_password.hex()
-
-
 def upgrade() -> None:
     admin_role_id = uuid4()
-    admin_password = get_superuser_password()
+    admin_password = generate_hashed_password(app_config.api.admin_password)
     op.execute(f'INSERT INTO auth.user_role (id, name) VALUES (\'{admin_role_id}\', \'admin\');')
     op.execute(f'INSERT INTO auth.user_role (id, name) VALUES (\'{uuid4()}\', \'{app_config.api.default_user_role}\');')
     op.execute(f'INSERT INTO auth.user_info (id, email, password_hash, user_role_id) '

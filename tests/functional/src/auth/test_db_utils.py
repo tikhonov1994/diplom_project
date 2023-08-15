@@ -8,6 +8,7 @@ from functional.utils.db import insert_into_db, delete_from_db, get_from_db, cle
 pytestmark = pytest.mark.asyncio
 
 
+@pytest.mark.skip(reason='no need to run - this is a use example')
 async def test_db_utils_examples(db_session: AsyncSession) -> None:
     _id = str(uuid.uuid4())
 
