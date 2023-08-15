@@ -1,4 +1,4 @@
-from async_fastapi_jwt_auth.exceptions import MissingTokenError
+from async_fastapi_jwt_auth.exceptions import MissingTokenError, RevokedTokenError
 from core.oauth2 import AuthJWT
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
@@ -22,7 +22,7 @@ async def require_user(user_service: UserServiceDep, _=Depends(_bearer),
             )
 
         return current_user
-    except MissingTokenError:
+    except (MissingTokenError, RevokedTokenError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Auth header is missing",
