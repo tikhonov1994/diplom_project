@@ -4,6 +4,8 @@ from db.storage.session import DbSessionDep
 from db.model import UserSession
 from uuid import UUID
 
+from sqlalchemy import select
+
 
 class UserSessionStorage(GenericStorageMixin):
     def __init__(self, session: DbSessionDep):
@@ -14,7 +16,7 @@ class UserSessionStorage(GenericStorageMixin):
         await self.generic.add(user_session)
 
     async def get_session_by_refresh_token(self, refresh_token: UUID) -> UserSession:
-        stmt = select(UserSession).where(UserSession.refresh_token == refresh_token)
+        stmt = select(UserSession).where(UserSession.refresh_token_jti == refresh_token)
         if session := (await self._session.execute(stmt)).first():
             return session[0]
 

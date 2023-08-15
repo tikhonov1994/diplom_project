@@ -10,6 +10,7 @@ class Settings(BaseModel):
     authjwt_algorithm: str = app_config.jwt_algorithm
     authjwt_decode_algorithms: List[str] = [app_config.jwt_algorithm]
     authjwt_token_location: set = {'headers'}
+    authjwt_header_name: str = 'jwt-token'
     authjwt_cookie_csrf_protect: bool = False
     authjwt_secret_key: str = app_config.jwt_secret_key
 
