@@ -32,7 +32,7 @@ class UserInfo(Base, IdMixin):
 
     email: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
-    user_role_id: Mapped[UUID] = mapped_column(ForeignKey('user_role.id'))
+    user_role_id: Mapped[UUID] = mapped_column(ForeignKey('user_role.id', ondelete="CASCADE"))
 
     role: Mapped['UserRole'] = relationship(lazy='joined')
     active_sessions: Mapped['UserSession'] = relationship(lazy='joined')
@@ -41,7 +41,7 @@ class UserInfo(Base, IdMixin):
 class UserSession(Base, IdMixin):
     __tablename__ = 'user_session'
 
-    user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id'))
+    user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id', ondelete="CASCADE"))
     user_agent: Mapped[str] = mapped_column(nullable=False)
     refresh_token_jti: Mapped[str]
     start_at: Mapped[datetime]

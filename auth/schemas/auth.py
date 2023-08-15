@@ -1,11 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class LoginSchema(BaseModel):
-    email: str
+    email: EmailStr
     password: str
+
+    class Config:
+        orm_mode = True
 
 
 class RefreshSchema(BaseModel):

@@ -98,6 +98,8 @@ services:
     depends_on:
       redis:
         condition: service_started
+      db:
+        condition: service_started
     expose:
       - "8002"
     ports:
@@ -116,6 +118,8 @@ services:
       - nginx_volume:/opt/app/static
     depends_on:
       api:
+        condition: service_started
+      auth:
         condition: service_started
     ports:
       - "80:80"
