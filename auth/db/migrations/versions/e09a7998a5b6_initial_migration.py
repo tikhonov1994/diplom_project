@@ -37,6 +37,7 @@ def upgrade() -> None:
                     )
     op.create_table('user_session',
                     sa.Column('user_info_id', sa.Uuid(), nullable=False),
+                    sa.Column('refresh_token', sa.String(), nullable=False),
                     sa.Column('id', sa.Uuid(), nullable=False),
                     sa.ForeignKeyConstraint(['user_info_id'], ['auth.user_info.id'],
                                             name=op.f('fk__user_session__user_info_id__user_info')),
