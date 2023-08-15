@@ -51,7 +51,7 @@ class AuthService:
         tokens = await self._create_tokens(user, claims)
 
         new_access_token_data = await self.Authorize.get_raw_jwt(tokens.access_token)
-        expire_time = datetime.datetime.fromtimestamp(new_access_token_data['exp'])
+        expire_time = dt.datetime.fromtimestamp(new_access_token_data['exp'])
         refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
 
         user_session = UserSession(user_info_id=user.id, user_agent=user_agent, refresh_token_jti=refresh_token_jti, start_at=dt.datetime.now(), end_at=expire_time)
@@ -97,7 +97,7 @@ class AuthService:
         tokens = await self._create_tokens(user, claims)
 
         new_access_token_data = await self.Authorize.get_raw_jwt(tokens.access_token)
-        expire_time = datetime.datetime.fromtimestamp(new_access_token_data['exp'])
+        expire_time = dt.datetime.fromtimestamp(new_access_token_data['exp'])
         refresh_token_jti = await self.Authorize.get_jti(tokens.refresh_token)
         await self._user_session_storage.refresh_session(current_session.id, refresh_token_jti, expire_time)
 
@@ -161,9 +161,9 @@ class AuthService:
         jti = decrypted_token['jti']
         refresh_jti = decrypted_token['refresh_jti']
         user_session = await self.get_session_by_jti(refresh_jti)
-        refresh_exp = (await self.Authorize.get_raw_jwt(user_session.refresh_token))['exp']
-        self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
-        self.redis.setex(refresh_jti, (refresh_exp - int(time.time())), 'true')
+        print(int(user_session.end_at.timestamp()))
+        await self.redis.setex(jti, (decrypted_token['exp'] - int(time.time())), 'true')
+        await self.redis.setex(refresh_jti, (int(user_session.end_at.timestamp()) - int(time.time())), 'true')
         await self.close_session(user_session)
 
     async def get_token(self):
@@ -188,6 +188,5 @@ class AuthService:
                     'session_ended': i[0].end_at,
                     'user_agent': i[0].user_agent
                 })
-            print(res)
             return res
         return None

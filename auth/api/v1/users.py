@@ -4,7 +4,6 @@ from fastapi import APIRouter, HTTPException
 from starlette import status
 
 from schemas.role import PatchUserRoleSchema
-from schemas.user import PatchUserInfoSchema
 
 from services import UserServiceDep, ServiceItemNotFound, AuthServiceDep, ServiceUniqueFieldViolation
 

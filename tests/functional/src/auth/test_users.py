@@ -11,6 +11,7 @@ from functional.test_data.db_data import test_register
 REGISTER_ENDPOINT = '/auth/api/v1/auth/register/'
 LOGIN_ENDPOINT = '/auth/api/v1/auth/login'
 HISTORY_ENDPOINT = '/auth/api/v1/auth/history/'
+LOGOUT_ENDPOINT = '/auth/api/v1/auth/logout/'
 USER_DATA = {'email': test_register.get('email'), 'password': test_register.get('password')}
 pytestmark = pytest.mark.asyncio
 
@@ -37,12 +38,24 @@ async def test_repeat_registration(http_auth_client: ClientSession, db_session: 
 
 
 async def test_user_history(http_auth_client: ClientSession) -> None:
-    async with http_auth_client.post(LOGIN_ENDPOINT, json=USER_DATA) as response:
-        assert response.status == HTTPStatus.OK
-        response_data = await response.json()
-        access_token = response_data.get('access_token')
-    headers = {'Authorization': f'Bearer {access_token}'}
+    headers = await get_headers(http_auth_client)
     async with http_auth_client.get(HISTORY_ENDPOINT, headers=headers) as response:
         assert response.status == HTTPStatus.OK
         response_data = await response.json()
         assert len(response_data) == 2
+
+
+async def test_logout(http_auth_client: ClientSession) -> None:
+    headers = await get_headers(http_auth_client)
+    async with http_auth_client.delete(LOGOUT_ENDPOINT, headers=headers) as response:
+        assert response.status == HTTPStatus.RESET_CONTENT
+    async with http_auth_client.get(HISTORY_ENDPOINT, headers=headers) as response:
+        assert response.status == HTTPStatus.UNAUTHORIZED
+
+
+async def get_headers(http_auth_client: ClientSession):
+    async with http_auth_client.post(LOGIN_ENDPOINT, json=USER_DATA) as response:
+        assert response.status == HTTPStatus.OK
+        response_data = await response.json()
+        access_token = response_data.get('access_token')
+    return {'Authorization': f'Bearer {access_token}'}

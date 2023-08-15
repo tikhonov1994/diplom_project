@@ -3,7 +3,7 @@ from async_fastapi_jwt_auth import AuthJWT
 from core.config import app_config
 from typing import List
 from pydantic import BaseModel
-from db.redis import redis
+from db.redis import get_redis
 
 
 class Settings(BaseModel):
@@ -12,6 +12,8 @@ class Settings(BaseModel):
     authjwt_token_location: set = {'headers'}
     authjwt_cookie_csrf_protect: bool = False
     authjwt_secret_key: str = app_config.jwt_secret_key
+    authjwt_denylist_enabled: bool = True
+    authjwt_denylist_token_checks: set = {"access","refresh"}
 
 
 @AuthJWT.load_config
@@ -21,6 +23,7 @@ def get_config():
 
 @AuthJWT.token_in_denylist_loader
 async def check_if_token_in_denylist(decrypted_token):
+    redis = await get_redis()
     jti = decrypted_token["jti"]
-    entry = redis.get(jti)
-    return entry and entry == "true"
+    entry = await redis.get(jti)
+    return entry and entry == b'true'
