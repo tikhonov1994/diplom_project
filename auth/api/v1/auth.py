@@ -4,7 +4,7 @@ from schemas.auth import (HistoryListSchema, LoginSchema, RefreshSchema,
                           TokensSchema, HistorySchema)
 from starlette import status
 from db.model import UserInfo
-from utils.deps import require_user
+from utils.auth import require_user
 
 from services import (AuthServiceDep, ServiceUniqueFieldViolation,
                       UserServiceDep)
