@@ -1,3 +1,6 @@
+## Ссылка на репозиторий
+[https://github.com/tikhonov1994/Auth_sprint_1](https://github.com/tikhonov1994/Auth_sprint_1)
+
 ## Запуск
 
 Сервисы подготовлены для развертывания в docker, для этого необходимо:
