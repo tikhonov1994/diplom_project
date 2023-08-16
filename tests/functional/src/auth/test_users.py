@@ -45,7 +45,7 @@ async def test_user_history(http_auth_client: ClientSession) -> None:
     async with http_auth_client.get(HISTORY_ENDPOINT, headers=headers) as response:
         assert response.status == HTTPStatus.OK
         response_data = await response.json()
-        assert len(response_data) == 2
+        assert len(response_data.get('results')) == 2
 
 
 async def test_logout(http_auth_client: ClientSession) -> None:
