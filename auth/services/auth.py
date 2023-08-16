@@ -161,12 +161,13 @@ class AuthService:
         user_id = await self.Authorize.get_jwt_subject()
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)
         if sessions := await self._user_info_storage.generic._session.execute(stmt):
-            res = []
+            res = {'results':[]}
             for i in sessions:
-                res.append({
+                res['results'].append({
                     'session_started': i[0].start_at,
                     'session_ended': i[0].end_at,
                     'user_agent': i[0].user_agent
                 })
+            res['count'] = len(res['results'])
             return res
         return None

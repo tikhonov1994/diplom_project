@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, EmailStr
+from schemas.base import IndexItemList
 
 
 class LoginSchema(BaseModel):
@@ -32,9 +33,5 @@ class HistorySchema(BaseModel):
     user_agent: str
 
 
-class IndexItemList(BaseModel):
-    count: int
-    total_pages: int
-    prev: int | None
-    next: int | None
-    results: list = list[HistorySchema]
+class HistoryListSchema(IndexItemList):
+    results = list[HistorySchema]
