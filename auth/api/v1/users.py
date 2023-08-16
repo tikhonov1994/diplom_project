@@ -5,19 +5,21 @@ from fastapi import APIRouter, Depends, HTTPException
 from schemas.role import PatchUserRoleSchema
 from schemas.user import PatchUserInfoSchema
 from starlette import status
-from utils.deps import require_user
+from utils.auth import require_user
 
 from services import (AuthServiceDep, ServiceItemNotFound,
                       ServiceUniqueFieldViolation, UserServiceDep)
+from utils.auth import admin_required
 
 router = APIRouter()
 
 
 @router.patch('/{user_id}/role', description='Установить роль для пользователя')
+@admin_required
 async def grant_role_to_user(user_id: UUID,
                              role_info: PatchUserRoleSchema,
                              service: UserServiceDep,
-                             _: UserInfo = Depends(require_user)) -> None:
+                             current_user: UserInfo = Depends(require_user)) -> None:
     try:
         await service.grant_role_to_user(user_id, role_info.role_id)
     except ServiceItemNotFound as exc:

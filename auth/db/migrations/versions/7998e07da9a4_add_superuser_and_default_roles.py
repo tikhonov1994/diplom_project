@@ -21,8 +21,10 @@ depends_on = None
 def upgrade() -> None:
     admin_role_id = uuid4()
     admin_password = generate_hashed_password(app_config.api.admin_password)
-    op.execute(f'INSERT INTO auth.user_role (id, name) VALUES (\'{admin_role_id}\', \'admin\');')
-    op.execute(f'INSERT INTO auth.user_role (id, name) VALUES (\'{uuid4()}\', \'{app_config.api.default_user_role}\');')
+    op.execute(f'INSERT INTO auth.user_role (id, name) '
+               f'VALUES (\'{admin_role_id}\', \'{app_config.api.admin_user_role}\');')
+    op.execute(f'INSERT INTO auth.user_role (id, name) '
+               f'VALUES (\'{uuid4()}\', \'{app_config.api.default_user_role}\');')
     op.execute(f'INSERT INTO auth.user_info (id, email, password_hash, user_role_id) '
                f'VALUES (\'{uuid4()}\', \'{app_config.api.admin_email}\', \'{admin_password}\', \'{admin_role_id}\');')
 
