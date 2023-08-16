@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Request, Depends
 from schemas.auth import (HistorySchema, LoginSchema, RefreshSchema,
                           TokensSchema)
 from starlette import status
-
 from db.model import UserInfo
 from utils.deps import require_user
 
@@ -43,7 +42,8 @@ async def user_registration(user_service: UserServiceDep, auth_service: AuthServ
 
 
 @router.delete('/logout', description='Выход из системы', status_code=status.HTTP_205_RESET_CONTENT)
-async def logout(auth_service: AuthServiceDep, _: UserInfo = Depends(require_user)) -> dict:
+async def logout(auth_service: AuthServiceDep,
+                 _: UserInfo = Depends(require_user)) -> dict:
     await auth_service.logout()
     return {"detail": "Refresh token has been revoke"}
 
