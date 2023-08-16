@@ -30,3 +30,11 @@ class HistorySchema(BaseModel):
     session_started: datetime
     session_ended: datetime | None
     user_agent: str
+
+
+class IndexItemList(BaseModel):
+    count: int
+    total_pages: int
+    prev: int | None
+    next: int | None
+    results: list = list[HistorySchema]

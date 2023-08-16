@@ -35,7 +35,8 @@ class UserInfo(Base, IdMixin):
     user_role_id: Mapped[UUID] = mapped_column(ForeignKey('user_role.id', ondelete="CASCADE"))
 
     role: Mapped['UserRole'] = relationship(lazy='joined')
-    active_sessions: Mapped['UserSession'] = relationship(lazy='joined')
+    active_sessions: Mapped['UserSession'] = relationship(lazy='joined', cascade="all, delete",
+                                                          passive_deletes=True)
 
 
 class UserSession(Base, IdMixin):
