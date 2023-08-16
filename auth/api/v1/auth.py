@@ -1,11 +1,13 @@
 from async_fastapi_jwt_auth.exceptions import RevokedTokenError
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from schemas.auth import (HistorySchema, LoginSchema, RefreshSchema,
                           TokensSchema)
 from starlette import status
 
+from db.model import UserInfo
 from services import (AuthServiceDep, ServiceUniqueFieldViolation,
                       UserServiceDep)
+from utils.deps import require_user
 
 router = APIRouter()
 
@@ -45,7 +47,7 @@ async def user_registration(user_service: UserServiceDep, auth_service: AuthServ
 
 
 @router.delete('/logout', description='Выход из системы', status_code=status.HTTP_205_RESET_CONTENT)
-async def logout(auth_service: AuthServiceDep) -> dict:
+async def logout(auth_service: AuthServiceDep, _: UserInfo = Depends(require_user)) -> dict:
     try:
         await auth_service.logout()
     except RevokedTokenError as err:
@@ -54,7 +56,7 @@ async def logout(auth_service: AuthServiceDep) -> dict:
 
 
 @router.get('/history', description='История входов в аккаунт')
-async def get_history(auth_service: AuthServiceDep) -> list[HistorySchema]:
+async def get_history(auth_service: AuthServiceDep, _: UserInfo = Depends(require_user)) -> list[HistorySchema]:
     try:
         sessions = await auth_service.get_user_history()
     except RevokedTokenError as err:

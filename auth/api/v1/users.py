@@ -27,7 +27,8 @@ async def grant_role_to_user(user_id: UUID,
 @router.patch('/credentials', description='Изменение данных пользователя')
 async def update_credentials(auth_service: AuthServiceDep,
                              user_service: UserServiceDep,
-                             changes: PatchUserInfoSchema) -> None:
+                             changes: PatchUserInfoSchema,
+                             _: UserInfo = Depends(require_user)) -> None:
     if not changes.email and not changes.password:
         raise HTTPException(status_code=status.HTTP_304_NOT_MODIFIED)
     try:
