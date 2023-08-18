@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from logging import config as logging_config
 
 import uvicorn
+
 from core.config import app_config as config
 from core.logger import LOGGING
 from fastapi import APIRouter, FastAPI
@@ -11,6 +12,7 @@ from redis.asyncio.retry import Retry
 from redis.backoff import ExponentialBackoff
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
 from sqlalchemy import create_engine
+from utils.tracer import configure_tracer
 
 from api.v1 import auth, roles, users
 from db import redis
@@ -41,6 +43,8 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
 )
+
+configure_tracer(app)
 
 root_router = APIRouter(prefix='/auth/api')
 root_router.include_router(users.router, prefix='/v1/users', tags=['users'])

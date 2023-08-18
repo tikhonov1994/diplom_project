@@ -43,6 +43,10 @@ class AppConfig(BaseSettings):
     postgres_user: str
     postgres_password: str
 
+    # Jaeger
+    jaeger_host: str
+    jaeger_port: int
+
     # Token settings
     jwt_algorithm: str
     jwt_secret_key: str
