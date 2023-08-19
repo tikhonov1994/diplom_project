@@ -30,6 +30,7 @@ class AppConfig(BaseSettings):
 
     # Service
     api: AuthConfig = AuthConfig()
+    debug: bool = False
 
     # Redis
     redis_host: str

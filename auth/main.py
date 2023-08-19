@@ -11,7 +11,6 @@ from redis.asyncio import Redis
 from redis.asyncio.retry import Retry
 from redis.backoff import ExponentialBackoff
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
-from sqlalchemy import create_engine
 from utils.tracer import configure_tracer
 
 from api.v1 import auth, roles, users
@@ -28,13 +27,6 @@ async def lifespan(_: FastAPI):
     yield
     await redis.redis.close()
 
-
-engine = create_engine(
-    'postgresql+%s://%s:%s@%s:%s/%s' % (
-        config.postgres_driver, config.postgres_user, config.postgres_password,
-        config.postgres_host, config.postgres_port, config.postgres_db
-    )
-)
 
 app = FastAPI(
     title=config.api.project_name,
