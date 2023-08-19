@@ -44,3 +44,12 @@ def inject_request_id(request_id: Annotated[str, Header(alias='X-Request-Id')]) 
     current_span = trace.get_current_span()
     current_span.set_attribute('http.request_id', request_id)
     print(current_span, request_id)
+
+
+def sub_span(func):
+    async def wrapped(*args, **kwargs):
+        _tracer = trace.get_tracer(__name__)
+        with _tracer.start_as_current_span(f'{func.__module__}.{func.__name__}'):
+            return await func(*args, **kwargs)
+
+    return wrapped
