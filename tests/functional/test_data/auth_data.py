@@ -33,6 +33,7 @@ test_admin_access_token = jwt.encode(claims=test_admin_claims,
                                      key=test_settings.jwt_secret_key,
                                      algorithm=test_settings.jwt_algorithm)
 
+test_request_id_header = {'X-Request-Id': str(uuid4())}
 test_auth_headers = {'Authorization': f'Bearer {test_access_token}'}
 test_admin_auth_headers = {'Authorization': f'Bearer {test_admin_access_token}'}
 

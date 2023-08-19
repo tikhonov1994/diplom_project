@@ -8,11 +8,15 @@ from utils.auth import require_user, admin_required
 
 from services import (RoleServiceDep, ServiceConflictOnAddError,
                       ServiceConflictOnDeleteError, ServiceItemNotFound)
+from utils.tracer import inject_request_id
 
 router = APIRouter()
 
 
-@router.get('', response_model=list[UserRoleSchema], description='Получить список пользовтельских ролей')
+@router.get('',
+            response_model=list[UserRoleSchema],
+            description='Получить список пользовтельских ролей',
+            dependencies=[Depends(inject_request_id)])
 @admin_required
 async def roles_list(
         service: RoleServiceDep,
@@ -20,7 +24,9 @@ async def roles_list(
     return await service.get_roles()
 
 
-@router.post('', description='Добавить пользовательскую роль')
+@router.post('',
+             description='Добавить пользовательскую роль',
+             dependencies=[Depends(inject_request_id)])
 @admin_required
 async def add_role(new_role: AddUserRoleSchema,
                    service: RoleServiceDep,
@@ -31,7 +37,9 @@ async def add_role(new_role: AddUserRoleSchema,
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(err))
 
 
-@router.delete('/{role_id}', description='Удалить пользовательскую роль')
+@router.delete('/{role_id}',
+               description='Удалить пользовательскую роль',
+               dependencies=[Depends(inject_request_id)])
 @admin_required
 async def delete_role(role_id: UUID,
                       service: RoleServiceDep,
