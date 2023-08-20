@@ -125,5 +125,5 @@ AUTHENTICATION_BACKENDS = [
     # 'django.contrib.auth.backends.ModelBackend',
 ]
 
-AUTH_API_LOGIN_URL='http://auth_service:8000/api/v1/auth/login'
+AUTH_API_LOGIN_URL='http://auth_service:8002/api/v1/auth/login'
 #AUTH_API_LOGIN_URL=os.environ.get('POSTGRES_DB')

@@ -14,11 +14,11 @@ class CustomBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None):
         # fixme вркменный хардкод
         #url = settings.AUTH_API_LOGIN_URL
-        # fixme jaeger rexuest
         url = 'http://auth:8002/api/v1/auth/login'
+        headers = {'X-Request-Id': str(uuid.uuid4())}
 
         payload = {'email': username, 'password': password}
-        response = requests.post(url, data=json.dumps(payload))
+        response = requests.post(url, data=json.dumps(payload), headers=headers)
         if response.status_code != http.HTTPStatus.OK:
             return None
 

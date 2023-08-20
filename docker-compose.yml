@@ -108,14 +108,14 @@ services:
       - application_network
 
   admin:
-    container_name: auth
-    build: ./auth
+    container_name: admin
+    build: ./admin
     image: movies_admin
     depends_on:
       db:
         condition: service_started
     expose:
-      - "8003"
+      - "8000"
     env_file:
       - .env
     networks:
