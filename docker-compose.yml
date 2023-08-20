@@ -107,6 +107,22 @@ services:
     networks:
       - application_network
 
+  admin:
+    container_name: auth
+    build: ./auth
+    image: movies_admin
+    depends_on:
+      db:
+        condition: service_started
+    expose:
+      - "8003"
+    env_file:
+      - .env
+    networks:
+      - application_network
+    volumes:
+      - nginx_volume:/opt/app/static
+
   nginx:
     container_name: nginx
     image: nginx:latest
@@ -118,6 +134,8 @@ services:
       api:
         condition: service_started
       auth:
+        condition: service_started
+      admin:
         condition: service_started
     ports:
       - "80:80"

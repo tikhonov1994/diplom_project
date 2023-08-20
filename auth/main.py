@@ -49,8 +49,15 @@ root_router.include_router(auth.router, prefix='/v1/auth', tags=['auth'])
 app.include_router(root_router)
 
 if __name__ == '__main__':
+    #uvicorn.run(
+    #    'main:app',
+    #    host=config.api.host,
+    #    port=config.api.port,
+    #)
+
     uvicorn.run(
         'main:app',
-        host=config.api.host,
-        port=config.api.port,
+        host='0.0.0.0',
+        port=8005,
     )
+

@@ -35,3 +35,8 @@ class HistorySchema(BaseModel):
 
 class HistoryListSchema(IndexItemList):
     results = list[HistorySchema]
+
+
+class LoginResponseSchema(TokensSchema):
+    email: EmailStr
+    role: str

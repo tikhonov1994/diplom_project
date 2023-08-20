@@ -58,7 +58,7 @@ class AuthService:
 
         await self._user_session_storage.add_session(user_session)
 
-        return tokens
+        return {**tokens,**{'email': user.email, 'rele': user.role }}
 
     async def refresh(self, refresh_token: str, user_agent: str) -> TokensSchema:
         try:
