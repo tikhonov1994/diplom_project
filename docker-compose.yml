@@ -142,6 +142,18 @@ services:
     networks:
       - application_network
 
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one:latest
+    expose:
+      - "6831"
+      - "16686"
+    depends_on:
+      auth:
+        condition: service_started
+    networks:
+      - application_network
+
 volumes:
   pg_volume:
   nginx_volume:

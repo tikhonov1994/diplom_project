@@ -30,6 +30,7 @@ class AppConfig(BaseSettings):
 
     # Service
     api: AuthConfig = AuthConfig()
+    debug: bool = False
 
     # Redis
     redis_host: str
@@ -42,6 +43,10 @@ class AppConfig(BaseSettings):
     postgres_db: str
     postgres_user: str
     postgres_password: str
+
+    # Jaeger
+    jaeger_host: str
+    jaeger_port: int
 
     # Token settings
     jwt_algorithm: str

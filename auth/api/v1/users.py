@@ -10,11 +10,14 @@ from utils.auth import require_user
 from services import (AuthServiceDep, ServiceItemNotFound,
                       ServiceUniqueFieldViolation, UserServiceDep)
 from utils.auth import admin_required
+from utils.tracer import inject_request_id
 
 router = APIRouter()
 
 
-@router.patch('/{user_id}/role', description='Установить роль для пользователя')
+@router.patch('/{user_id}/role',
+              description='Установить роль для пользователя',
+              dependencies=[Depends(inject_request_id)])
 @admin_required
 async def grant_role_to_user(user_id: UUID,
                              role_info: PatchUserRoleSchema,
@@ -26,7 +29,9 @@ async def grant_role_to_user(user_id: UUID,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
 
 
-@router.patch('/credentials', description='Изменение данных пользователя')
+@router.patch('/credentials',
+              description='Изменение данных пользователя',
+              dependencies=[Depends(inject_request_id)])
 async def update_credentials(auth_service: AuthServiceDep,
                              user_service: UserServiceDep,
                              changes: PatchUserInfoSchema,

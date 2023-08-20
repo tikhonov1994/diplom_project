@@ -1,10 +1,12 @@
 from typing import Generic, Type, TypeVar
 from uuid import UUID
 
-from db.model import Base
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from db.model import Base
+from utils.tracer import sub_span
 
 DbModelType = TypeVar('DbModelType')
 
@@ -36,15 +38,18 @@ class GenericStorage(Generic[DbModelType]):
         self._type = item_type
         self._session = session
 
+    @sub_span
     async def get(self, item_id: UUID) -> DbModelType:
         if result := await self._session.get(self._type, item_id):
             return result
         raise ItemNotFoundException(item_type=self._type, item_id=item_id)
 
+    @sub_span
     async def list(self) -> list[DbModelType]:
         scalars = await self._session.scalars(select(self._type))
         return list(scalars.all())
 
+    @sub_span
     async def add(self, item: DbModelType) -> None:
         try:
             self._session.add(item)
@@ -52,6 +57,7 @@ class GenericStorage(Generic[DbModelType]):
         except IntegrityError:
             raise DbConflictException
 
+    @sub_span
     async def delete(self, item_id: UUID) -> None:
         _instance = await self.get(item_id)
         try:

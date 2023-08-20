@@ -8,6 +8,7 @@ from utils.auth import require_user
 
 from services import (AuthServiceDep, ServiceUniqueFieldViolation,
                       UserServiceDep)
+from utils.tracer import inject_request_id
 
 router = APIRouter()
 
@@ -15,7 +16,8 @@ router = APIRouter()
 @router.post(
     path='/login',
     description='Аутентификация юзера',
-    response_model=TokensSchema
+    response_model=TokensSchema,
+    dependencies=[Depends(inject_request_id)]
 )
 async def login(validated_data: LoginSchema,
                 request: Request,
@@ -23,13 +25,18 @@ async def login(validated_data: LoginSchema,
     return await service.login(validated_data.email, validated_data.password, request.headers.get('user-agent'))
 
 
-@router.post('/refresh', description='Обновление токенов', response_model=TokensSchema)
+@router.post('/refresh',
+             description='Обновление токенов',
+             response_model=TokensSchema,
+             dependencies=[Depends(inject_request_id)])
 async def refresh(validated_data: RefreshSchema, request: Request, service: AuthServiceDep) -> TokensSchema:
     result = await service.refresh(validated_data.refresh_token, request.headers.get('user-agent'))
     return result
 
 
-@router.post('/register', description='Регистрация пользователя')
+@router.post('/register',
+             description='Регистрация пользователя',
+             dependencies=[Depends(inject_request_id)])
 async def user_registration(user_service: UserServiceDep, auth_service: AuthServiceDep,
                             request: Request, validated_data: LoginSchema) -> TokensSchema:
     email, password = validated_data.email, validated_data.password
@@ -42,20 +49,25 @@ async def user_registration(user_service: UserServiceDep, auth_service: AuthServ
     return result
 
 
-@router.delete('/logout', description='Выход из системы', status_code=status.HTTP_205_RESET_CONTENT)
+@router.delete('/logout',
+               description='Выход из системы',
+               status_code=status.HTTP_205_RESET_CONTENT,
+               dependencies=[Depends(inject_request_id)])
 async def logout(auth_service: AuthServiceDep,
                  _: UserInfo = Depends(require_user)) -> dict:
     await auth_service.logout()
     return {"detail": "Refresh token has been revoke"}
 
 
-@router.get('/history', description='История входов в аккаунт')
+@router.get('/history',
+            description='История входов в аккаунт',
+            dependencies=[Depends(inject_request_id)])
 async def get_history(auth_service: AuthServiceDep,
                       _: UserInfo = Depends(require_user),
                       page_size: Annotated[int, Query(gt=0, lt=10_000)] = 50,
                       page_number: Annotated[int, Query(gt=0)] = 1) -> HistoryListSchema:
     data = await auth_service.get_user_history()
-    total_pages = data['count']//page_size if data['count']%page_size == 0 else (data['count']//page_size + 1)
+    total_pages = data['count'] // page_size if data['count'] % page_size == 0 else (data['count'] // page_size + 1)
     if page_number > total_pages:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Page number must be less total pages!')
     first_elem = page_number * page_size - page_size
