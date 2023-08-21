@@ -3,9 +3,10 @@ from logging import config as logging_config
 
 import uvicorn
 
+from utils.rate_limiter import throttle
 from core.config import app_config as config
 from core.logger import LOGGING
-from fastapi import APIRouter, FastAPI
+from fastapi import APIRouter, FastAPI, Depends
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
 from redis.asyncio.retry import Retry
@@ -37,6 +38,7 @@ app = FastAPI(
 )
 
 configure_tracer(app)
+throttle(app)
 
 root_router = APIRouter(prefix='/auth/api')
 root_router.include_router(users.router, prefix='/v1/users', tags=['users'])
