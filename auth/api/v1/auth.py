@@ -1,4 +1,5 @@
 from typing import Annotated
+from pydantic import AnyHttpUrl
 from fastapi import APIRouter, HTTPException, Request, Depends, Query
 from schemas.auth import (HistoryListSchema, LoginSchema, RefreshSchema,
                           TokensSchema, HistorySchema)
@@ -7,7 +8,7 @@ from db.model import UserInfo
 from utils.auth import require_user
 
 from services import (AuthServiceDep, ServiceUniqueFieldViolation,
-                      UserServiceDep)
+                      UserServiceDep, YandexOauthDep)
 from utils.tracer import inject_request_id
 
 router = APIRouter()
@@ -22,7 +23,7 @@ router = APIRouter()
 async def login(validated_data: LoginSchema,
                 request: Request,
                 service: AuthServiceDep) -> TokensSchema:
-    return await service.login(validated_data.email, validated_data.password, request.headers.get('user-agent'))
+    return await service.login_by_password(validated_data.email, validated_data.password, request.headers.get('user-agent'))
 
 
 @router.post('/refresh',
@@ -44,7 +45,7 @@ async def user_registration(user_service: UserServiceDep, auth_service: AuthServ
         await user_service.save_user(email, password)
     except ServiceUniqueFieldViolation as err:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(err))
-    result = await auth_service.login(email, password, request.headers.get('user-agent'))
+    result = await auth_service.login_by_password(email, password, request.headers.get('user-agent'))
 
     return result
 
@@ -79,3 +80,17 @@ async def get_history(auth_service: AuthServiceDep,
         next=(page_number + 1) if page_number < total_pages else None,
         results=[HistorySchema.parse_obj(item_obj) for item_obj in data['results'][first_elem:last_elem]]
     )
+
+
+@router.get('/social_auth')
+async def social_auth(yandex_oauth: YandexOauthDep) -> AnyHttpUrl:
+    auth_url = await yandex_oauth.get_authorization_url()
+    return auth_url
+
+
+@router.get('/verification_code')
+async def verificate(code: str, yandex_oauth: YandexOauthDep,
+                     auth_service: AuthServiceDep, request: Request) -> TokensSchema:
+    user_info = await yandex_oauth.get_user_info(code)
+    user = await yandex_oauth.get_or_create_user(user_info)
+    return await auth_service.login(user, request.headers.get('user-agent'))

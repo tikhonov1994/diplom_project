@@ -54,6 +54,11 @@ class AppConfig(BaseSettings):
     auth_token_expire_minutes: int
     refresh_token_expire_minutes: int
 
+    # OAuth
+    client_id: str
+    client_secret: str
+    client_redirect_uri: str
+
     @property
     def postgres_dsn(self) -> str:
         return f'postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}' \

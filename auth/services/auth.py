@@ -33,9 +33,12 @@ class AuthService:
         self._role_storage = role_storage
         self.Authorize = Authorize
         self.redis = redis
-
-    async def login(self, email: str, password: str, user_agent: str) -> TokensSchema:
+    
+    async def login_by_password(self, email: str, password: str, user_agent: str) -> TokensSchema:
         user = await self.authenticate_user(email, password)
+        return await self.login(user, user_agent)
+
+    async def login(self, user: UserInfo, user_agent: str) -> TokensSchema:
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -43,7 +46,7 @@ class AuthService:
             )
 
         claims = {
-            'email': email,
+            'email': user.email,
             'role': user.role.name,
             'user_agent': user_agent,
         }

@@ -9,10 +9,12 @@ from services.exceptions import (ServiceConflictOnAddError,
                                  ServiceUniqueFieldViolation)
 from services.role import RoleService
 from services.user import UserService
+from services.yandex_oauth import YandexOauthService
 
 RoleServiceDep = Annotated[RoleService, Depends()]
 UserServiceDep = Annotated[UserService, Depends()]
 AuthServiceDep = Annotated[AuthService, Depends()]
+YandexOauthDep = Annotated[YandexOauthService, Depends()]
 
 __all__ = ['RoleServiceDep',
            'UserServiceDep',
@@ -21,4 +23,5 @@ __all__ = ['RoleServiceDep',
            'ServiceConflictOnAddError',
            'ServiceConflictOnDeleteError',
            'ServiceUniqueFieldViolation',
+           'YandexOauthDep',
            'ServiceItemSearchException']
