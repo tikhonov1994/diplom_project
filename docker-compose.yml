@@ -10,7 +10,6 @@ services:
     image: postgres:13.0-alpine
     volumes:
       - pg_volume:/var/lib/postgresql/data/
-      - ./deploy/dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro
     env_file:
       - .env
     ports:
@@ -109,6 +108,22 @@ services:
     networks:
       - application_network
 
+  admin:
+    container_name: admin
+    build: ./admin
+    image: movies_admin
+    depends_on:
+      db:
+        condition: service_started
+    expose:
+      - "8000"
+    env_file:
+      - .env
+    networks:
+      - application_network
+    volumes:
+      - nginx_volume:/opt/app/static
+
   nginx:
     container_name: nginx
     image: nginx:latest
@@ -120,6 +135,8 @@ services:
       api:
         condition: service_started
       auth:
+        condition: service_started
+      admin:
         condition: service_started
     ports:
       - "80:80"
