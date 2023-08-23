@@ -21,10 +21,16 @@ class UserSocialStorage(GenericStorageMixin):
         stmt = select(UserSocial).where(UserSocial.social_id == social_id,
                                         UserSocial.social_name=='yandex')
         if social := (await self._session.execute(stmt)).first():
-            return social[0]['user_info_id']
+            return social[0].user_info_id
         return None
     
     @sub_span
     async def create_user_social(self, user_id: UUID, social_id: str):
         user_social = UserSocial(user_info_id=user_id, social_name='yandex', social_id=social_id)
         await self.generic.add(user_social)
+
+    @sub_span
+    async def delete_user_social(self, user_id: UUID):
+        stmt = select(UserSocial).where(UserSocial.user_info_id == user_id)
+        if social := (await self._session.execute(stmt)).first():
+            await self.generic.delete(social[0].id)

@@ -160,8 +160,7 @@ class AuthService:
         return UUID(await self.Authorize.get_jwt_subject())
 
     async def get_user_history(self):
-        await self.get_token()
-        user_id = await self.Authorize.get_jwt_subject()
+        user_id = await self.get_user_id()
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)
         if sessions := await self._user_info_storage.generic._session.execute(stmt):
             res = {'results':[]}
@@ -174,3 +173,7 @@ class AuthService:
             res['count'] = len(res['results'])
             return res
         return None
+
+    async def get_user_id(self):
+        await self.get_token()
+        return await self.Authorize.get_jwt_subject()

@@ -54,6 +54,7 @@ class GenericStorage(Generic[DbModelType]):
         try:
             self._session.add(item)
             await self._session.flush()
+            await self._session.refresh(item)
         except IntegrityError:
             raise DbConflictException
 

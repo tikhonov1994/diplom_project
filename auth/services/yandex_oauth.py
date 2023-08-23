@@ -1,4 +1,5 @@
 import random, string
+from uuid import UUID
 
 from yandexid import AsyncYandexOAuth, AsyncYandexID
 from yandexid.schemas.yandexid import User
@@ -54,3 +55,6 @@ class YandexOauthService:
         await self._info_storage.add_user(user)
         await self._social_storage.create_user_social(user.id, user_data.client_id)
         return user
+    
+    async def delete_user_social(self, user_id: UUID):
+        await self._social_storage.delete_user_social(user_id)
