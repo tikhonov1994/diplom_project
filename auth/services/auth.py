@@ -11,7 +11,7 @@ from db.storage import (AuthDep, ItemNotFoundException,
                         UserEmailNotFoundException, UserInfoStorageDep,
                         UserRoleStorageDep, UserSessionStorageDep)
 from fastapi import HTTPException, status
-from schemas.auth import TokensSchema
+from schemas.auth import TokensSchema, LoginResponseSchema
 from services.utils import check_password
 from sqlalchemy import select
 
@@ -34,7 +34,7 @@ class AuthService:
         self.Authorize = Authorize
         self.redis = redis
 
-    async def login(self, email: str, password: str, user_agent: str) -> TokensSchema:
+    async def login(self, email: str, password: str, user_agent: str) -> LoginResponseSchema:
         user = await self.authenticate_user(email, password)
         if not user:
             raise HTTPException(
@@ -58,7 +58,10 @@ class AuthService:
 
         await self._user_session_storage.add_session(user_session)
 
-        return tokens
+        result = LoginResponseSchema(access_token=tokens.access_token, refresh_token=tokens.refresh_token,
+                                     user_id=user.id, email=user.email, role=user.role.name)
+
+        return result
 
     async def refresh(self, refresh_token: str, user_agent: str) -> TokensSchema:
         try:
@@ -161,7 +164,7 @@ class AuthService:
         user_id = await self.Authorize.get_jwt_subject()
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)
         if sessions := await self._user_info_storage.generic._session.execute(stmt):
-            res = {'results':[]}
+            res = {'results': []}
             for i in sessions:
                 res['results'].append({
                     'session_started': i[0].start_at,

@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, Request, Depends, Query
 from schemas.auth import (HistoryListSchema, LoginSchema, RefreshSchema,
-                          TokensSchema, HistorySchema)
+                          TokensSchema, HistorySchema, LoginResponseSchema)
 from starlette import status
 from db.model import UserInfo
 from utils.auth import require_user
@@ -16,12 +16,12 @@ router = APIRouter()
 @router.post(
     path='/login',
     description='Аутентификация юзера',
-    response_model=TokensSchema,
+    response_model=LoginResponseSchema,
     dependencies=[Depends(inject_request_id)]
 )
 async def login(validated_data: LoginSchema,
                 request: Request,
-                service: AuthServiceDep) -> TokensSchema:
+                service: AuthServiceDep) -> LoginResponseSchema:
     return await service.login(validated_data.email, validated_data.password, request.headers.get('user-agent'))
 
 
