@@ -16,7 +16,7 @@ router = APIRouter()
 @router.post(
     path='/login',
     description='Аутентификация юзера',
-    response_model=TokensSchema,
+    response_model=LoginResponseSchema,
     dependencies=[Depends(inject_request_id)]
 )
 async def login(validated_data: LoginSchema,

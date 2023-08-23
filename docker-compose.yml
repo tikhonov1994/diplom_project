@@ -10,7 +10,6 @@ services:
     image: postgres:13.0-alpine
     volumes:
       - pg_volume:/var/lib/postgresql/data/
-      - ./deploy/dump.sql:/docker-entrypoint-initdb.d/dump.sql:ro
     env_file:
       - .env
     networks:

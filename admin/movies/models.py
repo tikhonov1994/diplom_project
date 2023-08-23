@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
@@ -133,12 +134,10 @@ class MyUserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
     is_admin = models.BooleanField(default=False)
-    #first_name = models.CharField(max_length=255)
-    #last_name = models.CharField(max_length=255)
 
     # строка с именем поля модели, которая используется в качестве уникального идентификатора
     USERNAME_FIELD = 'email'
@@ -155,5 +154,9 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+    @property
+    def is_staff(self):
+        return self.is_admin
+
     class Meta:
-        db_table = "content\".\"users"
+        db_table = "content\".\"user"

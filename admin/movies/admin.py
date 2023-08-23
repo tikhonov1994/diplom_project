@@ -1,7 +1,8 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Group
 
-# from docker_compose.simple_project.app.movies.models import Filmwork, GenreFilmwork, PersonFilmwork
-from .models import Filmwork, GenreFilmwork, PersonFilmwork, Person
+from .models import Filmwork, GenreFilmwork, PersonFilmwork, Person, User
 
 
 # Register your models here
@@ -31,3 +32,28 @@ class PersonAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
 
     search_fields = ('full_name',)
+
+
+class CustomUserAdmin(UserAdmin):
+    model = User
+
+    list_display = ('email',)
+    list_filter = ('email',)
+    fieldsets = (
+        (None, {'fields': ('email',)}),
+    )
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email',)}
+        ),
+    )
+
+    search_fields = ('email',)
+    ordering = ('email',)
+    filter_horizontal = []
+
+
+# Re-register UserAdmin
+admin.site.register(User, CustomUserAdmin)
+admin.site.unregister(Group)

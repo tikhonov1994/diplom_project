@@ -122,8 +122,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "movies.User"
 AUTHENTICATION_BACKENDS = [
     'users.auth.CustomBackend',
-    # 'django.contrib.auth.backends.ModelBackend',
 ]
-
-AUTH_API_LOGIN_URL='http://auth_service:8002/api/v1/auth/login'
-#AUTH_API_LOGIN_URL=os.environ.get('POSTGRES_DB')

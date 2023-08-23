@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
 from schemas.base import IndexItemList
@@ -38,5 +39,6 @@ class HistoryListSchema(IndexItemList):
 
 
 class LoginResponseSchema(TokensSchema):
+    user_id: UUID
     email: EmailStr
     role: str

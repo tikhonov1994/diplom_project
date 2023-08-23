@@ -21,7 +21,8 @@ RUN  apt-get update && apt-get install -y gettext \
      && mkdir -p /opt/app/media/ \
      && pip install --upgrade pip \
      && pip install -r requirements.txt --no-cache-dir \
-     && pip install python-dateutil
+     && pip install python-dateutil \
+     && pip install requests
 
 # Скопируйте всё оставшееся. Для ускорения сборки образа эту команду стоит разместить ближе к концу файла.
 COPY . .
