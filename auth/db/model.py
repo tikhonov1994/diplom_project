@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID, uuid4
 
 from core.config import app_config
-from sqlalchemy import ForeignKey, MetaData
+from sqlalchemy import ForeignKey, MetaData, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 name_convention = {
@@ -37,6 +37,8 @@ class UserInfo(Base, IdMixin):
     role: Mapped['UserRole'] = relationship(lazy='joined')
     active_sessions: Mapped['UserSession'] = relationship(lazy='joined', cascade="all, delete",
                                                           passive_deletes=True)
+    socials: Mapped['UserSocial'] = relationship(lazy='joined', cascade="all, delete",
+                                                 passive_deletes=True)
 
 
 class UserSession(Base, IdMixin):
@@ -53,3 +55,13 @@ class UserRole(Base, IdMixin):
     __tablename__ = 'user_role'
 
     name: Mapped[str] = mapped_column(unique=True)
+
+
+class UserSocial(Base, IdMixin):
+    __tablename__ = 'user_social'
+
+    user_info_id: Mapped[UUID] = mapped_column(ForeignKey('user_info.id', ondelete="CASCADE"))
+    social_name: Mapped[str]
+    social_id: Mapped[str]
+
+    __table_args__ = (UniqueConstraint('social_name', 'social_id', name='_name_id_uc'),)

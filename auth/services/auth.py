@@ -34,8 +34,11 @@ class AuthService:
         self.Authorize = Authorize
         self.redis = redis
 
-    async def login(self, email: str, password: str, user_agent: str) -> LoginResponseSchema:
+    async def login_by_password(self, email: str, password: str, user_agent: str) -> TokensSchema:
         user = await self.authenticate_user(email, password)
+        return await self.login(user, user_agent)
+
+    async def login(self, user: UserInfo, user_agent: str) -> TokensSchema:
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -43,7 +46,7 @@ class AuthService:
             )
 
         claims = {
-            'email': email,
+            'email': user.email,
             'role': user.role.name,
             'user_agent': user_agent,
         }
@@ -160,8 +163,7 @@ class AuthService:
         return UUID(await self.Authorize.get_jwt_subject())
 
     async def get_user_history(self):
-        await self.get_token()
-        user_id = await self.Authorize.get_jwt_subject()
+        user_id = await self.get_user_id()
         stmt = select(UserSession).where(UserSession.user_info_id == user_id)
         if sessions := await self._user_info_storage.generic._session.execute(stmt):
             res = {'results': []}
@@ -174,3 +176,7 @@ class AuthService:
             res['count'] = len(res['results'])
             return res
         return None
+
+    async def get_user_id(self):
+        await self.get_token()
+        return await self.Authorize.get_jwt_subject()
