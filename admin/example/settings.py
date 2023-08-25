@@ -119,6 +119,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_API_LOGIN_URL = os.environ.get('AUTH_API_LOGIN_URL')
 AUTH_USER_MODEL = "movies.User"
 AUTHENTICATION_BACKENDS = [
     'users.auth.CustomBackend',

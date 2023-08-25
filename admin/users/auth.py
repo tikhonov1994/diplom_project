@@ -6,13 +6,14 @@ import uuid
 import requests
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 User = get_user_model()
 
 
 class CustomBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None):
-        url = os.environ.get('AUTH_API_LOGIN_URL')
+        url = settings.AUTH_API_LOGIN_URL
         headers = {'X-Request-Id': str(uuid.uuid4())}
 
         payload = {'email': username, 'password': password}
