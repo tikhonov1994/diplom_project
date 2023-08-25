@@ -119,10 +119,17 @@ async def test_delete_not_existing_role(http_auth_client: ClientSession) -> None
         assert response.status == HTTPStatus.NOT_FOUND
 
 
-async def test_delete_role_conflict(http_auth_client: ClientSession, db_session: AsyncSession) -> None:
+async def test_delete_role_cascade(http_auth_client: ClientSession, db_session: AsyncSession) -> None:
     assert await get_from_db(db_session, 'user_info', ('id', test_user_info['id']), 'auth') is not None
     assert await get_from_db(db_session, 'user_role', ('id', test_user_info['user_role_id']), 'auth') is not None
 
     async with http_auth_client.delete(ENDPOINT + test_user_info['user_role_id'],
                                        headers=test_admin_auth_headers) as response:
-        assert response.status == HTTPStatus.CONFLICT
+        assert response.status == HTTPStatus.OK
+        _ = await response.json()
+
+    # wait for auth service to commit changes
+    time.sleep(0.2)
+
+    assert await get_from_db(db_session, 'user_info', ('id', test_user_info['id']), 'auth') is None
+    assert await get_from_db(db_session, 'user_role', ('id', test_user_info['user_role_id']), 'auth') is None
