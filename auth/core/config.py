@@ -32,6 +32,7 @@ class AppConfig(BaseSettings):
     api: AuthConfig = AuthConfig()
     debug: bool = False
     enable_tracer: bool = True
+    request_limit_per_minute: int
 
     # Redis
     redis_host: str
