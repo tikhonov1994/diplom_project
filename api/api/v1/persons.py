@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi_cache.decorator import cache
 from starlette import status
 
@@ -9,6 +9,7 @@ from core.config import app_config as config
 from core.auth import UserRequiredDep
 from models.person import Person, PersonFilmWork, PersonList
 from services.person import PersonServiceDep
+from utils.query_utils import PaginatedParams
 
 router = APIRouter()
 
@@ -31,10 +32,9 @@ async def person_details(person_id: UUID,
 @cache(expire=config.api.cache_expire_seconds)
 async def search_persons(
         service: PersonServiceDep,
-        page_number: Annotated[int, Query(gt=0, lt=10000)] = 1,
-        page_size: Annotated[int, Query(gt=0, lt=10000)] = 50,
+        page_params: Annotated[PaginatedParams, Depends()],
         query: str = "") -> PersonList:
-    return await service.get_list(page_number, page_size, query)
+    return await service.get_list(page_params.page_number, page_params.page_size, query)
 
 
 @router.get(path='/{person_id}/film',
