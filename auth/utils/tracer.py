@@ -14,6 +14,9 @@ from core.config import app_config
 
 
 def configure_tracer(app: FastAPI) -> None:
+    if not app_config.enable_tracer:
+        return
+
     @app.middleware('http')
     async def before_request(request: Request, call_next):
         response = await call_next(request)
@@ -41,12 +44,15 @@ def configure_tracer(app: FastAPI) -> None:
 
 
 def inject_request_id(request_id: Annotated[str, Header(alias='X-Request-Id')]) -> None:
-    current_span = trace.get_current_span()
-    current_span.set_attribute('http.request_id', request_id)
-    print(current_span, request_id)
+    if app_config.enable_tracer:
+        current_span = trace.get_current_span()
+        current_span.set_attribute('http.request_id', request_id)
 
 
 def sub_span(func):
+    if not app_config.enable_tracer:
+        return func
+
     async def wrapped(*args, **kwargs):
         _tracer = trace.get_tracer(__name__)
         with _tracer.start_as_current_span(f'{func.__module__}.{func.__name__}'):

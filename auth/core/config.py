@@ -31,6 +31,7 @@ class AppConfig(BaseSettings):
     # Service
     api: AuthConfig = AuthConfig()
     debug: bool = False
+    enable_tracer: bool = True
 
     # Redis
     redis_host: str
