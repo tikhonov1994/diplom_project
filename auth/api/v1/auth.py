@@ -85,13 +85,14 @@ async def get_history(auth_service: AuthServiceDep,
 @router.get('/social_auth',
             description='Регистрация через социальные сети',
             dependencies=[Depends(inject_request_id)])
-async def social_auth(yandex_oauth: YandexOauthDep) -> AnyHttpUrl:
-    auth_url = await yandex_oauth.get_authorization_url()
-    return auth_url
+async def social_auth(yandex_oauth: YandexOauthDep, provider: str = 'yandex') -> AnyHttpUrl:
+    if provider == 'yandex':
+        return await yandex_oauth.get_authorization_url()
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Unknown provider!')
 
 
-@router.get('/verification_code',
-            description='Авторизации после входа через социальные сети',
+@router.get('/yandex/verification_code',
+            description='Авторизации после входа через yandex',
             dependencies=[Depends(inject_request_id)])
 async def verificate(code: str, yandex_oauth: YandexOauthDep,
                      auth_service: AuthServiceDep, request: Request) -> TokensSchema:
