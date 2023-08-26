@@ -1,22 +1,31 @@
 import http
 import json
-import os
 import uuid
 
 import requests
+from urllib.parse import urlparse
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 User = get_user_model()
 
 
 class CustomBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None):
-        url = os.environ.get('AUTH_API_LOGIN_URL')
+        url = settings.AUTH_API_LOGIN_URL
         headers = {'X-Request-Id': str(uuid.uuid4())}
-
         payload = {'email': username, 'password': password}
-        response = requests.post(url, data=json.dumps(payload), headers=headers)
+
+        session = requests.Session()
+        retries = Retry(total=settings.BACKOFF_RETRIES_COUNT,
+                        backoff_factor=1)
+        session.mount(urlparse(settings.AUTH_API_LOGIN_URL).scheme,
+                      HTTPAdapter(max_retries=retries))
+
+        response = session.post(url, data=json.dumps(payload), headers=headers)
         if response.status_code != http.HTTPStatus.OK:
             return None
 

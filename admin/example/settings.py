@@ -15,6 +15,8 @@ SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', False) == 'True'
+DEBUG_PROPAGATE_EXCEPTIONS = False
+BACKOFF_RETRIES_COUNT = 10
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split(' ')
 
@@ -119,6 +121,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_API_LOGIN_URL = os.environ.get('AUTH_API_LOGIN_URL')
 AUTH_USER_MODEL = "movies.User"
 AUTHENTICATION_BACKENDS = [
     'users.auth.CustomBackend',
