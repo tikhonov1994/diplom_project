@@ -31,6 +31,8 @@ class AppConfig(BaseSettings):
     # Service
     api: AuthConfig = AuthConfig()
     debug: bool = False
+    enable_tracer: bool = True
+    request_limit_per_minute: int
 
     # Redis
     redis_host: str
@@ -55,9 +57,9 @@ class AppConfig(BaseSettings):
     refresh_token_expire_minutes: int
 
     # OAuth
-    client_id: str
-    client_secret: str
-    client_redirect_uri: str
+    yandex_client_id: str
+    yandex_client_secret: str
+    yandex_client_redirect_uri: str
 
     @property
     def postgres_dsn(self) -> str:

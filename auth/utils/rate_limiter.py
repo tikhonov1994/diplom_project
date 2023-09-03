@@ -4,8 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from starlette import status
 
-# Установим лимит на 20 запросов в минуту
-REQUEST_LIMIT_PER_MINUTE = 20
+from core.config import app_config
 
 
 def throttle(app: FastAPI) -> None:
@@ -20,7 +19,7 @@ def throttle(app: FastAPI) -> None:
         await pipe.expire(key, 59)
         result = await pipe.execute()
         request_number = result[0]
-        if request_number > REQUEST_LIMIT_PER_MINUTE:
+        if request_number > app_config.request_limit_per_minute:
             return ORJSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 content={'detail': 'Too many requests'}

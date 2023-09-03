@@ -1,7 +1,7 @@
 from typing import Annotated, Optional, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from fastapi_cache.decorator import cache
 from starlette import status
 
@@ -9,6 +9,7 @@ from core.config import app_config as config
 from core.auth import UserRequiredDep
 from models.film import Film, FilmList
 from services.film import FilmServiceDep
+from utils.query_utils import PaginatedParams
 
 router = APIRouter()
 
@@ -26,13 +27,12 @@ async def film_details(film_id: UUID, service: FilmServiceDep, _: UserRequiredDe
             response_model=FilmList)
 @cache(expire=config.api.cache_expire_seconds)
 async def films_filter(service: FilmServiceDep,
+                       page_params: Annotated[PaginatedParams, Depends()],
                        sort: Optional[Literal["imdb_rating"]] = None,
-                       genre: UUID | None = None,
-                       page_number: Annotated[int, Query(gt=0)] = 1,
-                       page_size: Annotated[int, Query(gt=0, lt=10_000)] = 50) -> FilmList:
+                       genre: UUID | None = None) -> FilmList:
     return await service.get_list(
-        page_number=page_number,
-        page_size=page_size,
+        page_number=page_params.page_number,
+        page_size=page_params.page_size,
         sort=sort,
         genre_id=genre
     )
@@ -44,11 +44,10 @@ async def films_filter(service: FilmServiceDep,
 @cache(expire=config.api.cache_expire_seconds)
 async def films_search(service: FilmServiceDep,
                        _: UserRequiredDep,
-                       query: str | None = None,
-                       page_number: Annotated[int, Query(gt=0)] = 1,
-                       page_size: Annotated[int, Query(gt=0, lt=10_000)] = 50) -> FilmList:
+                       page_params: Annotated[PaginatedParams, Depends()],
+                       query: str | None = None) -> FilmList:
     return await service.get_list(
-        page_number=page_number,
-        page_size=page_size,
+        page_number=page_params.page_number,
+        page_size=page_params.page_size,
         query=query
     )
