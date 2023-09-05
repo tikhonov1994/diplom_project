@@ -13,3 +13,5 @@ logging.*
 .pytest_cache
 .vscode/
 storage.*
+report.md
+/performance_tests/test_data/Eartquakes-1990-2023.csv
