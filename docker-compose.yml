@@ -349,6 +349,12 @@ services:
     depends_on:
       - zookeeper
 
+  clickhouse_initial:
+    container_name: clickhouse_initial
+    build: ./deploy/clickhouse_initial
+    networks:
+      - application_network
+
 volumes:
   pg_volume:
   nginx_volume:
