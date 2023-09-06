@@ -1,1 +1,2 @@
 clickhouse-driver==0.2.6
+wait-for-it==2.2.2
