@@ -122,6 +122,20 @@ services:
     volumes:
       - nginx_volume:/opt/app/static
 
+  ugc_api:
+    container_name: ugc_api
+    build: ./ugc
+    image: movies_ugc
+    depends_on:
+      db:
+        condition: service_started
+    expose:
+      - "8003"
+    env_file:
+      - .env
+    networks:
+      - application_network
+
   nginx:
     container_name: nginx
     image: nginx:latest
@@ -135,6 +149,8 @@ services:
       auth:
         condition: service_started
       admin:
+        condition: service_started
+      ugc_api:
         condition: service_started
     ports:
       - "80:80"
