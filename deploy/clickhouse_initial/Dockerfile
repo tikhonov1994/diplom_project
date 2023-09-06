@@ -5,6 +5,5 @@ WORKDIR /opt/schemas
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY . .
-RUN chmod +x entrypoint.sh
 
-ENTRYPOINT ["sh", "entrypoint.sh"]
+ENTRYPOINT ["python", "initial.py"]
