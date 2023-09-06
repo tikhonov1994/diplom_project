@@ -1,4 +1,5 @@
 from time import monotonic
+import multiprocessing as mp
 
 from clickhouse_driver import Client
 
@@ -12,7 +13,7 @@ CLICKHOUSE_HOST = 'localhost'
 class ClickhouseTests(TestBase):
     READ_QUERY = f'select distinct user_id from docker.test where ts > 2400;'
 
-    def __init__(self, cold_init: bool = True):
+    def __init__(self, pre_filled_rec_count: int, cold_init: bool = True):
         if cold_init:
             client = Client(host=CLICKHOUSE_HOST)
             client.execute(f'DROP TABLE IF EXISTS docker.test;')
@@ -22,6 +23,19 @@ class ClickhouseTests(TestBase):
     id UUID, user_id UUID, movie_id UUID, ts Int32, created Date)
     Engine=MergeTree PRIMARY KEY user_id;
     ''')
+            self._pre_fill_db_mp(6, pre_filled_rec_count)
+
+    @classmethod
+    def _pre_fill_db_mp(cls, processes: int, rec_count: int) -> None:
+        batch_size = rec_count // 50000
+        with mp.Pool(processes) as pool:
+            pool.map(cls._pre_fill_db, [50000 for _ in range(batch_size)])
+
+    @staticmethod
+    def _pre_fill_db(rec_count: int):
+        client = Client(host=CLICKHOUSE_HOST)
+        _data = [rec.dict() for rec in get_test_records(rec_count)]
+        client.execute(f'INSERT INTO docker.test SETTINGS async_insert=1, wait_for_async_insert=1 VALUES', _data)
 
     def test_read(self, iter_count: int = 10) -> dict[str, any]:
         client = Client(host=CLICKHOUSE_HOST)

@@ -1,4 +1,5 @@
 from time import monotonic
+import multiprocessing as mp
 
 from vertica_python import connect
 
@@ -38,7 +39,7 @@ class VerticaTests(TestBase):
     # noinspection SqlNoDataSourceInspection
     READ_QUERY = f'select distinct user_id from test where ts > 2400;'
 
-    def __init__(self, cold_init: bool = True):
+    def __init__(self, pre_filled_rec_count: int, cold_init: bool = True):
         if cold_init:
             with connect(**conn_info) as conn:
                 cur = conn.cursor()
@@ -48,6 +49,22 @@ class VerticaTests(TestBase):
                     pass
                 finally:
                     cur.execute(DDL_QUERY)
+                    self._pre_fill_db_mp(6, pre_filled_rec_count)
+
+    @classmethod
+    def _pre_fill_db_mp(cls, processes: int, rec_count: int) -> None:
+        batch_size = rec_count // 50000
+        with mp.Pool(processes) as pool:
+            pool.map(cls._pre_fill_db, [50000 for _ in range(batch_size)])
+
+    @staticmethod
+    def _pre_fill_db(rec_count: int) -> None:
+        test_records = [rec.dict() for rec in get_test_records(rec_count)]
+        with connect(**conn_info) as conn:
+            cur = conn.cursor()
+            cur.executemany(f'''INSERT INTO test (id, user_id, movie_id, ts, created) 
+                                VALUES (:id, :user_id, :movie_id, :ts, :created);''',
+                            test_records)
 
     def test_read(self, n: int = 10) -> dict[str, any]:
         with connect(**conn_info) as conn:
