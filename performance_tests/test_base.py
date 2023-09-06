@@ -10,44 +10,44 @@ class TestBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def test_write(self, chunk_file: str, n: int = 10) -> dict[str, any]:
+    def test_write(self, rec_count: int = 10000, iter_count: int = 10) -> dict[str, any]:
         raise NotImplementedError
 
-    def _work(self, kind: str, chunk_f: str, iter_count: int) -> dict[str, any]:
+    def _work(self, kind: str, rec_count: int, iter_count: int) -> dict[str, any]:
         if kind == 'read':
             return self.test_read(iter_count)
         elif kind == 'write':
-            return self.test_write(chunk_f, iter_count)
+            return self.test_write(rec_count, iter_count)
         else:
             raise ValueError
 
-    def test_read_mp(self, cores: int = 4, n: int = 10) -> dict[str, any]:
+    def test_read_mp(self, cores: int = 4, iter_count: int = 10) -> dict[str, any]:
         with mp.Pool(cores) as pool:
-            results = pool.map(self.test_read, [n for _ in range(cores)])
+            results = pool.map(self.test_read, [iter_count for _ in range(cores)])
             avg_seconds = sum([test['test_read']['avg_seconds'] for test in results]) / len(results)
             return {'test_read_mp': {
                 'operation': self.READ_QUERY,
                 'cores': cores,
-                'iterations': n,
+                'iterations': iter_count,
                 'avg_seconds': avg_seconds
             }}
 
-    def test_write_mp(self, chunk_file: str, cores: int = 4, n: int = 4) -> dict[str, any]:
+    def test_write_mp(self, rec_count: int = 10000, cores: int = 4, iter_count: int = 4) -> dict[str, any]:
         with mp.Pool(cores) as pool:
-            results = pool.starmap(self.test_write, [(chunk_file, n) for _ in range(cores)])
+            results = pool.starmap(self.test_write, [(rec_count, iter_count) for _ in range(cores)])
             avg_seconds = sum([test['test_write']['avg_seconds'] for test in results]) / len(results)
             return {'test_write_mp': {
-                'chunk_file': chunk_file,
+                'rec_count': rec_count,
                 'cores': cores,
-                'iterations': n,
+                'iterations': iter_count,
                 'avg_seconds': avg_seconds
             }}
 
-    def test_mixed_mp(self, chunk_file: str, cores: int = 4, n: int = 10) -> dict[str, any]:
+    def test_mixed_mp(self, rec_count: int = 10000, cores: int = 4, iter_count: int = 10) -> dict[str, any]:
         with mp.Pool(cores) as pool:
             args = []
             for c_idx in range(cores):
-                args.append(('read' if c_idx % 2 else 'write', chunk_file, n))
+                args.append(('read' if c_idx % 2 else 'write', rec_count, iter_count))
             results = pool.starmap(self._work, args)
 
             _r_cnt = _w_cnt = 0
@@ -64,9 +64,9 @@ class TestBase(ABC):
 
             return {'test_mixed_mp': {
                 'read_operation': self.READ_QUERY,
-                'write_chunk_file': chunk_file,
+                'rec_count': rec_count,
                 'cores': cores,
-                'iterations': n,
+                'iterations': iter_count,
                 'avg_read_seconds': avg_read_seconds,
                 'avg_write_seconds': avg_write_seconds
             }}

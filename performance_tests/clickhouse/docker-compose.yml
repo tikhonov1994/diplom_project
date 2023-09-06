@@ -1,0 +1,17 @@
+version: '3.5'
+
+services:
+  clickhouse01:
+    image: clickhouse/clickhouse-server:22.5
+    container_name: clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      - CLICKHOUSE_DB=docker
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - clickhouse_volume:/etc/clickhouse-server
+
+volumes:
+  clickhouse_volume:
