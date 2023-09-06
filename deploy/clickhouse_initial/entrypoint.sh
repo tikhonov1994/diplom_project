@@ -1,3 +1,4 @@
 #!/bin/sh
 
-wait-for-it -- python initial.py
+wait-for-it --service http://localhost:8123/ \
+            -- python initial.py
