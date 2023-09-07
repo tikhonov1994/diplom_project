@@ -362,33 +362,33 @@ services:
     networks:
       - application_network
 
-  clickhouse-node1:
-    image: clickhouse/clickhouse-server:23.8.1-alpine
-    container_name: clickhouse-node1
-    hostname: clickhouse-node1
+  clickhouse1:
+    image: clickhouse/clickhouse-server:22.5
+    container_name: clickhouse1
     ports:
       - "8123:8123"
       - "9000:9000"
+    environment:
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     volumes:
-      - ./clickhouse_data/node1:/etc/clickhouse-server
-    depends_on:
-      - zookeeper
+      - clickhouse_volume:/etc/clickhouse-server
     networks:
       - application_network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/?query=SELECT%201 || exit 1
 
-  clickhouse-node2:
-    image: clickhouse/clickhouse-server:23.8.1-alpine
-    container_name: clickhouse-node2
-    hostname: clickhouse-node2
-    volumes:
-      - ./clickhouse_data/node2:/etc/clickhouse-server
-    depends_on:
-      - zookeeper
+  clickhouse_initial:
+    container_name: clickhouse_initial
+    build: ./deploy/clickhouse_initial
     networks:
       - application_network
+    depends_on:
+      clickhouse1:
+        condition: service_healthy
 
 volumes:
   pg_volume:
   nginx_volume:
   elastic_volume:
   redis_volume:
+  clickhouse_volume:
