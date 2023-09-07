@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from schemas import UserTimecodeSchema
 from db.kafka import get_producer, CustomKafkaProducer
 
@@ -15,7 +15,7 @@ async def add_movie_timecode(validated: UserTimecodeSchema, kafka_producer: Cust
         await kafka_producer.send(
             topic=VIEWS_TOPIC_NAME,
             key=key,
-            value=validated.timestamp.encode()
+            value=str(validated.timestamp).encode()
         )
     except Exception as e:
         raise HTTPException(status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=e.args[0].str())

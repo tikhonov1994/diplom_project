@@ -178,6 +178,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - application_network
 
   broker:
     image: confluentinc/cp-server:7.4.0
@@ -186,8 +188,8 @@ services:
     depends_on:
       - zookeeper
     expose:
-      - "2181"
       - "9101"
+      - "9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -207,6 +209,8 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+    networks:
+      - application_network
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.4.0
@@ -220,6 +224,8 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    networks:
+      - application_network
 
   connect:
     image: cnfldemos/cp-server-connect-datagen:0.6.0-7.3.0
@@ -250,6 +256,8 @@ services:
       CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
+    networks:
+      - application_network
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.4.0
@@ -273,6 +281,8 @@ services:
       CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
+    networks:
+      - application_network
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:7.4.0
@@ -296,6 +306,8 @@ services:
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
+    networks:
+      - application_network
 
   ksqldb-cli:
     image: confluentinc/cp-ksqldb-cli:7.4.0
@@ -306,6 +318,8 @@ services:
       - ksqldb-server
     entrypoint: /bin/sh
     tty: true
+    networks:
+      - application_network
 
   ksql-datagen:
     image: confluentinc/ksqldb-examples:7.4.0
@@ -328,6 +342,8 @@ services:
       STREAMS_BOOTSTRAP_SERVERS: broker:29092
       STREAMS_SCHEMA_REGISTRY_HOST: schema-registry
       STREAMS_SCHEMA_REGISTRY_PORT: 8081
+    networks:
+      - application_network
 
   rest-proxy:
     image: confluentinc/cp-kafka-rest:7.4.0
@@ -343,6 +359,8 @@ services:
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
       KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
+    networks:
+      - application_network
 
   clickhouse-node1:
     image: clickhouse/clickhouse-server:23.8.1-alpine
@@ -355,6 +373,8 @@ services:
       - ./clickhouse_data/node1:/etc/clickhouse-server
     depends_on:
       - zookeeper
+    networks:
+      - application_network
 
   clickhouse-node2:
     image: clickhouse/clickhouse-server:23.8.1-alpine
@@ -364,6 +384,8 @@ services:
       - ./clickhouse_data/node2:/etc/clickhouse-server
     depends_on:
       - zookeeper
+    networks:
+      - application_network
 
 volumes:
   pg_volume:

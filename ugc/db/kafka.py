@@ -5,8 +5,7 @@ from core.config import app_config
 class CustomKafkaProducer:
     def __init__(self):
         self.producer = KafkaProducer(
-            # bootstrap_servers=f'localhost:9092'
-            bootstrap_servers=f'{app_config.kafka_host}:{app_config.kafka_port}'
+            bootstrap_servers=[f'{app_config.kafka_host}:{app_config.kafka_port}'],
         )
 
     async def send(self, topic: str, key, value):
