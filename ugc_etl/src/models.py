@@ -1,10 +1,11 @@
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ViewsMessage(BaseModel):
-    timestamp: int
+    id: UUID = Field(default_factory=uuid4)
+    ts: int
     user_id: UUID
     movie_id: UUID
     created: int

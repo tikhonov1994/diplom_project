@@ -6,7 +6,7 @@ from kafka.consumer.fetcher import ConsumerRecord
 from src.core.config import app_config
 
 
-class Consumer(threading.Thread):
+class KafkaViewsConsumer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.stop_event = threading.Event()

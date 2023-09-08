@@ -1,5 +1,6 @@
-from src.extractor import Consumer
+from src.extractor import KafkaViewsConsumer
 from src.transformer import ViewsMessageTransformer as Transformer
+from src.loader import ClickhouseViewsLoader
 
 
 # TODO: REMOVE PRODUCER:
@@ -18,11 +19,13 @@ from src.transformer import ViewsMessageTransformer as Transformer
 
 
 def run_etl():
-    consumer = Consumer()
+    consumer = KafkaViewsConsumer()
+    loader = ClickhouseViewsLoader()
 
     for record in consumer.run():
         msg = Transformer.transform(record.key, record.value, record.timestamp)
         print(msg)
+        loader.add_message(msg)
 
 
 if __name__ == '__main__':
