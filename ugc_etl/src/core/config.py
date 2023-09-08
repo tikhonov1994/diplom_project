@@ -24,6 +24,10 @@ class ClickhouseConfig(BaseSettings):
 class EtlConfig(BaseSettings):
     topic_name: str = 'views'
     group_id: str = 'views_consumer_group'
+    admin_client_id: str = 'views_admin_client'
+    topic_replica_factor: int = 1
+    topic_partitions_count = 1
+
 
     kafka: KafkaConfig = KafkaConfig()
     clickhouse: ClickhouseConfig = ClickhouseConfig()

@@ -2,6 +2,7 @@ import threading
 from typing import Generator
 
 from kafka import KafkaConsumer
+from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.consumer.fetcher import ConsumerRecord
 from src.core.config import app_config
 
@@ -10,14 +11,29 @@ class KafkaViewsConsumer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.stop_event = threading.Event()
+        self._bootstrap_servers = [f'{app_config.kafka.host}:{app_config.kafka.port}']
+
+    def migrate(self):
+        admin_client = KafkaAdminClient(bootstrap_servers=self._bootstrap_servers,
+                                        client_id='views_admin_client')
+        topic_to_add = NewTopic(name=app_config.topic_name,
+                                num_partitions=app_config.topic_partitions_count,
+                                replication_factor=app_config.topic_replica_factor)
+        admin_client.create_topics(new_topics=[topic_to_add], validate_only=False)
 
     def stop(self):
         self.stop_event.set()
 
     def run(self) -> Generator[ConsumerRecord, None, None]:
         consumer = KafkaConsumer(
-            bootstrap_servers=[f'{app_config.kafka.host}:{app_config.kafka.port}'],
-            auto_offset_reset='earliest', group_id=app_config.group_id)
+            bootstrap_servers=self._bootstrap_servers,
+            auto_offset_reset='earliest',
+            group_id=app_config.group_id
+        )
+
+        if app_config.topic_name not in consumer.topics():
+            self.migrate()
+
         consumer.subscribe([app_config.topic_name])
 
         while not self.stop_event.is_set():
