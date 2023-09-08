@@ -12,8 +12,18 @@ class KafkaConfig(BaseSettings):
         env_prefix = 'kafka_'
 
 
+class ClickhouseConfig(BaseSettings):
+    host: str
+    port: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'clickhouse_'
+
+
 class EtlConfig(BaseSettings):
     kafka: KafkaConfig = KafkaConfig()
+    clickhouse: ClickhouseConfig = ClickhouseConfig()
 
     class Config:
         env_file = _ENV_FILE_LOC
