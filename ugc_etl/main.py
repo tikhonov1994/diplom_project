@@ -1,8 +1,8 @@
-import time
-from src.extractor import KafkaConsumer
+from src.extractor import Consumer
+
 
 def run_etl():
-    kafka_consumer = KafkaConsumer()
+    kafka_consumer = Consumer()
 
     messages = []
     for message in kafka_consumer.run():

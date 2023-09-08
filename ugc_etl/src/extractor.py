@@ -1,4 +1,6 @@
 import threading
+from typing import Generator
+
 from kafka import KafkaConsumer
 from src.core.config import app_config
 
@@ -13,10 +15,9 @@ class Consumer(threading.Thread):
     def stop(self):
         self.stop_event.set()
 
-    def run(self):
+    def run(self) -> Generator[any, None, None]:
         consumer = KafkaConsumer(
-            bootstrap_servers='localhost:9092',
-            # bootstrap_servers=[f'{app_config.kafka_host}:{app_config.kafka_port}'],
+            bootstrap_servers=[f'{app_config.kafka.host}:{app_config.kafka.port}'],
             auto_offset_reset='earliest', )
         consumer.subscribe([TOPIC_NAME])
 

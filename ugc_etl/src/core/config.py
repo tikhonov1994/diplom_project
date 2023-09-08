@@ -1,6 +1,6 @@
 from pydantic import BaseSettings
 
-_ENV_FILE_LOC = '../../../.env'
+_ENV_FILE_LOC = '.env'
 
 
 class KafkaConfig(BaseSettings):
@@ -13,8 +13,6 @@ class KafkaConfig(BaseSettings):
 
 
 class EtlConfig(BaseSettings):
-    logging_level: int
-
     kafka: KafkaConfig = KafkaConfig()
 
     class Config:
