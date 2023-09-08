@@ -1,7 +1,9 @@
 from clickhouse_driver import Client
+from clickhouse_driver.errors import NetworkError
 
 from src.core.config import app_config
 from src.models import ViewsMessage
+from src.utils.backoff import backoff
 
 
 class ClickhouseViewsLoader:
@@ -10,6 +12,7 @@ class ClickhouseViewsLoader:
                               port=app_config.clickhouse.port)
         self.migrate()
 
+    @backoff(exceptions=(NetworkError, EOFError))
     def migrate(self):
         self._client.execute('CREATE DATABASE IF NOT EXISTS ugc;')
         self._client.execute(
@@ -23,7 +26,7 @@ class ClickhouseViewsLoader:
                 ) Engine=MergeTree() ORDER BY created;'''
         )
 
+    @backoff(exceptions=(NetworkError, EOFError))
     def add_message(self, msg: ViewsMessage) -> None:
         self._client.execute('INSERT INTO ugc.views SETTINGS async_insert=1, wait_for_async_insert=1 VALUES',
-                             [msg.dict(),])
-        print(self._client.execute('SELECT count(*) from ugc.views;'))
+                             [msg.dict(), ])

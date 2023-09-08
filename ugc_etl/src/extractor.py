@@ -6,6 +6,10 @@ from kafka.admin import KafkaAdminClient, NewTopic
 from kafka.consumer.fetcher import ConsumerRecord
 from src.core.config import app_config
 
+_BACKOFF_SETTINGS = {'retry_backoff_ms': 100,
+                     'reconnect_backoff_ms': 100,
+                     'reconnect_backoff_max_ms': 3000}
+
 
 class KafkaViewsConsumer(threading.Thread):
     def __init__(self):
@@ -15,7 +19,8 @@ class KafkaViewsConsumer(threading.Thread):
 
     def migrate(self):
         admin_client = KafkaAdminClient(bootstrap_servers=self._bootstrap_servers,
-                                        client_id='views_admin_client')
+                                        client_id='views_admin_client',
+                                        **_BACKOFF_SETTINGS)
         topic_to_add = NewTopic(name=app_config.topic_name,
                                 num_partitions=app_config.topic_partitions_count,
                                 replication_factor=app_config.topic_replica_factor)
@@ -28,7 +33,8 @@ class KafkaViewsConsumer(threading.Thread):
         consumer = KafkaConsumer(
             bootstrap_servers=self._bootstrap_servers,
             auto_offset_reset='earliest',
-            group_id=app_config.group_id
+            group_id=app_config.group_id,
+            **_BACKOFF_SETTINGS
         )
 
         if app_config.topic_name not in consumer.topics():
