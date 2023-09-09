@@ -211,6 +211,8 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
     networks:
       - application_network
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.4.0
@@ -384,6 +386,15 @@ services:
       - application_network
     depends_on:
       clickhouse1:
+        condition: service_healthy
+
+  clickhouse_etl:
+    container_name: clickhouse_etl
+    build: ./ugc_etl
+    networks:
+      - application_network
+    depends_on:
+      broker:
         condition: service_healthy
 
 volumes:
