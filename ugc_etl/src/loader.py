@@ -4,6 +4,7 @@ from clickhouse_driver.errors import NetworkError
 from src.core.config import app_config
 from src.models import ViewsMessage
 from src.utils.backoff import backoff
+from src.core.logger import logger
 
 
 class ClickhouseViewsLoader:
@@ -25,6 +26,7 @@ class ClickhouseViewsLoader:
                     created Int64
                 ) Engine=MergeTree() ORDER BY created;'''
         )
+        logger.info('ClickHouse migrated!')
 
     @backoff(exceptions=(NetworkError, EOFError))
     def add_message(self, msg: ViewsMessage) -> None:
