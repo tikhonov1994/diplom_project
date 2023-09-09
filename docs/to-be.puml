@@ -1,0 +1,60 @@
+@startuml
+'!theme vibrant
+
+actor client as "клиент"
+actor admin as "Администратор"
+
+'admin -left-^ client: extends
+
+component nginx
+component ContentAPI
+component AdminPanel
+component AuthAPI
+component ETL
+component Jaeger
+component UgcAPI
+component UgcETL
+
+database PostgreSQL {
+  collections Content
+  collections Public
+  collections Auth
+}
+database Elasticsearch
+database Redis
+database Kafka {
+  collections views
+}
+database Clickhouse {
+  collections ugc
+}
+
+client -down-> nginx: Регистрация
+client <-down-> nginx: контент
+admin -down-> nginx: администрирование \nконтента
+admin <-down- nginx: статистика \nAuthAPI
+
+nginx <-down-> ContentAPI
+nginx <-down-> AuthAPI
+nginx <-down-> AdminPanel
+nginx <-down-> Jaeger
+nginx <-down-> UgcAPI
+
+ContentAPI <-down- Elasticsearch: контент
+ContentAPI <-down-> Redis: кеширование \nзапросов
+
+AuthAPI <-down-> Auth: Cессии \nпользователи
+AuthAPI -left-> Jaeger: статистика
+AuthAPI <-down-> Redis: Невалидные \nтокены
+UgcAPI -down-> views: статистика\nпросмотров
+
+AdminPanel -left-> AuthAPI: Проверка \nлогина \nи пароля
+AdminPanel -down-> Content: Изменения \nв контенте
+AdminPanel <-down-> Public: Служебные \nданные \n Django Admin
+
+ETL <-up- Content: запрос \nизменений \nконтента
+ETL -up-> Elasticsearch: загрузка \nизменений \nконтента
+
+UgcETL <-up- views: статистика\nпросмотров
+UgcETL -up-> ugc: статистика\nпросмотров
+@enduml
