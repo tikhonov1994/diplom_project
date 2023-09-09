@@ -367,9 +367,9 @@ services:
   clickhouse1:
     image: clickhouse/clickhouse-server:22.5
     container_name: clickhouse1
-    ports:
-      - "8123:8123"
-      - "9000:9000"
+    expose:
+      - "8123"
+      - "9000"
     environment:
       - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
     volumes:
@@ -388,13 +388,17 @@ services:
       clickhouse1:
         condition: service_healthy
 
-  clickhouse_etl:
-    container_name: clickhouse_etl
+  ugc_etl:
+    container_name: ugc_etl
     build: ./ugc_etl
     networks:
       - application_network
+    env_file:
+      - .env
     depends_on:
       broker:
+        condition: service_healthy
+      clickhouse1:
         condition: service_healthy
 
 volumes:
