@@ -1,6 +1,6 @@
 import os
 
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
 
 
 _ENV_FILE_LOC = '.env'
@@ -22,6 +22,8 @@ class UgcConfig(BaseSettings):
 class AppConfig(BaseSettings):
     # Logging
     log_level: str
+
+    authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
 
     # Service
     api: UgcConfig = UgcConfig()

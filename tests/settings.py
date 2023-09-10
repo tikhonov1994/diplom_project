@@ -8,6 +8,9 @@ class TestSettings(BaseSettings):
     auth_host: str
     auth_port: int
 
+    ugc_host: str
+    ugc_port: int
+
     elastic_host: str
     elastic_port: int
 

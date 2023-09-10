@@ -129,6 +129,8 @@ services:
     depends_on:
       db:
         condition: service_started
+      broker:
+        condition: service_healthy
     expose:
       - "8003"
     env_file:
