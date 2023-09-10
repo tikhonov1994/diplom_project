@@ -36,6 +36,9 @@ class KafkaViewsConsumer(threading.Thread):
                 bootstrap_servers=self._bootstrap_servers,
                 auto_offset_reset='earliest',
                 group_id=app_config.group_id,
+                enable_auto_commit=False,
+                fetch_min_bytes=52428800,
+                fetch_max_wait_ms=1000,
                 **_BACKOFF_SETTINGS
             )
 
