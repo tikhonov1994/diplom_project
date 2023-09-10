@@ -1,4 +1,4 @@
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _ENV_FILE_LOC = '.env'
 
@@ -6,19 +6,13 @@ _ENV_FILE_LOC = '.env'
 class KafkaConfig(BaseSettings):
     host: str
     port: str
-
-    class Config:
-        env_file = _ENV_FILE_LOC
-        env_prefix = 'kafka_'
+    model_config = SettingsConfigDict(env_file=_ENV_FILE_LOC, env_prefix='kafka_')
 
 
 class ClickhouseConfig(BaseSettings):
     host: str
     port: str
-
-    class Config:
-        env_file = _ENV_FILE_LOC
-        env_prefix = 'clickhouse_'
+    model_config = SettingsConfigDict(env_file=_ENV_FILE_LOC, env_prefix='clickhouse_')
 
 
 class EtlConfig(BaseSettings):
@@ -33,10 +27,7 @@ class EtlConfig(BaseSettings):
 
     kafka: KafkaConfig = KafkaConfig()
     clickhouse: ClickhouseConfig = ClickhouseConfig()
-
-    class Config:
-        env_file = _ENV_FILE_LOC
-        env_prefix = 'ugc_etl_'
+    model_config = SettingsConfigDict(env_file=_ENV_FILE_LOC, env_prefix='ugc_etl_')
 
 
 app_config = EtlConfig()
