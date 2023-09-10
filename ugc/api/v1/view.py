@@ -2,6 +2,7 @@ from http import HTTPStatus
 from fastapi import APIRouter, HTTPException, Depends
 from schemas import UserTimecodeSchema
 from db.kafka import get_producer, CustomKafkaProducer
+from core.auth import get_user_id
 
 router = APIRouter()
 
@@ -9,8 +10,9 @@ VIEWS_TOPIC_NAME = 'views'
 
 
 @router.post('/', description='Записать временную отметку на которой юзер остановился при просмотре')
-async def add_movie_timecode(validated: UserTimecodeSchema, kafka_producer: CustomKafkaProducer = Depends(get_producer)):
-    key = f'{validated.user_id}+{validated.movie_id}'.encode()
+async def add_movie_timecode(validated: UserTimecodeSchema, kafka_producer: CustomKafkaProducer = Depends(get_producer),
+                             user_id=Depends(get_user_id)):
+    key = f'{user_id}+{validated.movie_id}'.encode()
     try:
         await kafka_producer.send(
             topic=VIEWS_TOPIC_NAME,

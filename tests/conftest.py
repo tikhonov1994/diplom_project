@@ -33,3 +33,10 @@ async def http_auth_client() -> ClientSession:
     _client.headers
     yield _client
     await _client.close()
+
+@pytest_asyncio.fixture(scope='session')
+async def http_ugc_client() -> ClientSession:
+    # noinspection HttpUrlsUsage
+    _client = ClientSession(base_url=f'http://{settings.ugc_host}:{settings.ugc_port}')
+    yield _client
+    await _client.close()
