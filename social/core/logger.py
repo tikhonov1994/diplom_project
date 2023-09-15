@@ -4,7 +4,7 @@ from core.config import app_config as config
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOG_DEFAULT_HANDLERS = ['console', ]
-match config.log_level:
+match config.api.log_level:
     case 'DEBUG':
         LOG_LEVEL = logging.DEBUG
     case 'INFO':
@@ -13,6 +13,8 @@ match config.log_level:
         LOG_LEVEL = logging.ERROR
     case 'CRITICAL':
         LOG_LEVEL = logging.CRITICAL
+    case _:
+        LOG_LEVEL = logging.WARNING
 
 LOGGING = {
     'version': 1,
