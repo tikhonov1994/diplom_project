@@ -138,6 +138,17 @@ services:
     networks:
       - application_network
 
+  social_api:
+    container_name: social_api
+    build: ./social
+    image: movies_social
+    expose:
+      - "8010"
+    env_file:
+      - .env
+    networks:
+      - application_network
+
   nginx:
     container_name: nginx
     image: nginx:latest
