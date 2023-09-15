@@ -1,0 +1,1 @@
+rs.initiate({_id: "mongors1conf", version: 1, configsvr: true, members: [ { _id: 0, host : 'mongocfg1' }, { _id: 1, host : 'mongocfg2' } ] })
