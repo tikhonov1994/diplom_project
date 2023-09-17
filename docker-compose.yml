@@ -138,6 +138,17 @@ services:
     networks:
       - application_network
 
+  social_api:
+    container_name: social_api
+    build: ./social
+    image: movies_social
+    expose:
+      - "8010"
+    env_file:
+      - .env
+    networks:
+      - application_network
+
   nginx:
     container_name: nginx
     image: nginx:latest
@@ -403,9 +414,131 @@ services:
       clickhouse1:
         condition: service_healthy
 
+  mongors1n1:
+    container_name: mongors1n1
+    image: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - 27017:27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    links:
+      - mongors1n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_data1:/data/db
+
+  mongors1n2:
+    container_name: mongors1n2
+    image: mongo
+    command: mongod --shardsvr --replSet mongors1 --dbpath /data/db --port 27017
+    ports:
+      - 27027:27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_data2:/data/db
+
+  mongors2n1:
+    container_name: mongors2n1
+    image: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - 27047:27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    links:
+      - mongors2n2
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_data3:/data/db
+
+  mongors2n2:
+    container_name: mongors2n2
+    image: mongo
+    command: mongod --shardsvr --replSet mongors2 --dbpath /data/db --port 27017
+    ports:
+      - 27057:27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_data4:/data/db
+
+  mongocfg1:
+    container_name: mongocfg1
+    image: mongo
+    command: mongod --configsvr --replSet mongors1conf --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_config1:/data/db
+
+  mongocfg2:
+    container_name: mongocfg2
+    image: mongo
+    command: mongod --configsvr --replSet mongors1conf --dbpath /data/db --port 27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - mongo_config2:/data/db
+
+  mongos1:
+    container_name: mongos1
+    image: mongo
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+    command: mongos --configdb mongors1conf/mongocfg1:27017,mongocfg2:27017 --port 27017 --bind_ip_all
+    ports:
+      - 27019:27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  mongos2:
+    container_name: mongos2
+    image: mongo
+    depends_on:
+      - mongocfg1
+      - mongocfg2
+    command: mongos --configdb mongors1conf/mongocfg1:27017,mongocfg2:27017 --port 27017 --bind_ip_all
+    ports:
+      - 27020:27017
+    expose:
+      - "27017"
+    networks:
+      - application_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
 volumes:
   pg_volume:
   nginx_volume:
   elastic_volume:
   redis_volume:
   clickhouse_volume:
+  mongo_data1:
+  mongo_data2:
+  mongo_data3:
+  mongo_data4:
+  mongo_config1:
+  mongo_config2:
