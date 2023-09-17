@@ -20,12 +20,12 @@ async def test_search_films_auth(http_client) -> None:
     'search_query, expected_answer',
     [
         (
-                {'query': 'Star Wars'},
-                {'status_code': HTTPStatus.OK, 'body_length': 3},
+            {'query': 'Star Wars'},
+            {'status_code': HTTPStatus.OK, 'body_length': 3},
         ),
         (
-                {'query': 'The Clone'},
-                {'status_code': HTTPStatus.OK, 'body_length': 1},
+            {'query': 'The Clone'},
+            {'status_code': HTTPStatus.OK, 'body_length': 1},
         ),
     ]
 )
@@ -47,8 +47,8 @@ async def test_search_films_by_title(http_client, search_query, expected_answer)
     'search_query, expected_answer',
     [
         (
-                {'query': 'george'},
-                {'status_code': HTTPStatus.OK, 'body_length': 1},
+            {'query': 'george'},
+            {'status_code': HTTPStatus.OK, 'body_length': 1},
         ),
     ]
 )

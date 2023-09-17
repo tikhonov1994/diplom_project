@@ -18,6 +18,7 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
 )
 
+
 # callback to get your configuration
 @AuthJWT.load_config
 def get_config():

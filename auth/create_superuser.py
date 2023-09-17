@@ -31,9 +31,9 @@ def create_superuser(email: str, password):
                            f'VALUES (\'{uuid4()}\', \'{email}\', \'{password_hash}\', \'{admin_role_id}\');')
             _ = connection.execute(su_stmt)
             connection.commit()
-    except ValidationError as err:
+    except ValidationError:
         print('Email is invalid')
-    except IntegrityError as err:
+    except IntegrityError:
         print('The email is already in use')
 
 

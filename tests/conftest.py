@@ -34,6 +34,7 @@ async def http_auth_client() -> ClientSession:
     yield _client
     await _client.close()
 
+
 @pytest_asyncio.fixture(scope='session')
 async def http_ugc_client() -> ClientSession:
     # noinspection HttpUrlsUsage

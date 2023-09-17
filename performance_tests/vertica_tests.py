@@ -30,14 +30,14 @@ conn_info = {
 }
 
 # noinspection SqlNoDataSourceInspection
-CLEANUP_QUERY = f'DROP TABLE test;'
+CLEANUP_QUERY = 'DROP TABLE test;'
 # noinspection SqlNoDataSourceInspection
 DDL_QUERY = 'CREATE TABLE test (id UUID, user_id UUID, movie_id UUID, ts INT, created DATE);'
 
 
 class VerticaTests(TestBase):
     # noinspection SqlNoDataSourceInspection
-    READ_QUERY = f'select distinct user_id from test where ts > 2400;'
+    READ_QUERY = 'select distinct user_id from test where ts > 2400;'
 
     def __init__(self, pre_filled_rec_count: int, cold_init: bool = True):
         if cold_init:
@@ -45,8 +45,6 @@ class VerticaTests(TestBase):
                 cur = conn.cursor()
                 try:
                     cur.execute(CLEANUP_QUERY)
-                except:
-                    pass
                 finally:
                     cur.execute(DDL_QUERY)
                     self._pre_fill_db_mp(6, pre_filled_rec_count)
@@ -62,7 +60,7 @@ class VerticaTests(TestBase):
         test_records = [rec.dict() for rec in get_test_records(rec_count)]
         with connect(**conn_info) as conn:
             cur = conn.cursor()
-            cur.executemany(f'''INSERT INTO test (id, user_id, movie_id, ts, created) 
+            cur.executemany('''INSERT INTO test (id, user_id, movie_id, ts, created) 
                                 VALUES (:id, :user_id, :movie_id, :ts, :created);''',
                             test_records)
 
@@ -90,7 +88,7 @@ class VerticaTests(TestBase):
             test_records = [rec.dict() for rec in get_test_records(rec_count)]
             for _ in range(iter_count):
                 t_start = monotonic()
-                cur.executemany(f'''INSERT INTO test (id, user_id, movie_id, ts, created) 
+                cur.executemany('''INSERT INTO test (id, user_id, movie_id, ts, created) 
                                     VALUES (:id, :user_id, :movie_id, :ts, :created);''',
                                 test_records)
                 t_sum += monotonic() - t_start
