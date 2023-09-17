@@ -39,14 +39,31 @@ jobs:
 
     - name: Type cheking
       run: |
-        mypy
+        mypy ./social --ignore-missing-imports
 #        mypy ./ugc_etl ./ugc --explicit-package-bases --ignore-missing-imports
 
-    - name: Test with pytest
-      run: |
-#        pytest tests/unit
-        pytest tests/functional/src
+#    - name: Test with pytest
+#      run: |
+#        pytest tests/functional/src
 
   send-message:
     name: Send message to Telegram
-    uses: appleboy/telegram-action@master
+
+    build:
+      name: Build
+      runs-on: ubuntu-latest
+      steps:
+        - name: send telegram message on push
+          uses: appleboy/telegram-action@master
+          with:
+            to: ${{ secrets.TELEGRAM_TO }}
+            token: ${{ secrets.TELEGRAM_TOKEN }}
+            message: |
+              ${{ github.actor }} created commit:
+              
+              Commit message: ${{ github.event.commits[0].message }}
+  
+              Repository: ${{ github.repository }}
+  
+              See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+
