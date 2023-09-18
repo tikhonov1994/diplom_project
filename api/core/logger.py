@@ -4,7 +4,7 @@ from core.config import app_config as config
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOG_DEFAULT_HANDLERS = ['console', ]
-match config.log_level:
+match config.log_level: # type: ignore[syntax]
     case 'DEBUG':
         LOG_LEVEL = logging.DEBUG
     case 'INFO':
