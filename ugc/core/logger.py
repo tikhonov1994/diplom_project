@@ -4,15 +4,14 @@ from core.config import app_config as config
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 LOG_DEFAULT_HANDLERS = ['console', ]
-match config.log_level:
-    case 'DEBUG':
-        LOG_LEVEL = logging.DEBUG
-    case 'INFO':
-        LOG_LEVEL = logging.INFO
-    case 'ERROR':
-        LOG_LEVEL = logging.ERROR
-    case 'CRITICAL':
-        LOG_LEVEL = logging.CRITICAL
+if config.log_level == 'DEBUG':
+    LOG_LEVEL = logging.DEBUG
+elif config.log_level == 'INFO':
+    LOG_LEVEL = logging.INFO
+elif config.log_level == 'ERROR':
+    LOG_LEVEL = logging.ERROR
+elif config.log_level == 'CRITICAL':
+    LOG_LEVEL = logging.CRITICAL
 
 LOGGING = {
     'version': 1,
