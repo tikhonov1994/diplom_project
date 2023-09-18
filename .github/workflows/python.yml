@@ -39,7 +39,7 @@ jobs:
 
     - name: Type cheking
       run: |
-        mypy ./social --config-file=setup.cfg --allow-redefinition
+        mypy ./social ./ugc --config-file=setup.cfg --allow-redefinition
 #        mypy ./social --ignore-missing-imports
 #        mypy ./ugc_etl ./ugc --explicit-package-bases --ignore-missing-imports
 
