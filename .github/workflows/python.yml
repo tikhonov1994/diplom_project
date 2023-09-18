@@ -43,9 +43,9 @@ jobs:
 #        mypy ./social --ignore-missing-imports
 #        mypy ./ugc_etl ./ugc --explicit-package-bases --ignore-missing-imports
 
-#    - name: Test with pytest
-#      run: |
-#        pytest tests/functional/src
+    - name: Test with pytest
+      run: |
+        pytest tests/functional/src
 
 #  send-message:
 #    runs-on: ubuntu-latest
