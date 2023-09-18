@@ -1,4 +1,5 @@
 import asyncio
+from typing import AsyncGenerator
 
 import pytest_asyncio
 from aiohttp import ClientSession
@@ -18,7 +19,7 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(scope='session')
-async def http_client() -> ClientSession:
+async def http_client() -> AsyncGenerator[ClientSession, None]:
     # noinspection HttpUrlsUsage
     _client = ClientSession(base_url=f'http://{settings.api_host}:{settings.api_port}')
     yield _client

@@ -23,7 +23,7 @@ class AppConfig(BaseSettings):
     # Logging
     log_level: str
 
-    authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
+    authjwt_secret_key: str = Field(env='JWT_SECRET_KEY')
 
     # Service
     api: UgcConfig = UgcConfig()
