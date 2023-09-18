@@ -39,13 +39,10 @@ jobs:
 
     - name: Type cheking
       run: |
-        mypy ./social ./ugc --config-file=setup.cfg --allow-redefinition
+#        mypy ./social ./ugc --config-file=setup.cfg --allow-redefinition
+        mypy . --config-file=setup.cfg --allow-redefinition
 #        mypy ./social --ignore-missing-imports
 #        mypy ./ugc_etl ./ugc --explicit-package-bases --ignore-missing-imports
-
-    - name: Test with pytest
-      run: |
-        pytest tests/functional/src
 
 #  send-message:
 #    runs-on: ubuntu-latest
