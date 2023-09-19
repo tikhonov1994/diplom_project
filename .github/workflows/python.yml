@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  Linters:
 
     runs-on: ubuntu-latest
 
@@ -37,7 +37,7 @@ jobs:
 #        flake8 . --count --exit-zero --select=E9,F63,F7,F82 --max-complexity=10 --max-line-length=127 --statistics
 #        flake8 . --count --select E,F --count --show-source --statistics --format=html --htmldir=flake-report
 
-    - name: Type cheking
+    - name: Type check with Mypy
       run: |
 #        mypy ./social ./ugc --config-file=setup.cfg --allow-redefinition
         mypy . --config-file=setup.cfg --allow-redefinition
