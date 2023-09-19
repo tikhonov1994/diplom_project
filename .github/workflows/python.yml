@@ -33,7 +33,7 @@ jobs:
       run: |
         flake8 --config=setup.cfg --show-source
 
-    - name: Type cheking
+    - name: Type check with Mypy
       run: |
         mypy ./social ./ugc --config-file=setup.cfg --allow-redefinition
 
