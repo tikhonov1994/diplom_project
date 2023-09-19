@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from uuid import UUID
 
 
 class Rating(BaseModel):
@@ -8,6 +9,7 @@ class Rating(BaseModel):
 
 
 class Review(BaseModel):
+    film_id: UUID
     text: str
     date: datetime
     author: str
