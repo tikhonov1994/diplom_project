@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  Linter:
 
     runs-on: ubuntu-latest
 
@@ -32,19 +32,10 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 --config=setup.cfg --show-source
-#        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-#        flake8 . --count --exit-zero --select=E9,F63,F7,F82 --max-complexity=10 --max-line-length=127 --statistics
-#        flake8 . --count --select E,F --count --show-source --statistics --format=html --htmldir=flake-report
 
     - name: Type cheking
       run: |
         mypy ./social ./ugc --config-file=setup.cfg --allow-redefinition
-#        mypy ./social --ignore-missing-imports
-#        mypy ./ugc_etl ./ugc --explicit-package-bases --ignore-missing-imports
-
-#    - name: Test with pytest
-#      run: |
-#        pytest tests/functional/src
 
 #  send-message:
 #    runs-on: ubuntu-latest
