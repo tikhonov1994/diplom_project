@@ -2,8 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from social.services import MovieRatingServiceDep
-from social.schemas.rating import AssessMovieSchema, RateMovieSchema, MovieRatingStats
+from services import MovieRatingServiceDep
+from schemas.rating import AssessMovieSchema, RateMovieSchema, MovieRatingStats
 
 router = APIRouter()
 

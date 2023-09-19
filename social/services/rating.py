@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from social.services.base import MongoServiceBase
-from social.schemas.rating import MovieRatingStats
+from services.base import MongoServiceBase
+from schemas.rating import MovieRatingStats
 
 
 class MovieRatingService(MongoServiceBase):
