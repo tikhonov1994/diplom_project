@@ -25,5 +25,13 @@ create_collection:
 shard_by_field:
 	docker exec -it mongos1 bash -c 'echo "sh.shardCollection(\"someDb.someCollection\", {\"someField\": \"hashed\"})" | mongosh'
 
+create_reviws_collection:
+	docker exec -it mongos1 bash -c 'echo "db.createCollection(\"someDb.reviews\")" | mongosh'
 
-all: set_conf_servers first_shard shard_to_router second_shard add_second_to_cluster create_db turn_on_sharding create_collection shard_by_field
+create_movie_likes_collection:
+	docker exec -it mongos1 bash -c 'echo "db.createCollection(\"someDb.movieLikes\")" | mongosh'
+
+shard_movie_likes_collection:
+	docker exec -it mongos1 bash -c 'echo "sh.shardCollection(\"someDb.movieLikes\", {\"movie_id\": \"hashed\"})" | mongosh'
+
+all: set_conf_servers first_shard shard_to_router second_shard add_second_to_cluster create_db turn_on_sharding create_collection shard_by_field create_reviws_collection create_movie_likes_collection shard_movie_likes_collection
