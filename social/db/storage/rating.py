@@ -12,20 +12,9 @@ class RatingStorage(MongoStorageBase):
     def movie_likes(self) -> AsyncIOMotorCollection:
         return self.db.movieLikes
 
-    async def _find_matching_rec(self, user_id: UUID, movie_id: UUID) -> dict | None:
-        return await self.movie_likes.find_one({'$and': [
-            {'user_id': {'$eq': user_id}},
-            {'entity_id': {'$eq': movie_id}}
-        ]})
-
     async def get_rating_records_for_movie(self, movie_id: UUID) -> list[EntityRating]:
         cursor = self.movie_likes.find({'entity_id': {'$eq': movie_id}})
         return [EntityRating.parse_obj(doc) for doc in await cursor.to_list(length=None)]
-
-    async def get_user_rating_for_movie(self, user_id: UUID, movie_id: UUID) -> EntityRating | None:
-        if doc := await self._find_matching_rec(user_id, movie_id):
-            return EntityRating.parse_obj(doc)
-        return None
 
     async def upsert_user_rating_for_movie(self, user_id: UUID, movie_id: UUID, rating_value: int) -> None:
         new_doc = EntityRating(

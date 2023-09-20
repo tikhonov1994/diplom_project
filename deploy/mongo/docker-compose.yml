@@ -15,6 +15,7 @@ services:
   mongo_cnf_n1:
     <<: *mongo-common
     hostname: mongo_cnf_n1
+    container_name: mongo_cnf_n1
     command: mongod --configsvr --replSet mongo_cnf --dbpath /data/db --port 27017 --bind_ip localhost,mongo_cnf_n1
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -23,10 +24,12 @@ services:
   mongo_cnf_n2:
     <<: *mongo-common
     hostname: mongo_cnf_n2
+    container_name: mongo_cnf_n2
     command: mongod --configsvr --replSet mongo_cnf --dbpath /data/db --port 27017 --bind_ip localhost,mongo_cnf_n2
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - mongo_cnf_n2_data:/data/db
+
   config_cnf_rs:
     <<: *mongo-common
     volumes:
@@ -48,6 +51,7 @@ services:
   mongo_rs1_n1:
     <<: *mongo-common
     hostname: mongo_rs1_n1
+    container_name: mongo_rs1_n1
     command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n1
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -56,6 +60,7 @@ services:
   mongo_rs1_n2:
     <<: *mongo-common
     hostname: mongo_rs1_n2
+    container_name: mongo_rs1_n2
     command: mongod --shardsvr --replSet mongo_rs1 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs1_n2
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -82,6 +87,7 @@ services:
   mongo_rs2_n1:
     <<: *mongo-common
     hostname: mongo_rs2_n1
+    container_name: mongo_rs2_n1
     command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n1
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -90,6 +96,7 @@ services:
   mongo_rs2_n2:
     <<: *mongo-common
     hostname: mongo_rs2_n2
+    container_name: mongo_rs2_n2
     command: mongod --shardsvr --replSet mongo_rs2 --dbpath /data/db --port 27017 --bind_ip localhost,mongo_rs2_n2
     volumes:
       - /etc/localtime:/etc/localtime:ro
@@ -116,6 +123,8 @@ services:
   mongos:
     <<: *mongo-common
     command: mongos --configdb mongo_cnf/mongo_cnf_n1:27017,mongo_cnf_n2:27017 --port 27017 --bind_ip localhost,mongos
+    hostname: mongos
+    container_name: mongos
     ports:
       - "27017:27017"
     environment:

@@ -6,7 +6,7 @@ from starlette import status
 from core.auth import UserIdDep
 from services import MovieRatingServiceDep
 from services.rating import MovieRatingNotFound
-from schemas.rating import AssessMovieSchema, RateMovieSchema, MovieRatingStats
+from schemas.rating import RateMovieSchema, MovieRatingStats
 
 router = APIRouter()
 
@@ -17,32 +17,32 @@ async def rate_movie(rate_data: RateMovieSchema,
                      service: MovieRatingServiceDep,
                      user_id: UserIdDep):
     await service.set_rating(rate_data.movie_id,
-                             user_id,
+                             str(user_id),
                              rate_data.rating_value)
 
 
-@router.post('/movie/like',
+@router.post('/movie/{movie_id}/like',
              description='Поставить лайк фильму.')
-async def like_movie(like_data: AssessMovieSchema,
+async def like_movie(movie_id: UUID,
                      service: MovieRatingServiceDep,
                      user_id: UserIdDep):
-    await service.like(like_data.movie_id, user_id)
+    await service.like(movie_id, user_id)
 
 
-@router.post('/movie/dislike',
+@router.post('/movie/{movie_id}/dislike',
              description='Поставить дизлайк фильму.')
-async def dislike_movie(dislike_data: AssessMovieSchema,
+async def dislike_movie(movie_id: UUID,
                         service: MovieRatingServiceDep,
                         user_id: UserIdDep):
-    await service.dislike(dislike_data.movie_id, user_id)
+    await service.dislike(movie_id, user_id)
 
 
-@router.delete('/movie/rate',
+@router.delete('/movie/{movie_id}/rate',
                description='Удалить оценку фильма.')
-async def delete_movie_rating(deletion_data: AssessMovieSchema,
+async def delete_movie_rating(movie_id: UUID,
                               service: MovieRatingServiceDep,
                               user_id: UserIdDep):
-    await service.remove_rating(deletion_data.movie_id, user_id)
+    await service.remove_rating(movie_id, user_id)
 
 
 @router.get('/movie/{movie_id}',
