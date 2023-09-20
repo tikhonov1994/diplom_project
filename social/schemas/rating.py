@@ -12,7 +12,6 @@ class MovieRatingStats(BaseModel):
 
 class AssessMovieSchema(BaseModel):
     movie_id: UUID
-    user_id: UUID
 
 
 class RateMovieSchema(AssessMovieSchema):

@@ -1,3 +1,6 @@
+from typing import Annotated
+from uuid import UUID
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from async_fastapi_jwt_auth import AuthJWT
@@ -18,3 +21,6 @@ async def get_user_id(_=Depends(_bearer), authorize: AuthJWT = Depends()):
             detail="Auth header is missing",
             headers={"Authorization": "Bearer"}
         )
+
+
+UserIdDep = Annotated[UUID, Depends(get_user_id)]
