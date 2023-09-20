@@ -1,16 +1,13 @@
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from starlette import status
 
 from services import MovieRatingServiceDep
+from services.rating import MovieRatingNotFound
 from schemas.rating import AssessMovieSchema, RateMovieSchema, MovieRatingStats
 
 router = APIRouter()
-
-
-@router.get('/ping')
-def healthcheck():
-    return 'pong!'
 
 
 @router.post('/movie/rate',
@@ -48,4 +45,7 @@ async def delete_movie_rating(deletion_data: AssessMovieSchema,
             response_model=MovieRatingStats)
 async def get_movie_rating_stats(movie_id: UUID,
                                  service: MovieRatingServiceDep) -> MovieRatingStats:
-    return await service.get_rating(movie_id)
+    try:
+        return await service.get_rating(movie_id)
+    except MovieRatingNotFound as err:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))

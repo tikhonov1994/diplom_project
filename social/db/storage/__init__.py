@@ -1,7 +1,10 @@
 from typing import Annotated
-from db.storage.mongo import MongoStorage
+from db.storage.review import ReviewStorage
+from db.storage.rating import RatingStorage
 from fastapi import Depends
 
-MongoStrageDep = Annotated[MongoStorage, Depends()]
+ReviewStorageDep = Annotated[ReviewStorage, Depends()]
+RatingStorageDep = Annotated[RatingStorage, Depends()]
 
-__all__ = ['MongoStrageDep']
+__all__ = ['ReviewStorageDep',
+           'RatingStorageDep']
