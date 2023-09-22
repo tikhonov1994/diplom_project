@@ -30,6 +30,7 @@ class SocialConfig(BaseSettings):
 
 class AppConfig(BaseSettings):
     authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
+    sentry_dsn: str
 
     api: SocialConfig = SocialConfig()
     mongo: SocialMongoConfig = SocialMongoConfig()
