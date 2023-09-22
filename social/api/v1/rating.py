@@ -8,7 +8,14 @@ from services import MovieRatingServiceDep
 from services.rating import MovieRatingNotFound
 from schemas.rating import RateMovieSchema, MovieRatingStats
 
+from core.logger import logger
+
 router = APIRouter()
+
+
+@router.get('/test')
+async def test():
+    logger.warning('achtung!', {'a': 'a', 'b': 9})
 
 
 @router.post('/movie/rate',

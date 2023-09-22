@@ -22,18 +22,30 @@ class SocialConfig(BaseSettings):
     host: str
     port: int
     log_level: str
+    version: str = 'dev'
 
     class Config:
         env_file = _ENV_FILE_LOC
         env_prefix = 'social_'
 
 
+class LogstashConfig(BaseSettings):
+    host: str
+    port: int
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'logstash_'
+
+
 class AppConfig(BaseSettings):
     authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
     sentry_dsn: str
+    debug: bool
 
     api: SocialConfig = SocialConfig()
     mongo: SocialMongoConfig = SocialMongoConfig()
+    logstash: LogstashConfig = LogstashConfig()
 
     class Config:
         env_file = _ENV_FILE_LOC
