@@ -1,7 +1,7 @@
 version: '2.2'
 
 services:
-  elasticsearch:
+  elk-elastic:
     image: elasticsearch:8.6.2
     container_name: elk-elastic
     environment:
@@ -12,7 +12,7 @@ services:
     volumes:
       - /esdata:/tmp/elasticsearch/data
     healthcheck:
-      test: curl --fail http://elasticsearch:9200/_cat/indices?v || exit 1
+      test: curl --fail http://elk-elastic:9200/_cat/indices?v || exit 1
       interval: 5s
       retries: 3
     networks:
@@ -23,13 +23,15 @@ services:
     container_name: logstash
     environment:
       XPACK_MONITORING_ENABLED: "false"
-      ES_HOST: "elasticsearch:9200"
-    ports:
-      - "5044:5044/udp"
+      ES_HOST: "elk-elastic:9200"
+    expose:
+      - "18010/udp"
+      - "5045/udp"
     volumes:
       - ./logstash.conf:/config/logstash.conf:ro
+      - nginx_logs:/var/log/nginx/:ro
     depends_on:
-      elasticsearch:
+      elk-elastic:
         condition: service_healthy
     command: logstash -f /config/logstash.conf
     networks:
@@ -40,8 +42,10 @@ services:
     container_name: kibana
     ports:
       - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: "http://elk-elastic:9200"
     depends_on:
-      elasticsearch:
+      elk-elastic:
         condition: service_healthy
     networks:
       - application_network

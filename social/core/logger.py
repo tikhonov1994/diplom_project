@@ -166,6 +166,6 @@ LOG_CONFIG = {
 dictConfig(LOG_CONFIG)
 logger = logging.getLogger('main')
 logstash_handler = logstash.LogstashHandler(app_config.logstash.host,
-                                            app_config.logstash.port,
+                                            app_config.api.logstash_port,
                                             version=1)
 logger.addHandler(logstash_handler)

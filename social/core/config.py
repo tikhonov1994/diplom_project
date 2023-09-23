@@ -6,7 +6,6 @@ _ENV_FILE_LOC = '.env'
 class SocialMongoConfig(BaseSettings):
     host: str
     port: int
-    social_database: str
 
     @property
     def mongo_uri(self) -> str:
@@ -23,6 +22,8 @@ class SocialConfig(BaseSettings):
     port: int
     log_level: str
     version: str = 'dev'
+    logstash_port: int
+    mongo_database: str
 
     class Config:
         env_file = _ENV_FILE_LOC
@@ -31,7 +32,6 @@ class SocialConfig(BaseSettings):
 
 class LogstashConfig(BaseSettings):
     host: str
-    port: int
 
     class Config:
         env_file = _ENV_FILE_LOC
