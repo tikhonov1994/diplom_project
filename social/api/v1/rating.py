@@ -13,11 +13,6 @@ from core.logger import logger
 router = APIRouter()
 
 
-@router.get('/test')
-async def test():
-    logger.warning('achtung!', {'a': 'a', 'b': 9})
-
-
 @router.post('/movie/rate',
              description='Оценить фильм.')
 async def rate_movie(rate_data: RateMovieSchema,

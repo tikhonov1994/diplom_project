@@ -3,8 +3,17 @@ version: '3.9'
 networks:
   application_network:
 
+volumes:
+  nginx_logs:
+  pg_volume:
+  nginx_volume:
+  elastic_volume:
+  redis_volume:
+  clickhouse_volume:
+
 include:
   - ./deploy/mongo/docker-compose.yml
+  - ./deploy/elk/docker-compose.yml
 
 services:
   db:
@@ -415,10 +424,3 @@ services:
         condition: service_healthy
       clickhouse1:
         condition: service_healthy
-
-volumes:
-  pg_volume:
-  nginx_volume:
-  elastic_volume:
-  redis_volume:
-  clickhouse_volume:
