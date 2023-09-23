@@ -153,8 +153,6 @@ services:
       mongos:
         condition: service_healthy
 
-networks:
-  application_network:
 volumes:
   mongo_rs1_n1_data:
   mongo_rs1_n2_data:
