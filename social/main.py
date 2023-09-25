@@ -1,15 +1,13 @@
-import uvicorn
 from logging import config as logging_config
 
+import uvicorn
 from async_fastapi_jwt_auth import AuthJWT
-from fastapi import FastAPI, APIRouter
-from fastapi.responses import ORJSONResponse
-
-from api.v1 import rating
-from api.v1 import reviews
-from api.v1 import bookmarks
 from core.config import app_config as config
 from core.logger import LOGGING
+from fastapi import APIRouter, FastAPI
+from fastapi.responses import ORJSONResponse
+
+from api.v1 import bookmarks, rating, reviews
 
 logging_config.dictConfig(LOGGING)
 

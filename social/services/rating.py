@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from schemas.rating import MovieRatingStats
 from db.storage import RatingStorageDep
+from schemas.rating import MovieRatingStats
 
 
 class MovieRatingServiceException(Exception):
