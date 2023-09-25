@@ -59,11 +59,11 @@ class JSONLogFormatter(logging.Formatter):
     def _format_log_object(record: logging.LogRecord) -> dict:
         now = (
             datetime.
-                datetime.
-                fromtimestamp(record.created).
-                astimezone().
-                replace(microsecond=0).
-                isoformat()
+            datetime.
+            fromtimestamp(record.created).
+            astimezone().
+            replace(microsecond=0).
+            isoformat()
         )
         message = record.getMessage()
         duration = (
