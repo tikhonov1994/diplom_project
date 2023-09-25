@@ -1,7 +1,9 @@
 from db.storage import ReviewStorageDep
 from uuid import UUID
+from datetime import date
 
 from models.review import ReviewRating
+from schemas.reviews_query import QueryParams
 
 
 class ReviewService:
@@ -15,8 +17,25 @@ class ReviewService:
                             review_id: UUID) -> None:
         await self.mongo_storage.update_review(text, user_id, author_rating, film_id, review_id)
     
-    async def get_all_reviews(self):
-        return await self.mongo_storage.get_all_reviews()
+    async def get_reviews(self, query_params: QueryParams):
+        sort_params = query_params.order.value.split('_')
+        if sort_params[-1] == 'asc':
+            sort = ('_'.join(sort_params[:-1]), 1)
+        elif sort_params[-1] == 'desc':
+            sort = ('_'.join(sort_params[:-1]), -1)
+        else:
+            sort = None
+        if filter_field := query_params.filter_field:
+            if (filter_field.value == 'added' and query_params.filter_argument):
+                filter_query = {filter_field.value : {('$' + query_params.filter_argument.value): query_params.filter_value.isoformat()}}
+            elif (filter_field.value == 'author_rating' and type(query_params.filter_value) == int and
+                                                             query_params.filter_argument):
+                filter_query = {filter_field.value : {('$' + query_params.filter_argument.value): query_params.filter_value}}
+            else:
+                raise
+        else:
+            filter_query = None
+        return await self.mongo_storage.get_reviews(sort, filter_query)
     
     async def delete_review(self, review_id: UUID):
         await self.mongo_storage.delete_review(review_id)

@@ -31,8 +31,13 @@ class ReviewStorage(MongoStorageBase):
         )
         await self.reviews.insert_one(document.dict())
     
-    async def get_all_reviews(self) -> list[Review]:
-        cursor = self.reviews.find()
+    async def get_reviews(self, sort: set | None = None, filter_query: dict | None = None) -> list[Review]:
+        if filter_query:
+            cursor = self.reviews.find(filter_query)
+        else:
+            cursor = self.reviews.find()
+        if sort:
+            cursor = cursor.sort(*sort)
         return [Review.parse_obj(doc) for doc in await cursor.to_list(length=None)]
 
     async def update_review(self, text: str, user_id: UUID, author_rating: int, film_id: UUID,

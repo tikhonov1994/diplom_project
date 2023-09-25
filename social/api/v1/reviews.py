@@ -1,10 +1,12 @@
 from uuid import UUID
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from typing import Annotated
 
 from core.auth import UserIdDep
 from schemas.reviews import ReviewSchema
 from services import ReviewServiceDep
 from models.review import Review, ReviewRating
+from schemas.reviews_query import QueryParams
 
 router = APIRouter()
 
@@ -26,8 +28,9 @@ async def update_review(review_id: UUID, validated_data: ReviewSchema,
 
 
 @router.get('/review', description='Все рецензии')
-async def all_reviews(service: ReviewServiceDep, _: UserIdDep) -> list[Review]:
-    return await service.get_all_reviews()
+async def all_reviews(query_params: Annotated[QueryParams, Depends()],
+                      service: ReviewServiceDep, _: UserIdDep) -> list[Review]:
+    return await service.get_reviews(query_params)
 
 
 @router.delete('/review/{review_id}/delete', description='Удалить рецензию')
