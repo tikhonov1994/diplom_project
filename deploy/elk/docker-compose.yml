@@ -1,29 +1,56 @@
-version: '2.2'
+version: '3.9'
+
+x-elk-profiles:
+  &elk-profiles
+  profiles:
+    - "all"
+    - "elk"
+    - "etl"
+    - "ugc_etl"
+    - "api"
+    - "auth"
+    - "admin"
+    - "ugc_api"
+    - "social_api"
 
 services:
   elk-elastic:
     image: elasticsearch:8.6.2
     container_name: elk-elastic
+    <<: *elk-profiles
     environment:
       - "xpack.security.enabled=false"
       - "discovery.type=single-node"
+      - "ingest-geoip.enabled: false"
+      - "bootstrap.memory_lock=true"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     ports:
       - "9200:9200"
     volumes:
       - /esdata:/tmp/elasticsearch/data
     healthcheck:
       test: curl --fail http://elk-elastic:9200/_cat/indices?v || exit 1
-      interval: 5s
-      retries: 3
+      interval: 10s
+      retries: 5
     networks:
       - application_network
+    mem_limit: 4g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
 
   logstash:
     image: logstash:7.10.1
     container_name: logstash
+    <<: *elk-profiles
     environment:
       XPACK_MONITORING_ENABLED: "false"
       ES_HOST: "elk-elastic:9200"
+      LS_JAVA_OPTS: "-Xmx1g -Xms1g"
     expose:
       - "18010/udp"
       - "5045/udp"
@@ -36,10 +63,12 @@ services:
     command: logstash -f /config/logstash.conf
     networks:
       - application_network
+    mem_limit: 2g
 
   kibana:
     image: kibana:7.17.13
     container_name: kibana
+    <<: *elk-profiles
     ports:
       - "5601:5601"
     environment:
@@ -47,5 +76,24 @@ services:
     depends_on:
       elk-elastic:
         condition: service_healthy
+    networks:
+      - application_network
+    mem_limit: 1g
+
+  nginx_filebeat:
+    container_name: nginx_filebeat
+    <<: *elk-profiles
+    image: elastic/filebeat:7.17.10
+    volumes:
+      - nginx_logs:/var/log/nginx:ro
+      - ./nginx-filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+    depends_on:
+      - nginx
+      - logstash
+      - elk-elastic
+      - kibana
+    links:
+      - logstash
+    command: filebeat -e -strict.perms=false -c filebeat.yml
     networks:
       - application_network

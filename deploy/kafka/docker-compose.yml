@@ -1,132 +1,33 @@
-version: '3'
+version: "3.9"
 
-networks:
-  test_network:
-    driver: bridge
+x-kafka-profiles:
+  &kafka-profiles
+  profiles:
+    - "all"
+    - "kafka"
+    - "ugc_etl"
+    - "ugc_api"
+
 
 services:
-  db:
-    container_name: test_postgres
-    image: postgres:13.0-alpine
-    env_file:
-      - .env
-    ports:
-      - "5432:5432"
-    networks:
-      - test_network
-
-  redis:
-    container_name: test_redis
-    image: redis:7.0.5
-    restart: always
-    healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    expose:
-      - "6379"
-    ports:
-      - "6379:6379"
-    networks:
-      - test_network
-
-  elasticsearch:
-    container_name: test_elastic
-    image: elasticsearch:8.6.2
-    restart: always
-    environment:
-      - "xpack.security.enabled=false"
-      - "discovery.type=single-node"
-    expose:
-      - '9200'
-    ports:
-      - "9200:9200"
-    networks:
-      - test_network
-    healthcheck:
-      test: curl --fail http://elasticsearch:9200/_cat/indices?v || exit 1
-      interval: 5s
-      retries: 3
-
-  elastic_migrate:
-    container_name: test_elastic_migrate
-    build: deploy/elastic/elastic_migrate
-    env_file:
-      - .env
-    networks:
-      - test_network
-
-  api:
-    container_name: test_api
-    build: ./api
-    image: movies_api
-    depends_on:
-      elastic_migrate:
-        condition: service_completed_successfully
-      elasticsearch:
-        condition: service_started
-      redis:
-        condition: service_started
-    expose:
-      - "8001"
-    ports:
-      - "8001:8001"
-    env_file:
-      - .env
-    networks:
-      - test_network
-
-  auth:
-    container_name: test_auth
-    build: ./auth
-    image: movies_auth
-    depends_on:
-      redis:
-        condition: service_started
-      db:
-        condition: service_started
-    expose:
-      - "8002"
-    ports:
-      - "8002:8002"
-    env_file:
-      - .env
-    networks:
-      - test_network
-
-  ugc_api:
-    container_name: ugc_api
-    build: ./ugc
-    image: movies_ugc
-    depends_on:
-      db:
-        condition: service_started
-    expose:
-      - "8003"
-    ports:
-      - "8003:8003"
-    env_file:
-      - .env
-    networks:
-      - test_network
-  
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
     hostname: zookeeper
     container_name: zookeeper
+    <<: *kafka-profiles
     expose:
       - "2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     networks:
-      - test_network
+      - application_network
 
   broker:
     image: confluentinc/cp-server:7.4.0
     hostname: broker
     container_name: broker
+    <<: *kafka-profiles
     depends_on:
       - zookeeper
     expose:
@@ -152,7 +53,7 @@ services:
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
     networks:
-      - test_network
+      - application_network
     healthcheck:
       test: nc -z localhost 29092 || exit -1
 
@@ -160,6 +61,7 @@ services:
     image: confluentinc/cp-schema-registry:7.4.0
     hostname: schema-registry
     container_name: schema-registry
+    <<: *kafka-profiles
     depends_on:
       - broker
     expose:
@@ -169,12 +71,13 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
     networks:
-      - test_network
+      - application_network
 
   connect:
     image: cnfldemos/cp-server-connect-datagen:0.6.0-7.3.0
     hostname: connect
     container_name: connect
+    <<: *kafka-profiles
     depends_on:
       - broker
       - schema-registry
@@ -201,16 +104,18 @@ services:
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
       CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
     networks:
-      - test_network
+      - application_network
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.4.0
     hostname: control-center
     container_name: control-center
+    <<: *kafka-profiles
     depends_on:
       - broker
       - schema-registry
       - connect
+      - ksqldb-server
     ports:
       - "9021:9021"
     environment:
@@ -225,7 +130,71 @@ services:
       CONFLUENT_METRICS_TOPIC_REPLICATION: 1
       PORT: 9021
     networks:
-      - test_network
+      - application_network
+
+  ksqldb-server:
+    image: confluentinc/cp-ksqldb-server:7.4.0
+    hostname: ksqldb-server
+    container_name: ksqldb-server
+    <<: *kafka-profiles
+    depends_on:
+      - broker
+      - connect
+    expose:
+      - "8088"
+    environment:
+      KSQL_CONFIG_DIR: "/etc/ksql"
+      KSQL_BOOTSTRAP_SERVERS: "broker:29092"
+      KSQL_HOST_NAME: ksqldb-server
+      KSQL_LISTENERS: "http://0.0.0.0:8088"
+      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
+      KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+      KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+      KSQL_KSQL_CONNECT_URL: "http://connect:8083"
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
+      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
+      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
+    networks:
+      - application_network
+
+  ksqldb-cli:
+    image: confluentinc/cp-ksqldb-cli:7.4.0
+    container_name: ksqldb-cli
+    <<: *kafka-profiles
+    depends_on:
+      - broker
+      - connect
+      - ksqldb-server
+    entrypoint: /bin/sh
+    tty: true
+    networks:
+      - application_network
+
+  ksql-datagen:
+    image: confluentinc/ksqldb-examples:7.4.0
+    hostname: ksql-datagen
+    container_name: ksql-datagen
+    <<: *kafka-profiles
+    depends_on:
+      - ksqldb-server
+      - broker
+      - schema-registry
+      - connect
+    command: "bash -c 'echo Waiting for Kafka to be ready... && \
+                       cub kafka-ready -b broker:29092 1 40 && \
+                       echo Waiting for Confluent Schema Registry to be ready... && \
+                       cub sr-ready schema-registry 8081 40 && \
+                       echo Waiting a few seconds for topic creation to finish... && \
+                       sleep 11 && \
+                       tail -f /dev/null'"
+    environment:
+      KSQL_CONFIG_DIR: "/etc/ksql"
+      STREAMS_BOOTSTRAP_SERVERS: broker:29092
+      STREAMS_SCHEMA_REGISTRY_HOST: schema-registry
+      STREAMS_SCHEMA_REGISTRY_PORT: 8081
+    networks:
+      - application_network
 
   rest-proxy:
     image: confluentinc/cp-kafka-rest:7.4.0
@@ -236,23 +205,11 @@ services:
       - "8082"
     hostname: rest-proxy
     container_name: rest-proxy
+    <<: *kafka-profiles
     environment:
       KAFKA_REST_HOST_NAME: rest-proxy
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
       KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
       KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
     networks:
-      - test_network
-
-  tests:
-    container_name: tests
-    build: ./tests
-    env_file:
-      - .env
-    depends_on:
-      api:
-        condition: service_started
-      broker:
-        condition: service_healthy
-    networks:
-      - test_network
+      - application_network

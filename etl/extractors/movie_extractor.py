@@ -4,10 +4,7 @@ from typing import Generator
 from decorators import coroutine
 from configs import app_config as config
 from extractors.base_extractor import BaseExtractor
-
-logging.basicConfig(filename=config.log_filename, level=config.logging_level,
-                    format='%(asctime)s  %(message)s')
-logger = logging.getLogger(__name__)
+from logger import logger
 
 
 class MovieExtractor(BaseExtractor):
