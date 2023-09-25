@@ -1,7 +1,7 @@
-from db.storage import ReviewStorageDep
+from datetime import datetime
 from uuid import UUID
-from datetime import date
 
+from db.storage import ReviewStorageDep
 from models.review import ReviewRating
 from schemas.reviews_query import QueryParams
 
@@ -26,11 +26,10 @@ class ReviewService:
         else:
             sort = None
         if filter_field := query_params.filter_field:
-            if (filter_field.value == 'added' and query_params.filter_argument):
-                filter_query = {filter_field.value : {('$' + query_params.filter_argument.value): query_params.filter_value.isoformat()}}
-            elif (filter_field.value == 'author_rating' and type(query_params.filter_value) == int and
-                                                             query_params.filter_argument):
-                filter_query = {filter_field.value : {('$' + query_params.filter_argument.value): query_params.filter_value}}
+            if (filter_field.value == 'added' and query_params.filter_argument and query_params.date_value):
+                filter_query = {filter_field.value : {('$' + query_params.filter_argument.value): query_params.date_value}}
+            elif (filter_field.value == 'author_rating' and  query_params.filter_argument and query_params.rating_value):
+                filter_query = {filter_field.value : {('$' + query_params.filter_argument.value): query_params.rating_value}}
             else:
                 raise
         else:

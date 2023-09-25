@@ -1,12 +1,13 @@
-from uuid import UUID
-from fastapi import APIRouter, Depends
 from typing import Annotated
+from uuid import UUID
 
 from core.auth import UserIdDep
-from schemas.reviews import ReviewSchema
-from services import ReviewServiceDep
+from fastapi import APIRouter, Depends
 from models.review import Review, ReviewRating
+from schemas.reviews import ReviewSchema
 from schemas.reviews_query import QueryParams
+
+from services import ReviewServiceDep
 
 router = APIRouter()
 

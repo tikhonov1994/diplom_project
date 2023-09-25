@@ -1,10 +1,11 @@
 from typing import Annotated
 from uuid import UUID
 
+from async_fastapi_jwt_auth import AuthJWT
+from async_fastapi_jwt_auth.exceptions import (MissingTokenError,
+                                               RevokedTokenError)
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
-from async_fastapi_jwt_auth import AuthJWT
-from async_fastapi_jwt_auth.exceptions import MissingTokenError, RevokedTokenError
 
 _bearer = HTTPBearer(auto_error=False)
 

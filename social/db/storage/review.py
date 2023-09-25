@@ -1,10 +1,9 @@
-from uuid import UUID, uuid4
 from datetime import datetime
-
-from motor.motor_asyncio import AsyncIOMotorCollection
+from uuid import UUID, uuid4
 
 from db.storage.base import MongoStorageBase
-from models.review import Review, ReviewRating, ReviewAssessment
+from models.review import Review, ReviewAssessment, ReviewRating
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 
 class ReviewStorage(MongoStorageBase):

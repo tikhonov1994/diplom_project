@@ -1,9 +1,8 @@
 from typing import Annotated
 
+from core.config import app_config
 from fastapi import Depends
 from motor.motor_asyncio import AsyncIOMotorClient
-
-from core.config import app_config
 
 _client = AsyncIOMotorClient(
     app_config.mongo.host,

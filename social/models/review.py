@@ -1,14 +1,15 @@
-from pydantic import BaseModel
 from datetime import datetime
 from uuid import UUID
 
+from pydantic import BaseModel
+
 
 class Review(BaseModel):
-    review_id: UUID | None
-    film_id: UUID | None
+    review_id: UUID
+    film_id: UUID
     text: str
-    added: datetime | None
-    user_id: UUID | None
+    added: datetime
+    user_id: UUID
     author_rating: int
 
 
