@@ -19,3 +19,7 @@ opentelemetry-sdk==1.19.0
 opentelemetry-instrumentation-fastapi==0.40b0
 opentelemetry-exporter-jaeger==1.19.0
 yandexid==0.3.1
+sentry-sdk[fastapi]==1.31.0
+python-logstash==0.4.8
+loguru==0.7.2
+stackprinter==0.2.10
