@@ -1,5 +1,4 @@
 import uvicorn
-
 from async_fastapi_jwt_auth import AuthJWT
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse

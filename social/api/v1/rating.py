@@ -1,12 +1,12 @@
 from uuid import UUID
 
+from core.auth import UserIdDep
 from fastapi import APIRouter, HTTPException
+from schemas.rating import MovieRatingStats, RateMovieSchema
+from services.rating import MovieRatingNotFound
 from starlette import status
 
-from core.auth import UserIdDep
 from services import MovieRatingServiceDep
-from services.rating import MovieRatingNotFound
-from schemas.rating import RateMovieSchema, MovieRatingStats
 
 from core.logger import logger
 

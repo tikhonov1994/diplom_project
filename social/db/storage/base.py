@@ -1,5 +1,5 @@
-from db.mongo_client import MongoClientDep
 from core.config import app_config
+from db.mongo_client import MongoClientDep
 
 
 class MongoStorageBase:

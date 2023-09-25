@@ -1,10 +1,9 @@
 from datetime import datetime
 from uuid import UUID
 
-from motor.motor_asyncio import AsyncIOMotorCollection
-
 from db.storage.base import MongoStorageBase
 from models.rating import EntityRating
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 
 class RatingStorage(MongoStorageBase):
