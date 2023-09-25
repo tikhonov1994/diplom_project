@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import BaseSettings
 
 _ENV_FILE_LOC = '.env'
 
@@ -6,7 +6,10 @@ _ENV_FILE_LOC = '.env'
 class KafkaConfig(BaseSettings):
     host: str
     port: str
-    model_config = SettingsConfigDict(env_file=_ENV_FILE_LOC, env_prefix='kafka_')
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'kafka_'
 
 
 class ClickhouseConfig(BaseSettings):
@@ -14,12 +17,33 @@ class ClickhouseConfig(BaseSettings):
     port: str
     insert_batch_size: int = 10000
     insert_batch_timeout_sec: float = 1.
-    model_config = SettingsConfigDict(env_file=_ENV_FILE_LOC, env_prefix='clickhouse_')
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'clickhouse_'
+
+
+class LogstashConfig(BaseSettings):
+    host: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'logstash_'
+
+
+class SentryConfig(BaseSettings):
+    dsn: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'sentry_'
 
 
 class EtlConfig(BaseSettings):
     log_filename: str
     logging_level: int
+    logstash_port: int
+    version: str = '0.0.1'
 
     topic_name: str = 'views'
     group_id: str = 'views_consumer_group'
@@ -29,7 +53,12 @@ class EtlConfig(BaseSettings):
 
     kafka: KafkaConfig = KafkaConfig()
     clickhouse: ClickhouseConfig = ClickhouseConfig()
-    model_config = SettingsConfigDict(env_file=_ENV_FILE_LOC, env_prefix='ugc_etl_')
+    sentry: SentryConfig = SentryConfig()
+    logstash: LogstashConfig = LogstashConfig()
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'ugc_etl_'
 
 
 app_config = EtlConfig()
