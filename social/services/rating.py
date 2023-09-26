@@ -24,7 +24,8 @@ class MovieRatingService:
         await self._storage.upsert_user_rating_for_movie(user_id, movie_id, value)
 
     async def remove_rating(self, movie_id: UUID, user_id: UUID) -> None:
-        await self._storage.remove_user_rating_for_movie(user_id, movie_id)
+        if not await self._storage.remove_user_rating_for_movie(user_id, movie_id):
+            raise MovieRatingNotFound(movie_id=movie_id)
 
     async def like(self, movie_id: UUID, user_id: UUID) -> None:
         await self.set_rating(movie_id, user_id, 10)
