@@ -9,8 +9,8 @@ from types import FrameType
 import stackprinter
 import logstash
 
-from core.config import app_config
-from schemas.logs import BaseJsonLogSchema
+from configs import app_config
+from schemas import BaseJsonLogSchema
 
 LEVEL_TO_NAME = {
     logging.CRITICAL: 'Critical',
@@ -79,8 +79,8 @@ class JSONLogFormatter(logging.Formatter):
             message=message,
             source_log=record.name,
             duration=duration,
-            app_name=app_config.api.project_name,
-            app_version=app_config.api.version,
+            app_name="etl",
+            app_version=app_config.version,
         )
 
         if hasattr(record, 'props'):
@@ -166,6 +166,6 @@ LOG_CONFIG = {
 dictConfig(LOG_CONFIG)
 logger = logging.getLogger('main')
 logstash_handler = logstash.LogstashHandler(app_config.logstash.host,
-                                            app_config.api.logstash_port,
+                                            app_config.logstash_port,
                                             version=1)
 logger.addHandler(logstash_handler)

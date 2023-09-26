@@ -3,10 +3,7 @@ from elasticsearch import Elasticsearch, helpers
 from decorators import coroutine
 from state import State
 from configs import app_config as config
-
-logging.basicConfig(filename=config.log_filename, level=config.logging_level,
-                    format='%(asctime)s  %(message)s')
-logger = logging.getLogger(__name__)
+from logger import logger
 
 
 class LoadToElastic:

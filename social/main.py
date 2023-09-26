@@ -1,15 +1,20 @@
-from logging import config as logging_config
-
 import uvicorn
 from async_fastapi_jwt_auth import AuthJWT
-from core.config import app_config as config
-from core.logger import LOGGING
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
+import sentry_sdk
 
-from api.v1 import bookmarks, rating, reviews
+from api.v1 import rating
+from api.v1 import reviews
+from api.v1 import bookmarks
+from core.config import app_config as config
+from core.middleware import LoggingMiddleware
 
-logging_config.dictConfig(LOGGING)
+sentry_sdk.init(
+    dsn=config.sentry_dsn,
+    traces_sample_rate=0.1,
+    profiles_sample_rate=0.1,
+)
 
 app = FastAPI(
     title=config.api.project_name,
@@ -17,6 +22,8 @@ app = FastAPI(
     openapi_url='/social_api/api/openapi.json',
     default_response_class=ORJSONResponse,
 )
+
+app.middleware('http')(LoggingMiddleware())
 
 
 # callback to get your configuration

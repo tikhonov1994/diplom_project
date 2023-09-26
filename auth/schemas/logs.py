@@ -1,12 +1,5 @@
-import uuid
 from typing import Union, List, Optional
-
 from pydantic import BaseModel, Field, validator
-
-
-class UserTimecodeSchema(BaseModel):
-    timestamp: int
-    movie_id: uuid.UUID
 
 
 class BaseJsonLogSchema(BaseModel):
