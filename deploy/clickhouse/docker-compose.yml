@@ -3,6 +3,11 @@ version: "3.9"
 volumes:
   clickhouse_volume:
 
+networks:
+  clickhouse_network:
+    name: clickhouse_network
+    driver: bridge
+
 x-clickhouse-profiles:
   &ch-profiles
   profiles:
@@ -23,7 +28,7 @@ services:
     volumes:
       - clickhouse_volume:/etc/clickhouse-server
     networks:
-      - application_network
+      - clickhouse_network
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8123/?query=SELECT%201 || exit 1
 
@@ -32,7 +37,7 @@ services:
     <<: *ch-profiles
     build: ./clickhouse_initial
     networks:
-      - application_network
+      - clickhouse_network
     depends_on:
       clickhouse1:
         condition: service_healthy

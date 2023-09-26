@@ -40,6 +40,7 @@ class SentryConfig(BaseSettings):
 class AppConfig(BaseSettings):
     # Logging
     log_level: str
+    export_logs: bool = False
 
     authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
 

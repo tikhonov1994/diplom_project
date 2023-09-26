@@ -13,6 +13,11 @@ x-elk-profiles:
     - "ugc_api"
     - "social_api"
 
+networks:
+  elk_network:
+    name: elk_network
+    driver: bridge
+
 services:
   elk-elastic:
     image: elasticsearch:8.6.2
@@ -33,7 +38,7 @@ services:
       interval: 10s
       retries: 5
     networks:
-      - application_network
+      - elk_network
     mem_limit: 4g
     ulimits:
       memlock:
@@ -62,7 +67,7 @@ services:
         condition: service_healthy
     command: logstash -f /config/logstash.conf
     networks:
-      - application_network
+      - elk_network
     mem_limit: 2g
 
   kibana:
@@ -77,7 +82,7 @@ services:
       elk-elastic:
         condition: service_healthy
     networks:
-      - application_network
+      - elk_network
     mem_limit: 1g
 
   nginx_filebeat:
@@ -96,4 +101,4 @@ services:
       - logstash
     command: filebeat -e -strict.perms=false -c filebeat.yml
     networks:
-      - application_network
+      - elk_network

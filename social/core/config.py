@@ -42,6 +42,7 @@ class AppConfig(BaseSettings):
     authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
     sentry_dsn: str
     debug: bool
+    export_logs: bool = False
 
     api: SocialConfig = SocialConfig()
     mongo: SocialMongoConfig = SocialMongoConfig()

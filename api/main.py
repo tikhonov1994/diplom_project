@@ -39,11 +39,12 @@ async def lifespan(_: FastAPI):
     await elastic.es.close()
 
 
-sentry_sdk.init(
-    dsn=config.sentry.dsn,
-    traces_sample_rate=0.1,
-    profiles_sample_rate=0.1,
-)
+if config.export_logs:
+    sentry_sdk.init(
+        dsn=config.sentry.dsn,
+        traces_sample_rate=0.1,
+        profiles_sample_rate=0.1,
+    )
 
 app = FastAPI(
     title=config.api.project_name,
