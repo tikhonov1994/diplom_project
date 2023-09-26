@@ -39,30 +39,30 @@ def mongo_client() -> AsyncIOMotorClient:
 
 
 @pytest_asyncio.fixture(scope='session')
-def add_data_to_collection(
+def add_data_to_social_db(
         mongo_client: AsyncIOMotorClient
-) -> Callable[[str, str, list[dict[str, any]]], Awaitable[None]]:
-    async def inner(db_name: str, collection_name: str, data: list[dict[str, any]]) -> None:
-        await mongo_client[db_name][collection_name].insert_many(data)
+) -> Callable[[str, list[dict[str, any]]], Awaitable[None]]:
+    async def inner(collection_name: str, data: list[dict[str, any]]) -> None:
+        await mongo_client[config.social_mongo_database][collection_name].insert_many(data)
 
     return inner
 
 
 @pytest_asyncio.fixture(scope='session')
-def delete_data_from_collection(
+def delete_data_from_social_db(
         mongo_client: AsyncIOMotorClient
-) -> Callable[[str, str, dict[str, any]], Awaitable[None]]:
-    async def inner(db_name: str, collection_name: str, condition: dict[str, any]) -> None:
-        await mongo_client[db_name][collection_name].delete_many(condition)
+) -> Callable[[str, dict[str, any]], Awaitable[None]]:
+    async def inner(collection_name: str, condition: dict[str, any]) -> None:
+        await mongo_client[config.social_mongo_database][collection_name].delete_many(condition)
 
     return inner
 
 
 @pytest_asyncio.fixture(scope='session')
-def get_data_from_collection(
+def get_data_from_social_db(
         mongo_client: AsyncIOMotorClient
-) -> Callable[[str, str, dict[str, any]], Awaitable[list[dict[str, any]]]]:
-    async def inner(db_name: str, collection_name: str, condition: dict[str, any]) -> list[dict[str, any]]:
-        return await mongo_client[db_name][collection_name].find(condition).to_list(length=None)
+) -> Callable[[str, dict[str, any]], Awaitable[list[dict[str, any]]]]:
+    async def inner(collection_name: str, condition: dict[str, any]) -> list[dict[str, any]]:
+        return await mongo_client[config.social_mongo_database][collection_name].find(condition).to_list(length=None)
 
     return inner

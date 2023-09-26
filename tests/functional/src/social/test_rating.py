@@ -4,7 +4,6 @@ from time import sleep
 import pytest
 from http import HTTPStatus
 
-from settings import test_settings as config
 from functional.test_data.auth_data import test_auth_headers
 from functional.test_data.mongo_data import test_movieLikes
 
@@ -19,15 +18,13 @@ async def test_rate_movie_auth(http_social_client) -> None:
         assert response.status == HTTPStatus.UNAUTHORIZED
 
 
-async def test_rate_movie(http_social_client, get_data_from_collection) -> None:
+async def test_rate_movie(http_social_client, get_data_from_social_db) -> None:
     data_query = {'entity_id': {'$eq': UUID(RATE_BODY['movie_id'])}}
-    assert not await get_data_from_collection(config.social_mongo_database, 'movieLikes', data_query)
+    assert not await get_data_from_social_db('movieLikes', data_query)
     async with http_social_client.post(f'{ENDPOINT}movie/rate', json=RATE_BODY, headers=test_auth_headers) as response:
         assert response.status == HTTPStatus.OK
     sleep(0.2)
-    assert await get_data_from_collection(config.social_mongo_database, 'movieLikes', data_query)
-
-
+    assert await get_data_from_social_db('movieLikes', data_query)
 
 # async def test_rate_not_existing_movie(http_social_client) -> None:
 #     ...
