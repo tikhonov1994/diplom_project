@@ -3,6 +3,11 @@ version: "3.9"
 volumes:
   elastic_volume:
 
+networks:
+  elastic_network:
+    name:   elastic_network
+    driver: bridge
+
 x-elastic-profiles:
   &elastic-profiles
   profiles:
@@ -25,8 +30,6 @@ services:
       - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     expose:
       - '9200'
-    networks:
-      - application_network
     volumes:
       - elastic_volume:/opt/elasticsearch/data
     healthcheck:
@@ -41,6 +44,8 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+    networks:
+        - elastic_network
 
   elastic_migrate:
     container_name: elastic_migrate
@@ -49,4 +54,4 @@ services:
     env_file:
       - ../../.env
     networks:
-      - application_network
+        - elastic_network

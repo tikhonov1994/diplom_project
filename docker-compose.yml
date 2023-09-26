@@ -1,8 +1,5 @@
 version: '3.9'
 
-networks:
-  application_network:
-
 volumes:
   nginx_logs:
   pg_volume:
@@ -15,6 +12,20 @@ include:
   - ./deploy/kafka/docker-compose.yml
   - ./deploy/clickhouse/docker-compose.yml
   - ./deploy/elastic/docker-compose.yml
+
+networks:
+  application_network:
+    driver: bridge
+
+x-net-topology:
+  &container_networks
+  networks:
+    - application_network
+    - mongo_network
+    - elk_network
+    - clickhouse_network
+    - elastic_network
+    - kafka_network
 
 services:
   db:
@@ -29,8 +40,7 @@ services:
       - pg_volume:/var/lib/postgresql/data/
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   redis:
     container_name: redis
@@ -49,8 +59,7 @@ services:
       retries: 5
     expose:
       - 6379
-    networks:
-      - application_network
+    <<: *container_networks
 
   jaeger:
     container_name: jaeger
@@ -63,8 +72,7 @@ services:
     depends_on:
       auth:
         condition: service_started
-    networks:
-      - application_network
+    <<: *container_networks
 
   etl:
     container_name: etl
@@ -81,8 +89,7 @@ services:
         condition: service_completed_successfully
       db:
         condition: service_started
-    networks:
-      - application_network
+    <<: *container_networks
 
   ugc_etl:
     container_name: ugc_etl
@@ -90,8 +97,6 @@ services:
       - "all"
       - "ugc_etl"
     build: ./ugc_etl
-    networks:
-      - application_network
     env_file:
       - .env
     depends_on:
@@ -99,6 +104,7 @@ services:
         condition: service_healthy
       clickhouse1:
         condition: service_healthy
+    <<: *container_networks
 
   api:
     container_name: api
@@ -116,8 +122,7 @@ services:
       - "8001"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   auth:
     container_name: auth
@@ -135,8 +140,7 @@ services:
       - "8002"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   admin:
     container_name: admin
@@ -152,10 +156,9 @@ services:
       - "8000"
     env_file:
       - .env
-    networks:
-      - application_network
     volumes:
       - nginx_volume:/opt/app/static
+    <<: *container_networks
 
   ugc_api:
     container_name: ugc_api
@@ -171,8 +174,7 @@ services:
       - "8003"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   social_api:
     container_name: social_api
@@ -188,8 +190,7 @@ services:
       - "8010"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   nginx:
     container_name: nginx
@@ -201,5 +202,4 @@ services:
       - nginx_logs:/var/log/nginx/
     ports:
       - "80:80"
-    networks:
-      - application_network
+    <<: *container_networks

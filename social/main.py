@@ -10,11 +10,12 @@ from api.v1 import bookmarks
 from core.config import app_config as config
 from core.middleware import LoggingMiddleware
 
-sentry_sdk.init(
-    dsn=config.sentry_dsn,
-    traces_sample_rate=0.1,
-    profiles_sample_rate=0.1,
-)
+if config.export_logs:
+    sentry_sdk.init(
+        dsn=config.sentry_dsn,
+        traces_sample_rate=0.1,
+        profiles_sample_rate=0.1,
+    )
 
 app = FastAPI(
     title=config.api.project_name,

@@ -45,6 +45,7 @@ class SentryConfig(BaseSettings):
 class AppConfig(BaseSettings):
     # Logging
     log_level: str
+    export_logs: bool = False
 
     # Service
     api: AuthConfig = AuthConfig()
