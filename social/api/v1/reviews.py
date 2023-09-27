@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List  # type: ignore[attr-defined]
 from uuid import UUID
 
 from core.auth import UserIdDep

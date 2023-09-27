@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated  # type: ignore[attr-defined]
 
 from db.storage.rating import RatingStorage
 from db.storage.review import ReviewStorage

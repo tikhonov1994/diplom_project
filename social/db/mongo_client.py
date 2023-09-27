@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated  # type: ignore[attr-defined]
 
 from core.config import app_config
 from fastapi import Depends
