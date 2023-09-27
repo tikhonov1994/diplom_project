@@ -1,0 +1,7 @@
+version: '3.9'
+
+networks:
+  application_network:
+
+include:
+  - ../../../deploy/mongo/docker-compose.yml
