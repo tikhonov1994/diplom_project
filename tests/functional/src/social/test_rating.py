@@ -88,26 +88,26 @@ async def test_delete_movie_auth(http_social_client) -> None:
 
 
 async def test_delete_movie(http_social_client, add_data_to_social_db, get_data_from_social_db) -> None:
-    movie_to_rate_id = uuid4()
+    movie_to_delete_id = uuid4()
     rating_data = [{
         'user_id': UUID(test_user_info.get('id')),
-        'entity_id': movie_to_rate_id,
+        'entity_id': movie_to_delete_id,
         'value': 5,
         'added': datetime.now()
     }]
     await add_data_to_social_db('movieLikes', rating_data)
     assert await get_data_from_social_db('movieLikes', {'$and': [
-        {'entity_id': movie_to_rate_id},
+        {'entity_id': movie_to_delete_id},
         {'user_id': UUID(test_user_info.get('id'))}
     ]})
 
-    async with http_social_client.delete(f'{ENDPOINT}movie/{str(uuid4())}/rate',
+    async with http_social_client.delete(f'{ENDPOINT}movie/{str(movie_to_delete_id)}/rate',
                                          headers=test_auth_headers) as response:
         assert response.status == HTTPStatus.OK
 
     sleep(0.2)
     assert not await get_data_from_social_db('movieLikes', {'$and': [
-        {'entity_id': movie_to_rate_id},
+        {'entity_id': movie_to_delete_id},
         {'user_id': UUID(test_user_info.get('id'))}
     ]})
 

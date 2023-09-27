@@ -103,7 +103,7 @@ services:
     image: movies_social
     depends_on:
       mongos:
-        condition: service_started
+        condition: service_healthy
     expose:
       - "8010"
     ports:
@@ -126,4 +126,6 @@ services:
         condition: service_started
       social_api:
         condition: service_started
+      elasticsearch:
+        condition: service_healthy
     <<: *container_networks
