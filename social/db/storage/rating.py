@@ -28,8 +28,9 @@ class RatingStorage(MongoStorageBase):
             {'entity_id': {'$eq': movie_id}}
         ]}, new_doc.dict(), upsert=True)
 
-    async def remove_user_rating_for_movie(self, user_id: UUID, movie_id: UUID) -> None:
-        await self.movie_likes.delete_one({'$and': [
+    async def remove_user_rating_for_movie(self, user_id: UUID, movie_id: UUID) -> bool:
+        deletion_result = await self.movie_likes.delete_one({'$and': [
             {'user_id': {'$eq': user_id}},
             {'entity_id': {'$eq': movie_id}}
         ]})
+        return deletion_result.deleted_count != 0
