@@ -1,8 +1,6 @@
-import logging
 import psycopg2
 from typing import Generator
 from decorators import coroutine
-from configs import app_config as config
 from extractors.base_extractor import BaseExtractor
 from logger import logger
 

@@ -29,7 +29,7 @@ class ReviewStorage(MongoStorageBase):
             added=datetime.now()
         )
         await self.reviews.insert_one(document.dict())
-    
+
     async def get_reviews(self, sort: set | None = None, filter_query: dict | None = None) -> list[Review]:
         if filter_query:
             cursor = self.reviews.find(filter_query)
@@ -52,16 +52,16 @@ class ReviewStorage(MongoStorageBase):
 
         await self.reviews.replace_one({'review_id': {'$eq': review_id}},
                                        document.dict(), upsert=True)
-    
+
     async def delete_review(self, review_id: UUID):
         await self.reviews.delete_one({'review_id': {'$eq': review_id}})
-    
+
     async def upset_assessment(self, liked: bool, user_id: UUID, review_id: UUID):
         doc = ReviewAssessment(
-                review_id=review_id,
-                liked=liked,
-                user_id=user_id
-            )
+            review_id=review_id,
+            liked=liked,
+            user_id=user_id
+        )
         await self.review_assessments.replace_one({'$and': [
             {'user_id': {'$eq': user_id}},
             {'review_id': {'$eq': review_id}}
@@ -70,15 +70,15 @@ class ReviewStorage(MongoStorageBase):
     async def get_review_rating(self, review_id: UUID) -> ReviewRating:
         cursor_likes = self.review_assessments.find(
             {'$and': [
-            {'review_id': {'$eq': review_id}},
-            {'liked': {'$eq': True}}
-        ]})
+                {'review_id': {'$eq': review_id}},
+                {'liked': {'$eq': True}}
+            ]})
         likes_count = len(await cursor_likes.to_list(length=None))
         cursor_dislikes = self.review_assessments.find(
             {'$and': [
-            {'review_id': {'$eq': review_id}},
-            {'liked': {'$eq': False}}
-        ]})
+                {'review_id': {'$eq': review_id}},
+                {'liked': {'$eq': False}}
+            ]})
         dislikes_count = len(await cursor_dislikes.to_list(length=None))
         return ReviewRating(review_id=review_id, likes_count=likes_count, dislikes_count=dislikes_count)
 

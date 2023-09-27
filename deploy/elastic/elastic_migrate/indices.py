@@ -1,56 +1,57 @@
 settings = {
     "refresh_interval": "1s",
     "analysis": {
-      "filter": {
-        "english_stop": {
-          "type":       "stop",
-          "stopwords":  "_english_"
-        },
-        "english_stemmer": {
-          "type": "stemmer",
-          "language": "english"
-        },
-        "english_possessive_stemmer": {
-          "type": "stemmer",
-          "language": "possessive_english"
-        },
-        "russian_stop": {
-          "type":       "stop",
-          "stopwords":  "_russian_"
-        },
-        "russian_stemmer": {
-          "type": "stemmer",
-          "language": "russian"
-        }
-      },
-      "analyzer": {
-        "ru_en": {
-          "tokenizer": "standard",
-          "filter": [
-            "lowercase",
-            "english_stop",
-            "english_stemmer",
-            "english_possessive_stemmer",
-            "russian_stop",
-            "russian_stemmer"
-          ]
-        }
-      }
+        "filter":
+            {
+                "english_stop": {
+                    "type": "stop",
+                    "stopwords": "_english_"
+                },
+                "english_stemmer": {
+                    "type": "stemmer",
+                    "language": "english"
+                },
+                "english_possessive_stemmer": {
+                    "type": "stemmer",
+                    "language": "possessive_english"
+                },
+                "russian_stop": {
+                    "type": "stop",
+                    "stopwords": "_russian_"
+                },
+                "russian_stemmer": {
+                    "type": "stemmer",
+                    "language": "russian"
+                }
+            },
+            "analyzer": {
+                "ru_en": {
+                    "tokenizer": "standard",
+                    "filter": [
+                        "lowercase",
+                        "english_stop",
+                        "english_stemmer",
+                        "english_possessive_stemmer",
+                        "russian_stop",
+                        "russian_stemmer"
+                    ]
+                }
+            }
     }
 }
 
 PERSON_SETTINGS = {
-  "type": "nested",
-  "dynamic": "strict",
-  "properties": {
-    "id": {
-      "type": "keyword"
-    },
-    "full_name": {
-      "type": "text",
-      "analyzer": "ru_en"
+    "type": "nested",
+    "dynamic": "strict",
+    "properties": {
+        "id": {
+            "type": "keyword"
+        },
+        "full_name": {
+            "type": "text",
+            "analyzer": "ru_en"
+        }
     }
-  }
 }
 
 GENRE_SETTINGS = {
@@ -71,33 +72,33 @@ GENRE_SETTINGS = {
 movie_mappings = {
     "dynamic": "strict",
     "properties": {
-      "id": {
-        "type": "keyword"
-      },
-      "imdb_rating": {
-        "type": "float"
-      },
-      "genre": {
-        "type": "nested",
-        "dynamic": "strict",
-        "properties": GENRE_SETTINGS
-      },
-      "title": {
-        "type": "text",
-        "analyzer": "ru_en",
-        "fields": {
-          "raw": {
-            "type":  "keyword"
-          }
-        }
-      },
-      "description": {
-        "type": "text",
-        "analyzer": "ru_en"
-      },
-      "directors": PERSON_SETTINGS,
-      "actors": PERSON_SETTINGS,
-      "writers": PERSON_SETTINGS
+        "id": {
+            "type": "keyword"
+        },
+        "imdb_rating": {
+            "type": "float"
+        },
+        "genre": {
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": GENRE_SETTINGS
+        },
+        "title": {
+            "type": "text",
+            "analyzer": "ru_en",
+            "fields": {
+                "raw": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "description": {
+            "type": "text",
+            "analyzer": "ru_en"
+        },
+        "directors": PERSON_SETTINGS,
+        "actors": PERSON_SETTINGS,
+        "writers": PERSON_SETTINGS
     }
 }
 
@@ -109,36 +110,36 @@ genre_mappings = {
 person_mappings = {
     "dynamic": "strict",
     "properties": {
-      "id": {
-        "type": "keyword"
-      },
-      "full_name": {
-        "type": "text",
-        "analyzer": "ru_en",
-        "fields": {
-          "raw": {
+        "id": {
             "type": "keyword"
-          }
-        }
-      },
-      "films": {
-        "type": "nested",
-        "dynamic": "strict",
-        "properties": {
-          "id": {
-            "type": "keyword"
-          },
-          "roles": {
+        },
+        "full_name": {
             "type": "text",
-            "analyzer": "ru_en"
-          },
-        }
-      },
+            "analyzer": "ru_en",
+            "fields": {
+                "raw": {
+                    "type": "keyword"
+                }
+            }
+        },
+        "films": {
+            "type": "nested",
+            "dynamic": "strict",
+            "properties": {
+                "id": {
+                    "type": "keyword"
+                },
+                "roles": {
+                    "type": "text",
+                    "analyzer": "ru_en"
+                },
+            }
+        },
     }
 }
 
 mappings = {
-  'movies': movie_mappings,
-  'genres': genre_mappings,
-  'persons': person_mappings,
+    'movies': movie_mappings,
+    'genres': genre_mappings,
+    'persons': person_mappings,
 }

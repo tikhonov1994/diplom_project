@@ -1,7 +1,5 @@
 import time
 from functools import wraps
-import logging
-from configs import app_config as config
 from logger import logger
 
 

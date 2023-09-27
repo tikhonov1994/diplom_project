@@ -8,8 +8,6 @@ from starlette import status
 
 from services import MovieRatingServiceDep
 
-from core.logger import logger
-
 router = APIRouter()
 
 
