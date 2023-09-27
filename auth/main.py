@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
-from logging import config as logging_config
 
 import uvicorn
+import sentry_sdk
 
 from utils.rate_limiter import throttle
 from core.config import app_config as config
-from core.logger import LOGGING
+from core.middleware import LoggingMiddleware
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
@@ -13,11 +13,15 @@ from redis.asyncio.retry import Retry
 from redis.backoff import ExponentialBackoff
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
 from utils.tracer import configure_tracer
-
 from api.v1 import auth, roles, users
 from db import redis
 
-logging_config.dictConfig(LOGGING)
+if config.export_logs:
+    sentry_sdk.init(
+        dsn=config.sentry.dsn,
+        traces_sample_rate=0.1,
+        profiles_sample_rate=0.1,
+    )
 
 
 @asynccontextmanager
@@ -37,6 +41,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.middleware('http')(LoggingMiddleware())
 configure_tracer(app)
 throttle(app)
 
@@ -52,4 +57,3 @@ if __name__ == '__main__':
         host=config.api.host,
         port=config.api.port,
     )
-

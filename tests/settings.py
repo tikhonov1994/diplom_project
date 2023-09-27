@@ -11,11 +11,18 @@ class TestSettings(BaseSettings):
     ugc_host: str
     ugc_port: int
 
+    social_host: str
+    social_port: int
+    social_mongo_database: str
+
     elastic_host: str
     elastic_port: int
 
     redis_host: str
     redis_port: str
+
+    mongo_host: str
+    mongo_port: int
 
     postgres_host: str
     postgres_port: int

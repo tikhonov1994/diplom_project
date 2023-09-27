@@ -13,15 +13,14 @@ from redis.backoff import ExponentialBackoff
 from redis.asyncio.retry import Retry
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
 from starlette import status
+import sentry_sdk
 
 from api.v1 import films, genres, persons
 from core.config import app_config as config
 from core.auth import AuthExceptionBase
 from db.storage.backends import elastic
 from db import redis_cache
-from core.logger import LOGGING
-
-logging_config.dictConfig(LOGGING)
+from core.middleware import LoggingMiddleware
 
 
 @asynccontextmanager
@@ -40,6 +39,13 @@ async def lifespan(_: FastAPI):
     await elastic.es.close()
 
 
+if config.export_logs:
+    sentry_sdk.init(
+        dsn=config.sentry.dsn,
+        traces_sample_rate=0.1,
+        profiles_sample_rate=0.1,
+    )
+
 app = FastAPI(
     title=config.api.project_name,
     docs_url='/content/api/openapi',
@@ -47,6 +53,8 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan
 )
+
+app.middleware('http')(LoggingMiddleware())
 
 
 @app.exception_handler(AuthExceptionBase)

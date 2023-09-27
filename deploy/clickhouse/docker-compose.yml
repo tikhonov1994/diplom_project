@@ -1,0 +1,43 @@
+version: "3.9"
+
+volumes:
+  clickhouse_volume:
+
+networks:
+  clickhouse_network:
+    name: clickhouse_network
+    driver: bridge
+
+x-clickhouse-profiles:
+  &ch-profiles
+  profiles:
+    - "all"
+    - "clickhouse"
+    - "ugc_etl"
+
+services:
+  clickhouse1:
+    image: clickhouse/clickhouse-server:22.5
+    container_name: clickhouse1
+    <<: *ch-profiles
+    expose:
+      - "8123"
+      - "9000"
+    environment:
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    volumes:
+      - clickhouse_volume:/etc/clickhouse-server
+    networks:
+      - clickhouse_network
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/?query=SELECT%201 || exit 1
+
+  clickhouse_initial:
+    container_name: clickhouse_initial
+    <<: *ch-profiles
+    build: ./clickhouse_initial
+    networks:
+      - clickhouse_network
+    depends_on:
+      clickhouse1:
+        condition: service_healthy

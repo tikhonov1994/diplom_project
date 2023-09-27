@@ -30,12 +30,23 @@ class ElasticConfig(BaseSettings):
         env_prefix = 'elastic_'
 
 
+class LogstashConfig(BaseSettings):
+    host: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = "logstash_"
+
+
 class EtlConfig(BaseSettings):
     state_storage_name: str
     log_filename: str
     logging_level: int
     pg: PgConfig = PgConfig()
+    version: str = "0.0.1"
     elastic: ElasticConfig = ElasticConfig()
+    logstash: LogstashConfig = LogstashConfig()
+    logstash_port: int
 
     class Config:
         env_file = _ENV_FILE_LOC

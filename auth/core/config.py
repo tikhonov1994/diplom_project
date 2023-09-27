@@ -14,6 +14,8 @@ class AuthConfig(BaseSettings):
     admin_password: str
     default_user_role: str = 'user'
     admin_user_role: str = 'admin'
+    logstash_port: int
+    version: str = "0.0.1"
 
     cache_expire_seconds: int = 60
     logging_level: int = 20
@@ -24,15 +26,35 @@ class AuthConfig(BaseSettings):
         env_prefix = 'auth_'
 
 
+class LogstashConfig(BaseSettings):
+    host: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'logstash_'
+
+
+class SentryConfig(BaseSettings):
+    dsn: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'sentry_'
+
+
 class AppConfig(BaseSettings):
     # Logging
     log_level: str
+    export_logs: bool = False
 
     # Service
     api: AuthConfig = AuthConfig()
     debug: bool = False
     enable_tracer: bool = True
     request_limit_per_minute: int
+
+    sentry: SentryConfig = SentryConfig()
+    logstash: LogstashConfig = LogstashConfig()
 
     # Redis
     redis_host: str

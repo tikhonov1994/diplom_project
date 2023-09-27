@@ -1,69 +1,173 @@
+import sys
+import json
 import logging
+import datetime
+import loguru
+from logging.config import dictConfig
+from typing import cast
+from types import FrameType
+import stackprinter
+import logstash
 
-from core.config import app_config as config
+from core.config import app_config
+from schemas import BaseJsonLogSchema
 
-LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-LOG_DEFAULT_HANDLERS = ['console', ]
-if config.log_level == 'DEBUG':
-    LOG_LEVEL = logging.DEBUG
-elif config.log_level == 'INFO':
-    LOG_LEVEL = logging.INFO
-elif config.log_level == 'ERROR':
-    LOG_LEVEL = logging.ERROR
-elif config.log_level == 'CRITICAL':
-    LOG_LEVEL = logging.CRITICAL
+LEVEL_TO_NAME = {
+    logging.CRITICAL: 'Critical',
+    logging.ERROR: 'Error',
+    logging.WARNING: 'Warning',
+    logging.INFO: 'Information',
+    logging.DEBUG: 'Debug',
+    logging.NOTSET: 'Trace',
+}
 
-LOGGING = {
+
+class ConsoleLogger(logging.Handler):
+    def emit(self, record: logging.LogRecord) -> None:  # pragma: no cover
+        # Get corresponding Loguru level if it exists
+        try:
+            level = loguru.logger.level(record.levelname).name
+        except ValueError:
+            level = str(record.levelno)
+        # Find caller from where originated the logged message
+        frame, depth = logging.currentframe(), 2
+        while frame.f_code.co_filename == logging.__file__:  # noqa: WPS609
+            frame = cast(FrameType, frame.f_back)
+            depth += 1
+        loguru.logger.opt(depth=depth, exception=record.exc_info).log(
+            level,
+            record.getMessage(),
+        )
+
+
+class JSONLogFormatter(logging.Formatter):
+    """
+    Custom class-formatter for writing logs to json
+    """
+
+    def format(self, record: logging.LogRecord, *args, **kwargs) -> str:
+        """
+        Formatting LogRecord to json
+
+        :param record: logging.LogRecord
+        :return: json string
+        """
+        log_object: dict = self._format_log_object(record)
+        return json.dumps(log_object, ensure_ascii=False)
+
+    @staticmethod
+    def _format_log_object(record: logging.LogRecord) -> dict:
+        now = (
+            datetime.
+            datetime.
+            fromtimestamp(record.created).
+            astimezone().
+            replace(microsecond=0).
+            isoformat()
+        )
+        message = record.getMessage()
+        duration = (
+            record.duration
+            if hasattr(record, 'duration')
+            else record.msecs
+        )
+
+        json_log_fields = BaseJsonLogSchema(
+            thread=record.process,
+            timestamp=now,
+            level_name=LEVEL_TO_NAME[record.levelno],
+            message=message,
+            source_log=record.name,
+            duration=duration,
+            app_name=app_config.api.project_name,
+            app_version=app_config.api.version,
+        )
+
+        if hasattr(record, 'props'):
+            json_log_fields.props = record.props
+
+        if record.exc_info:
+            json_log_fields.exceptions = (
+                # default library traceback
+                # traceback.format_exception(*record.exc_info)
+
+                # stackprinter gets all debug information
+                # https://github.com/cknd/stackprinter/blob/master/stackprinter/__init__.py#L28-L137
+                stackprinter.format(
+                    record.exc_info,
+                    suppressed_paths=[
+                        r"lib/python.*/site-packages/starlette.*",
+                    ],
+                    add_summary=False,
+                ).split('\n')
+            )
+
+        elif record.exc_text:
+            json_log_fields.exceptions = record.exc_text
+
+        # Pydantic to dict
+        json_log_object = json_log_fields.dict(
+            exclude_unset=True,
+            by_alias=True,
+        )
+        # getting additional fields
+        if hasattr(record, 'request_json_fields'):
+            json_log_object.update(record.request_json_fields)
+
+        return json_log_object
+
+
+def handlers():
+    handler_list = ['json']
+
+    return handler_list
+
+
+LOG_HANDLER = handlers()
+LOGGING_LEVEL = logging.INFO
+
+LOG_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
-        'verbose': {
-            'format': LOG_FORMAT
-        },
-        'default': {
-            '()': 'uvicorn.logging.DefaultFormatter',
-            'fmt': '%(levelprefix)s %(message)s',
-            'use_colors': None,
-        },
-        'access': {
-            '()': 'uvicorn.logging.AccessFormatter',
-            'fmt': "%(levelprefix)s %(client_addr)s - '%(request_line)s' %(status_code)s",
+        'json': {
+            '()': JSONLogFormatter,
         },
     },
     'handlers': {
-        'console': {
-            'level': 'DEBUG',
+        'json': {
+            'formatter': 'json',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'stream': sys.stdout,
         },
-        'default': {
-            'formatter': 'default',
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stdout',
-        },
-        'access': {
-            'formatter': 'access',
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stdout',
-        },
+        'intercept': {
+            '()': ConsoleLogger,
+        }
     },
     'loggers': {
-        '': {
-            'handlers': LOG_DEFAULT_HANDLERS,
-            'level': LOG_LEVEL,
+        'main': {
+            'handlers': LOG_HANDLER,
+            'level': LOGGING_LEVEL,
+            'propagate': False,
         },
-        'uvicorn.error': {
-            'level': LOG_LEVEL,
+        'uvicorn': {
+            'handlers': LOG_HANDLER,
+            'level': 'INFO',
+            'propagate': False,
         },
         'uvicorn.access': {
-            'handlers': ['access'],
-            'level': LOG_LEVEL,
+            'handlers': LOG_HANDLER,
+            'level': 'ERROR',
             'propagate': False,
         },
     },
-    'root': {
-        'level': LOG_LEVEL,
-        'formatter': 'verbose',
-        'handlers': LOG_DEFAULT_HANDLERS,
-    },
 }
+
+dictConfig(LOG_CONFIG)
+logger = logging.getLogger('main')
+
+if app_config.export_logs:
+    logstash_handler = logstash.LogstashHandler(app_config.logstash.host,
+                                                app_config.api.logstash_port,
+                                                version=1)
+    logger.addHandler(logstash_handler)
