@@ -14,10 +14,10 @@ class BaseJsonLogSchema(BaseModel):
     app_name: str
     app_version: str
     duration: int
-    exceptions: Union[List[str], str] = None
-    trace_id: str = None
-    span_id: str = None
-    parent_id: str = None
+    exceptions:  Optional[Union[List[str], str]] = None
+    trace_id: Optional[str] = None
+    span_id:  Optional[str] = None
+    parent_id:  Optional[str] = None
 
     class Config:
         allow_population_by_field_name = True

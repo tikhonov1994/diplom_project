@@ -3,20 +3,20 @@ from uuid import UUID, uuid4
 
 from db.storage.base import MongoStorageBase
 from models.review import Review, ReviewAssessment, ReviewRating
-from motor.motor_asyncio import AsyncIOMotorCollection
+from motor.core import AgnosticCollection
 
 
 class ReviewStorage(MongoStorageBase):
     @property
-    def reviews(self) -> AsyncIOMotorCollection:
+    def reviews(self) -> AgnosticCollection:
         return self.db.reviews
 
     @property
-    def review_ratings(self) -> AsyncIOMotorCollection:
+    def review_ratings(self) -> AgnosticCollection:
         return self.db.review_ratings
 
     @property
-    def review_assessments(self) -> AsyncIOMotorCollection:
+    def review_assessments(self) -> AgnosticCollection:
         return self.db.review_assessments
 
     async def insert_review(self, text: str, user_id: UUID, author_rating: int, film_id: UUID):
@@ -37,7 +37,7 @@ class ReviewStorage(MongoStorageBase):
             cursor = self.reviews.find()
         if sort:
             cursor = cursor.sort(*sort)
-        return [Review.parse_obj(doc) for doc in await cursor.to_list(length=None)]
+        return [Review.parse_obj(doc) for doc in await cursor.to_list(length=None)]  # type: ignore[arg-type]
 
     async def update_review(self, text: str, user_id: UUID, author_rating: int, film_id: UUID,
                             review_id: UUID):
@@ -73,13 +73,13 @@ class ReviewStorage(MongoStorageBase):
                 {'review_id': {'$eq': review_id}},
                 {'liked': {'$eq': True}}
             ]})
-        likes_count = len(await cursor_likes.to_list(length=None))
+        likes_count = len(await cursor_likes.to_list(length=None))  # type: ignore[arg-type]
         cursor_dislikes = self.review_assessments.find(
             {'$and': [
                 {'review_id': {'$eq': review_id}},
                 {'liked': {'$eq': False}}
             ]})
-        dislikes_count = len(await cursor_dislikes.to_list(length=None))
+        dislikes_count = len(await cursor_dislikes.to_list(length=None))  # type: ignore[arg-type]
         return ReviewRating(review_id=review_id, likes_count=likes_count, dislikes_count=dislikes_count)
 
     async def delete_assessment(self, user_id: UUID, review_id: UUID):

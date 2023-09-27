@@ -101,7 +101,7 @@ class LoggingMiddleware:
             response_body = b''
 
             # noinspection PyUnresolvedReferences
-            async for chunk in response.body_iterator:
+            async for chunk in response.body_iterator:  # type: ignore[attr-defined]
                 response_body += chunk
 
             response = Response(
