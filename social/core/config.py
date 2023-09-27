@@ -9,10 +9,6 @@ class SocialMongoConfig(BaseSettings):  # type: ignore
     host: str
     port: int
 
-    @property
-    def mongo_uri(self) -> str:
-        return f'mongodb://{self.host}:{self.port}/{self.social_database}'
-
     class Config:
         env_file = _ENV_FILE_LOC
         env_prefix = 'mongo_'

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from uuid import UUID, uuid4
 
 from db.storage.base import MongoStorageBase
@@ -30,7 +31,7 @@ class ReviewStorage(MongoStorageBase):
         )
         await self.reviews.insert_one(document.dict())
 
-    async def get_reviews(self, sort: set | None = None, filter_query: dict | None = None) -> list[Review]:
+    async def get_reviews(self, sort=None, filter_query=None) -> List[Review]:
         if filter_query:
             cursor = self.reviews.find(filter_query)
         else:
