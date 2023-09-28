@@ -20,9 +20,10 @@ class BookmarkStorage(MongoStorageBase):
         )
         await self.bookmarks.insert_one(document.dict())
 
-    async def remove_bookmark(self, bookmark_id: UUID):
-        await self.bookmarks.delete_one({'bookmark_id': {'$eq': bookmark_id}})
-    
+    async def remove_bookmark(self, bookmark_id: UUID) -> bool:
+        deletion_result = await self.bookmarks.delete_one({'bookmark_id': {'$eq': bookmark_id}})
+        return deletion_result.deleted_count != 0
+
     async def get_bookmarks(self, user_id: UUID) -> list[Bookmark]:
         cursor = self.bookmarks.find({'user_id': {'$eq': user_id}})
 
