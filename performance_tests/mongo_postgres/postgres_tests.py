@@ -1,3 +1,5 @@
+# flake8: noqa F541
+
 import multiprocessing as mp
 import psycopg2
 from time import monotonic

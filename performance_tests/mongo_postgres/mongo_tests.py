@@ -1,3 +1,5 @@
+# flake8: noqa F541
+
 import multiprocessing as mp
 from time import monotonic
 from uuid import uuid4
