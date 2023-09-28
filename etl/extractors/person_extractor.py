@@ -1,13 +1,8 @@
-import logging
 import psycopg2
 from typing import Generator
 from decorators import coroutine
-from configs import app_config as config
 from extractors.base_extractor import BaseExtractor
-
-logging.basicConfig(filename=config.log_filename, level=config.logging_level,
-                    format='%(asctime)s  %(message)s')
-logger = logging.getLogger(__name__)
+from logger import logger
 
 
 class PersonExtractor(BaseExtractor):
@@ -20,7 +15,9 @@ class PersonExtractor(BaseExtractor):
                 query = f"""SELECT 
                             person.id, 
                             person.full_name,
-                            COALESCE(json_agg(DISTINCT jsonb_build_object('id', film_work.id, 'role', person_film_work.role)), '[]') AS films,
+                            COALESCE(
+                                json_agg(DISTINCT jsonb_build_object('id', film_work.id, 'role', person_film_work.role)
+                            ), '[]') AS films,
                             person.updated_at
                         FROM content.{self.table_name} 
                         LEFT JOIN content.person_film_work ON person_film_work.person_id = person.id

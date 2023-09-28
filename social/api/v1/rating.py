@@ -42,7 +42,10 @@ async def dislike_movie(movie_id: UUID,
 async def delete_movie_rating(movie_id: UUID,
                               service: MovieRatingServiceDep,
                               user_id: UserIdDep):
-    await service.remove_rating(movie_id, user_id)
+    try:
+        await service.remove_rating(movie_id, user_id)
+    except MovieRatingNotFound as err:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(err))
 
 
 @router.get('/movie/{movie_id}',

@@ -1,7 +1,7 @@
 from typing import Annotated, Optional, Literal
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi_cache.decorator import cache
 from starlette import status
 

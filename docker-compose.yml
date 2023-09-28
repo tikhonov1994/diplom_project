@@ -1,24 +1,53 @@
 version: '3.9'
 
-networks:
-  application_network:
+volumes:
+  nginx_logs:
+  pg_volume:
+  nginx_volume:
+  redis_volume:
 
 include:
   - ./deploy/mongo/docker-compose.yml
+  - ./deploy/elk/docker-compose.yml
+  - ./deploy/kafka/docker-compose.yml
+  - ./deploy/clickhouse/docker-compose.yml
+  - ./deploy/elastic/docker-compose.yml
+
+networks:
+  application_network:
+    driver: bridge
+
+x-net-topology:
+  &container_networks
+  networks:
+    - application_network
+    - mongo_network
+    - elk_network
+    - clickhouse_network
+    - elastic_network
+    - kafka_network
 
 services:
   db:
     container_name: postgres
+    profiles:
+      - "all"
+      - "etl"
+      - "auth"
+      - "admin"
     image: postgres:13.0-alpine
     volumes:
       - pg_volume:/var/lib/postgresql/data/
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   redis:
     container_name: redis
+    profiles:
+      - "all"
+      - "api"
+      - "auth"
     image: redis:7.0.5
     restart: always
     volumes:
@@ -30,37 +59,26 @@ services:
       retries: 5
     expose:
       - 6379
-    networks:
-      - application_network
+    <<: *container_networks
 
-  elasticsearch:
-    container_name: elastic
-    image: elasticsearch:8.6.2
-    restart: always
-    environment:
-      - "xpack.security.enabled=false"
-      - "discovery.type=single-node"
+  jaeger:
+    container_name: jaeger
+    profiles:
+      - "all"
+    image: jaegertracing/all-in-one:latest
     expose:
-      - '9200'
-    networks:
-      - application_network
-    volumes:
-      - elastic_volume:/opt/elasticsearch/data
-    healthcheck:
-      test: curl --fail http://elasticsearch:9200/_cat/indices?v || exit 1
-      interval: 5s
-      retries: 3
-
-  elastic_migrate:
-    container_name: elastic_migrate
-    build: ./deploy/elastic_migrate
-    env_file:
-      - .env
-    networks:
-      - application_network
+      - "6831"
+      - "16686"
+    depends_on:
+      auth:
+        condition: service_started
+    <<: *container_networks
 
   etl:
     container_name: etl
+    profiles:
+      - "all"
+      - "etl"
     build:
       context: etl
     restart: always
@@ -71,29 +89,46 @@ services:
         condition: service_completed_successfully
       db:
         condition: service_started
-    networks:
-      - application_network
+    <<: *container_networks
+
+  ugc_etl:
+    container_name: ugc_etl
+    profiles:
+      - "all"
+      - "ugc_etl"
+    build: ./ugc_etl
+    env_file:
+      - .env
+    depends_on:
+      broker:
+        condition: service_healthy
+      clickhouse1:
+        condition: service_healthy
+    <<: *container_networks
 
   api:
     container_name: api
+    profiles:
+      - "all"
+      - "api"
     build: ./api
     image: movies_api
     depends_on:
-      etl:
-        condition: service_started
-      elasticsearch:
-        condition: service_started
+      elastic_migrate:
+        condition: service_completed_successfully
       redis:
         condition: service_started
     expose:
       - "8001"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   auth:
     container_name: auth
+    profiles:
+      - "all"
+      - "auth"
     build: ./auth
     image: movies_auth
     depends_on:
@@ -105,11 +140,13 @@ services:
       - "8002"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   admin:
     container_name: admin
+    profiles:
+      - "all"
+      - "admin"
     build: ./admin
     image: movies_admin
     depends_on:
@@ -119,306 +156,50 @@ services:
       - "8000"
     env_file:
       - .env
-    networks:
-      - application_network
     volumes:
       - nginx_volume:/opt/app/static
+    <<: *container_networks
 
   ugc_api:
     container_name: ugc_api
+    profiles:
+      - "all"
+      - "ugc_api"
     build: ./ugc
     image: movies_ugc
     depends_on:
-      db:
-        condition: service_started
       broker:
         condition: service_healthy
     expose:
       - "8003"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   social_api:
     container_name: social_api
+    profiles:
+      - "all"
+      - "social_api"
     build: ./social
     image: movies_social
+    depends_on:
+      mongos:
+        condition: service_started
     expose:
       - "8010"
     env_file:
       - .env
-    networks:
-      - application_network
+    <<: *container_networks
 
   nginx:
     container_name: nginx
     image: nginx:latest
     volumes:
-      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./deploy/configs:/etc/nginx/conf.d:ro
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/configs:/etc/nginx/conf.d:ro
       - nginx_volume:/opt/app/static
-    depends_on:
-      api:
-        condition: service_started
-      auth:
-        condition: service_started
-      admin:
-        condition: service_started
-      ugc_api:
-        condition: service_started
+      - nginx_logs:/var/log/nginx/
     ports:
       - "80:80"
-    networks:
-      - application_network
-
-  jaeger:
-    container_name: jaeger
-    image: jaegertracing/all-in-one:latest
-    expose:
-      - "6831"
-      - "16686"
-    depends_on:
-      auth:
-        condition: service_started
-    networks:
-      - application_network
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.4.0
-    hostname: zookeeper
-    container_name: zookeeper
-    expose:
-      - "2181"
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    networks:
-      - application_network
-
-  broker:
-    image: confluentinc/cp-server:7.4.0
-    hostname: broker
-    container_name: broker
-    depends_on:
-      - zookeeper
-    expose:
-      - "9101"
-      - "9092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 9101
-      KAFKA_JMX_HOSTNAME: localhost
-      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-      CONFLUENT_METRICS_ENABLE: 'true'
-      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-    networks:
-      - application_network
-    healthcheck:
-      test: nc -z localhost 29092 || exit -1
-
-  schema-registry:
-    image: confluentinc/cp-schema-registry:7.4.0
-    hostname: schema-registry
-    container_name: schema-registry
-    depends_on:
-      - broker
-    expose:
-      - "8081"
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-    networks:
-      - application_network
-
-  connect:
-    image: cnfldemos/cp-server-connect-datagen:0.6.0-7.3.0
-    hostname: connect
-    container_name: connect
-    depends_on:
-      - broker
-      - schema-registry
-    expose:
-      - "8083"
-    environment:
-      CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
-      CONNECT_REST_ADVERTISED_HOST_NAME: connect
-      CONNECT_GROUP_ID: compose-connect-group
-      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
-      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      # CLASSPATH required due to CC-2422
-      CLASSPATH: /usr/share/java/monitoring-interceptors/monitoring-interceptors-7.4.0.jar
-      CONNECT_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
-      CONNECT_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
-      CONNECT_LOG4J_LOGGERS: org.apache.zookeeper=ERROR,org.I0Itec.zkclient=ERROR,org.reflections=ERROR
-    networks:
-      - application_network
-
-  control-center:
-    image: confluentinc/cp-enterprise-control-center:7.4.0
-    hostname: control-center
-    container_name: control-center
-    depends_on:
-      - broker
-      - schema-registry
-      - connect
-      - ksqldb-server
-    ports:
-      - "9021:9021"
-    environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'broker:29092'
-      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: 'connect:8083'
-      CONTROL_CENTER_KSQL_KSQLDB1_URL: "http://ksqldb-server:8088"
-      CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: "http://localhost:8088"
-      CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      CONTROL_CENTER_REPLICATION_FACTOR: 1
-      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
-      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
-      PORT: 9021
-    networks:
-      - application_network
-
-  ksqldb-server:
-    image: confluentinc/cp-ksqldb-server:7.4.0
-    hostname: ksqldb-server
-    container_name: ksqldb-server
-    depends_on:
-      - broker
-      - connect
-    expose:
-      - "8088"
-    environment:
-      KSQL_CONFIG_DIR: "/etc/ksql"
-      KSQL_BOOTSTRAP_SERVERS: "broker:29092"
-      KSQL_HOST_NAME: ksqldb-server
-      KSQL_LISTENERS: "http://0.0.0.0:8088"
-      KSQL_CACHE_MAX_BYTES_BUFFERING: 0
-      KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      KSQL_PRODUCER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
-      KSQL_CONSUMER_INTERCEPTOR_CLASSES: "io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
-      KSQL_KSQL_CONNECT_URL: "http://connect:8083"
-      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
-      KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
-      KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
-    networks:
-      - application_network
-
-  ksqldb-cli:
-    image: confluentinc/cp-ksqldb-cli:7.4.0
-    container_name: ksqldb-cli
-    depends_on:
-      - broker
-      - connect
-      - ksqldb-server
-    entrypoint: /bin/sh
-    tty: true
-    networks:
-      - application_network
-
-  ksql-datagen:
-    image: confluentinc/ksqldb-examples:7.4.0
-    hostname: ksql-datagen
-    container_name: ksql-datagen
-    depends_on:
-      - ksqldb-server
-      - broker
-      - schema-registry
-      - connect
-    command: "bash -c 'echo Waiting for Kafka to be ready... && \
-                       cub kafka-ready -b broker:29092 1 40 && \
-                       echo Waiting for Confluent Schema Registry to be ready... && \
-                       cub sr-ready schema-registry 8081 40 && \
-                       echo Waiting a few seconds for topic creation to finish... && \
-                       sleep 11 && \
-                       tail -f /dev/null'"
-    environment:
-      KSQL_CONFIG_DIR: "/etc/ksql"
-      STREAMS_BOOTSTRAP_SERVERS: broker:29092
-      STREAMS_SCHEMA_REGISTRY_HOST: schema-registry
-      STREAMS_SCHEMA_REGISTRY_PORT: 8081
-    networks:
-      - application_network
-
-  rest-proxy:
-    image: confluentinc/cp-kafka-rest:7.4.0
-    depends_on:
-      - broker
-      - schema-registry
-    expose:
-      - "8082"
-    hostname: rest-proxy
-    container_name: rest-proxy
-    environment:
-      KAFKA_REST_HOST_NAME: rest-proxy
-      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
-      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
-      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-    networks:
-      - application_network
-
-  clickhouse1:
-    image: clickhouse/clickhouse-server:22.5
-    container_name: clickhouse1
-    expose:
-      - "8123"
-      - "9000"
-    environment:
-      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
-    volumes:
-      - clickhouse_volume:/etc/clickhouse-server
-    networks:
-      - application_network
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:8123/?query=SELECT%201 || exit 1
-
-  clickhouse_initial:
-    container_name: clickhouse_initial
-    build: ./deploy/clickhouse_initial
-    networks:
-      - application_network
-    depends_on:
-      clickhouse1:
-        condition: service_healthy
-
-  ugc_etl:
-    container_name: ugc_etl
-    build: ./ugc_etl
-    networks:
-      - application_network
-    env_file:
-      - .env
-    depends_on:
-      broker:
-        condition: service_healthy
-      clickhouse1:
-        condition: service_healthy
-
-volumes:
-  pg_volume:
-  nginx_volume:
-  elastic_volume:
-  redis_volume:
-  clickhouse_volume:
+    <<: *container_networks

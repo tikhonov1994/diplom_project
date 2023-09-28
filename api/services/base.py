@@ -1,5 +1,5 @@
-from collections import namedtuple
 import logging
+from collections import namedtuple
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -49,5 +49,5 @@ class BaseService:
             prev=current_page - 1 if 1 < current_page <= (total_pages + 1) else None,
             next=(current_page + 1) if current_page < total_pages else None,
             results=[self.BASE_MODEL.parse_obj(item_obj)
-                     for item_obj in items_data]
+                     for item_obj in items_data],
         )

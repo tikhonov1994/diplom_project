@@ -4,7 +4,8 @@ from http import HTTPStatus
 
 import pytest
 from aiohttp import ClientSession
-from functional.test_data.auth_data import test_auth_headers, test_admin_auth_headers
+from functional.test_data.auth_data import (test_admin_auth_headers,
+                                            test_auth_headers)
 from functional.test_data.db_data import test_user_info
 from functional.utils.db import get_from_db, insert_into_db
 from sqlalchemy.ext.asyncio import AsyncSession

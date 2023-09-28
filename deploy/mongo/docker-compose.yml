@@ -1,15 +1,25 @@
 version: '3.9'
+
 x-mongo-common:
   &mongo-common
   image: mongo:5.0.21
-  networks:
-    - application_network
   healthcheck:
     test: echo 'db.runCommand("ping").ok' | mongo $(hostname)/test --quiet
     interval: 10s
     timeout: 5s
     retries: 3
     start_period: 10s
+  profiles:
+    - "all"
+    - "mongo"
+    - "social_api"
+  networks:
+    - mongo_network
+
+networks:
+  mongo_network:
+    name: mongo_network
+    driver: bridge
 
 services:
   mongo_cnf_n1:

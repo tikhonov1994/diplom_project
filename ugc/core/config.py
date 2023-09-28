@@ -6,11 +6,13 @@ from pydantic import BaseSettings, Field
 _ENV_FILE_LOC = '.env'
 
 
-class UgcConfig(BaseSettings):
+class UgcConfig(BaseSettings):  # type: ignore
     project_name: str
     host: str
     port: int
+    version: str = '0.0.1'
 
+    logstash_port: int
     logging_level: int = 20
     base_dir: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -19,14 +21,33 @@ class UgcConfig(BaseSettings):
         env_prefix = 'ugc_'
 
 
-class AppConfig(BaseSettings):
+class LogstashConfig(BaseSettings):  # type: ignore
+    host: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'logstash_'
+
+
+class SentryConfig(BaseSettings):  # type: ignore
+    dsn: str
+
+    class Config:
+        env_file = _ENV_FILE_LOC
+        env_prefix = 'sentry_'
+
+
+class AppConfig(BaseSettings):  # type: ignore
     # Logging
     log_level: str
+    export_logs: bool = False
 
-    authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
+    authjwt_secret_key: str = Field(env='JWT_SECRET_KEY')
 
     # Service
     api: UgcConfig = UgcConfig()
+    logstash: LogstashConfig = LogstashConfig()
+    sentry: SentryConfig = SentryConfig()
 
     # Kafka
     kafka_host: str

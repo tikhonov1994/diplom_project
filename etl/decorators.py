@@ -1,11 +1,6 @@
 import time
 from functools import wraps
-import logging
-from configs import app_config as config
-
-logging.basicConfig(filename=config.log_filename, level=config.logging_level,
-                    format='%(asctime)s  %(message)s')
-logger = logging.getLogger(__name__)
+from logger import logger
 
 
 def coroutine(func):

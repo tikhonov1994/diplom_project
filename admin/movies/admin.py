@@ -46,7 +46,7 @@ class CustomUserAdmin(UserAdmin):
         (None, {
             'classes': ('wide',),
             'fields': ('email',)}
-        ),
+         ),
     )
 
     search_fields = ('email',)
