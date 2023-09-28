@@ -104,4 +104,4 @@ async def test_sort_filter_review(http_social_client, get_data_from_social_db) -
         assert len(data) == len(db_data)
         for i in range(len(data)):
             if i > 0:
-                assert data[i].get('added') > data[i-1].get('added')
+                assert data[i].get('added') > data[i - 1].get('added')

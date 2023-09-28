@@ -31,7 +31,8 @@ def prepare_mongo(sync_mongo_client: MongoClient) -> None:
     # Здесь нужно будет добавить данные для тестов других коллекций
     insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'movieLikes', test_movieLikes)
     insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'reviews', test_reviews_data)
-    insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'review_assessments', test_reviews_assessments_data)
+    insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'review_assessments',
+                              test_reviews_assessments_data)
     ...
 
 
