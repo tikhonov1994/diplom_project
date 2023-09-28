@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from core.auth import UserIdDep
@@ -25,5 +26,5 @@ async def delete_bookmark(bookmark_id: UUID, service: BookmarkServiceDep, _: Use
 
 
 @router.get('', description='Получить все закладки пользователя')
-async def get_user_bookmarks(service: BookmarkServiceDep, user_id: UserIdDep) -> list[Bookmark]:
+async def get_user_bookmarks(service: BookmarkServiceDep, user_id: UserIdDep) -> List[Bookmark]:
     return await service.get_user_bookmarks_list(user_id)

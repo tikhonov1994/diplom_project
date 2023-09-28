@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from db.storage import BookmarkStorageDep
@@ -23,6 +24,6 @@ class BookmarksService:
         if not await self._storage.remove_bookmark(bookmark_id):
             raise BookmarkNotFound(bookmark_id=bookmark_id)
 
-    async def get_user_bookmarks_list(self, user_id: UUID) -> list[Bookmark]:
+    async def get_user_bookmarks_list(self, user_id: UUID) -> List[Bookmark]:
         return await self._storage.get_bookmarks(user_id)
 
