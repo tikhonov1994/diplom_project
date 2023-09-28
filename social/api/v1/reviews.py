@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, List  # type: ignore[attr-defined]
 from uuid import UUID
 
 from core.auth import UserIdDep
@@ -30,7 +30,7 @@ async def update_review(review_id: UUID, validated_data: ReviewSchema,
 
 @router.get('/review', description='Все рецензии')
 async def all_reviews(query_params: Annotated[QueryParams, Depends()],
-                      service: ReviewServiceDep, _: UserIdDep) -> list[Review]:
+                      service: ReviewServiceDep, _: UserIdDep) -> List[Review]:
     return await service.get_reviews(query_params)
 
 

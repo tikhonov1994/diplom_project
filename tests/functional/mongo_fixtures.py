@@ -14,6 +14,7 @@ from functional.utils.mongo import drop_collection, insert_data_to_collection
 def sync_mongo_client() -> MongoClient:
     _client = MongoClient(config.mongo_host,
                           config.mongo_port,
+                          connect=True,
                           uuidRepresentation='standard')
     yield _client
     _client.close()

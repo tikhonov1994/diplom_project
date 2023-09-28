@@ -1,4 +1,5 @@
-import random, string
+import random
+import string
 from yandexid.schemas.yandexid import User
 from db.model import UserInfo
 

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated  # type: ignore[attr-defined]
 from uuid import UUID
 
 from async_fastapi_jwt_auth import AuthJWT

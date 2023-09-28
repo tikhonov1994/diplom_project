@@ -11,14 +11,14 @@ CLICKHOUSE_HOST = 'localhost'
 
 # noinspection SqlNoDataSourceInspection
 class ClickhouseTests(TestBase):
-    READ_QUERY = f'select distinct user_id from docker.test where ts > 2400;'
+    READ_QUERY = 'select distinct user_id from docker.test where ts > 2400;'
 
     def __init__(self, pre_filled_rec_count: int, cold_init: bool = True):
         if cold_init:
             client = Client(host=CLICKHOUSE_HOST)
-            client.execute(f'DROP TABLE IF EXISTS docker.test;')
+            client.execute('DROP TABLE IF EXISTS docker.test;')
             client.execute('CREATE DATABASE IF NOT EXISTS docker;')
-            client.execute(f'''
+            client.execute('''
     CREATE TABLE IF NOT EXISTS docker.test (
     id UUID, user_id UUID, movie_id UUID, ts Int32, created Date)
     Engine=MergeTree PRIMARY KEY user_id;
@@ -35,7 +35,7 @@ class ClickhouseTests(TestBase):
     def _pre_fill_db(rec_count: int):
         client = Client(host=CLICKHOUSE_HOST)
         _data = [rec.dict() for rec in get_test_records(rec_count)]
-        client.execute(f'INSERT INTO docker.test SETTINGS async_insert=1, wait_for_async_insert=1 VALUES', _data)
+        client.execute('INSERT INTO docker.test SETTINGS async_insert=1, wait_for_async_insert=1 VALUES', _data)
 
     def test_read(self, iter_count: int = 10) -> dict[str, any]:
         client = Client(host=CLICKHOUSE_HOST)
@@ -59,7 +59,7 @@ class ClickhouseTests(TestBase):
         _data = [rec.dict() for rec in get_test_records(rec_count)]
         for _ in range(iter_count):
             t_start = monotonic()
-            client.execute(f'INSERT INTO docker.test SETTINGS async_insert=1, wait_for_async_insert=1 VALUES', _data)
+            client.execute('INSERT INTO docker.test SETTINGS async_insert=1, wait_for_async_insert=1 VALUES', _data)
             t_sum += monotonic() - t_start
 
         return {'test_write': {

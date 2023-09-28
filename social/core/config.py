@@ -1,22 +1,20 @@
+from typing import Optional
+
 from pydantic import BaseSettings, Field
 
 _ENV_FILE_LOC = '.env'
 
 
-class SocialMongoConfig(BaseSettings):
+class SocialMongoConfig(BaseSettings):  # type: ignore
     host: str
     port: int
-
-    @property
-    def mongo_uri(self) -> str:
-        return f'mongodb://{self.host}:{self.port}/{self.social_database}'
 
     class Config:
         env_file = _ENV_FILE_LOC
         env_prefix = 'mongo_'
 
 
-class SocialConfig(BaseSettings):
+class SocialConfig(BaseSettings):  # type: ignore
     project_name: str
     host: str
     port: int
@@ -30,7 +28,7 @@ class SocialConfig(BaseSettings):
         env_prefix = 'social_'
 
 
-class LogstashConfig(BaseSettings):
+class LogstashConfig(BaseSettings):  # type: ignore
     host: str
 
     class Config:
@@ -38,8 +36,8 @@ class LogstashConfig(BaseSettings):
         env_prefix = 'logstash_'
 
 
-class AppConfig(BaseSettings):
-    authjwt_secret_key: str = Field(None, env='JWT_SECRET_KEY')
+class AppConfig(BaseSettings):  # type: ignore
+    authjwt_secret_key: Optional[str] = Field(None, env='JWT_SECRET_KEY')
     sentry_dsn: str
     debug: bool
     export_logs: bool = False

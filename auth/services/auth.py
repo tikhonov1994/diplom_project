@@ -176,7 +176,3 @@ class AuthService:
             res['count'] = len(res['results'])
             return res
         return None
-
-    async def get_user_id(self):
-        await self.get_token()
-        return await self.Authorize.get_jwt_subject()
