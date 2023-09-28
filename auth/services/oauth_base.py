@@ -5,7 +5,6 @@ from db.storage import (UserInfoStorageDep,
                         UserRoleStorageDep, UserSocialStorageDep)
 
 
-
 class OauthBase(ABC):
     def __init__(self, social_storage: UserSocialStorageDep,
                  info_storage: UserInfoStorageDep,

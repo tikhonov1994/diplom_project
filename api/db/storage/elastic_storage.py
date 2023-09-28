@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 from uuid import UUID
 
 from elasticsearch import NotFoundError
@@ -57,14 +58,14 @@ class ElasticStorage(AbstractStorage):
 
     @staticmethod
     def _build_pagination_query(page_number: int,
-                                page_size: int) -> dict[str, any]:
+                                page_size: int) -> dict[str, Any]:
         return {
             'size': page_size,
             'from_': (page_number - 1) * page_size,
         }
 
     @staticmethod
-    def _build_search_query(search_queries: list[tuple[str, str]]) -> dict[str, any]:
+    def _build_search_query(search_queries: list[tuple[str, str]]) -> dict[str, Any]:
         match_list = [
             {
                 'match': {
@@ -87,14 +88,14 @@ class ElasticStorage(AbstractStorage):
         }
 
     @staticmethod
-    def _build_sort_query(sort_by: str) -> dict[str, any]:
+    def _build_sort_query(sort_by: str) -> dict[str, Any]:
         return {
             'sort': [{sort_by[1:]: 'desc'}] if sort_by[0] == '-' else [{sort_by: 'asc'}]
         }
 
     @staticmethod
     def _build_nested_filter_query(
-            nested_object_filter: NestedObjectFilter) -> dict[str, any]:
+            nested_object_filter: NestedObjectFilter) -> dict[str, Any]:
         return {
             'query': {
                 'nested': {

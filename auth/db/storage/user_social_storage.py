@@ -19,7 +19,7 @@ class UserSocialStorage(GenericStorageMixin):
     @sub_span
     async def get_user_by_social_id(self, social_id: str) -> UserInfo:
         stmt = select(UserSocial).where(UserSocial.social_id == social_id,
-                                        UserSocial.social_name=='yandex')
+                                        UserSocial.social_name == 'yandex')
         if social := (await self._session.execute(stmt)).first():
             return social[0].user_info_id
         return None

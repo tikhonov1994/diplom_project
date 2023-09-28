@@ -1,8 +1,6 @@
-import logging
 from elasticsearch import Elasticsearch, helpers
 from decorators import coroutine
 from state import State
-from configs import app_config as config
 from logger import logger
 
 

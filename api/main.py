@@ -1,7 +1,6 @@
-from contextlib import asynccontextmanager
-
 import uvicorn
-from logging import config as logging_config
+
+from contextlib import asynccontextmanager
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI, APIRouter, Request
 from fastapi.responses import JSONResponse

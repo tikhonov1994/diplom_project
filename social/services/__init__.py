@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated  # type: ignore[attr-defined]
 
 from fastapi import Depends
 from services.rating import MovieRatingService

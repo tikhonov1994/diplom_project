@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated  # type: ignore[attr-defined]
 
 from core.config import app_config
 from fastapi import Depends
@@ -11,10 +11,10 @@ _client = AsyncIOMotorClient(
 )
 
 
-def get_mongo_client() -> AsyncIOMotorClient:
+def get_mongo_client() -> AsyncIOMotorClient:  # type: ignore[valid-type]
     return _client
 
 
-MongoClientDep = Annotated[AsyncIOMotorClient, Depends(get_mongo_client)]
+MongoClientDep = Annotated[AsyncIOMotorClient, Depends(get_mongo_client)]  # type: ignore[valid-type]
 
 __all__ = ['MongoClientDep']
