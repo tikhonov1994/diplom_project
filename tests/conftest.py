@@ -3,9 +3,8 @@ from typing import AsyncGenerator
 
 import pytest_asyncio
 from aiohttp import ClientSession
-from settings import test_settings as settings
-
 from functional.test_data.auth_data import test_request_id_header
+from settings import test_settings as settings
 
 pytest_plugins = ('functional.elastic_fixtures',
                   'functional.redis_fixtures',

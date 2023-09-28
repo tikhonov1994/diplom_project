@@ -1,13 +1,14 @@
-from typing import Callable, Awaitable
+from typing import Awaitable, Callable
 
 import pytest
 import pytest_asyncio
-from pymongo import MongoClient
-from motor.motor_asyncio import AsyncIOMotorClient
-
-from settings import test_settings as config
-from functional.test_data.mongo_data import test_movieLikes
+from functional.test_data.mongo_data import (test_movieLikes,
+                                             test_reviews_assessments_data,
+                                             test_reviews_data)
 from functional.utils.mongo import drop_collection, insert_data_to_collection
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import MongoClient
+from settings import test_settings as config
 
 
 @pytest.fixture(scope='session')
@@ -24,9 +25,13 @@ def sync_mongo_client() -> MongoClient:
 def prepare_mongo(sync_mongo_client: MongoClient) -> None:
     # Здесь нужно будет дропнуть другие коллекции
     drop_collection(sync_mongo_client, config.social_mongo_database, 'movieLikes')
+    drop_collection(sync_mongo_client, config.social_mongo_database, 'reviews')
+    drop_collection(sync_mongo_client, config.social_mongo_database, 'review_assessments')
     ...
     # Здесь нужно будет добавить данные для тестов других коллекций
     insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'movieLikes', test_movieLikes)
+    insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'reviews', test_reviews_data)
+    insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'review_assessments', test_reviews_assessments_data)
     ...
 
 
