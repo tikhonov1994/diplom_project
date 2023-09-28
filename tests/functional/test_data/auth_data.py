@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from uuid import uuid4
 
-from functional.test_data.db_data import test_user_info, test_admin_info, test_admin_role
+from functional.test_data.db_data import (test_admin_info, test_admin_role,
+                                          test_user_info)
 from jose import jwt
 from settings import test_settings
 

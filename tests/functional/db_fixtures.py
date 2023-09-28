@@ -1,6 +1,7 @@
 import pytest
 import pytest_asyncio
-from functional.test_data.db_data import test_user_info, test_user_role, test_admin_role, test_admin_info
+from functional.test_data.db_data import (test_admin_info, test_admin_role,
+                                          test_user_info, test_user_role)
 from functional.utils.db import insert_into_db
 from settings import test_settings as config
 from sqlalchemy import Engine, MetaData, create_engine, inspect, text

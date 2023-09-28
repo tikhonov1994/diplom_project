@@ -13,10 +13,6 @@ class ReviewStorage(MongoStorageBase):
         return self.db.reviews
 
     @property
-    def review_ratings(self) -> AgnosticCollection:
-        return self.db.review_ratings
-
-    @property
     def review_assessments(self) -> AgnosticCollection:
         return self.db.review_assessments
 

@@ -1,9 +1,10 @@
 import time
+import uuid
 from http import HTTPStatus
+
 import pytest
 from aiohttp import ClientSession
 from functional.test_data.auth_data import test_auth_headers
-import uuid
 
 VIEWS_ENDPOINT = '/ugc_api/api/v1/views/'
 
