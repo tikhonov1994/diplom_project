@@ -23,33 +23,7 @@ class BookmarkStorage(MongoStorageBase):
     async def remove_bookmark(self, bookmark_id: UUID):
         await self.bookmarks.delete_one({'bookmark_id': {'$eq': bookmark_id}})
     
-    async def get_reviews(self, sort: set | None = None, filter_query: dict | None = None) -> list[Review]:
-        if filter_query:
-            cursor = self.reviews.find(filter_query)
-        else:
-            cursor = self.reviews.find()
-        if sort:
-            cursor = cursor.sort(*sort)
-        return [Review.parse_obj(doc) for doc in await cursor.to_list(length=None)]
+    async def get_bookmarks(self, user_id: UUID) -> list[Bookmark]:
+        cursor = self.bookmarks.find({'user_id': {'$eq': user_id}})
 
-
-    async def get_review_rating(self, review_id: UUID) -> ReviewRating:
-        cursor_likes = self.review_assessments.find(
-            {'$and': [
-            {'review_id': {'$eq': review_id}},
-            {'liked': {'$eq': True}}
-        ]})
-        likes_count = len(await cursor_likes.to_list(length=None))
-        cursor_dislikes = self.review_assessments.find(
-            {'$and': [
-            {'review_id': {'$eq': review_id}},
-            {'liked': {'$eq': False}}
-        ]})
-        dislikes_count = len(await cursor_dislikes.to_list(length=None))
-        return ReviewRating(review_id=review_id, likes_count=likes_count, dislikes_count=dislikes_count)
-
-    async def delete_assessment(self, user_id: UUID, review_id: UUID):
-        await self.review_assessments.delete_one({'$and': [
-            {'user_id': {'$eq': user_id}},
-            {'review_id': {'$eq': review_id}}
-        ]})
+        return [Bookmark.parse_obj(doc) for doc in await cursor.to_list(length=None)]

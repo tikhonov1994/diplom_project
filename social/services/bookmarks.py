@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from db.storage import BookmarkStorageDep
+from models.bookmark import Bookmark
 
 
 class BookmarksService:
@@ -12,4 +13,7 @@ class BookmarksService:
 
     async def remove_bookmark(self, bookmark_id: UUID) -> None:
         await self._storage.remove_bookmark(bookmark_id)
+
+    async def get_user_bookmarks_list(self, user_id: UUID) -> list[Bookmark]:
+        return await self._storage.get_bookmarks(user_id)
 
