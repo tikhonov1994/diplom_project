@@ -1,11 +1,10 @@
 from datetime import datetime
+from http import HTTPStatus
 from random import randint
 from time import sleep
-from uuid import uuid4, UUID
+from uuid import UUID, uuid4
 
 import pytest
-from http import HTTPStatus
-
 from functional.test_data.auth_data import test_auth_headers
 from functional.test_data.db_data import test_user_info
 from functional.test_data.mongo_data import test_movieLikes
