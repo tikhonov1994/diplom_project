@@ -21,6 +21,16 @@ test_movieLikes = [
     for _ in range(30)
 ]
 
+test_user_bookmarks = [
+    {
+        'bookmark_id': uuid4(),
+        'user_id': test_user_info['id'],
+        'film_id': choice(test_movie_ids),
+        'added': datetime.now()
+    }
+    for _ in range(10)
+]
+
 
 def gen_datetime(min_year=1900, max_year=datetime.now().year):
     start = datetime(min_year, 1, 1, 00, 00, 00)

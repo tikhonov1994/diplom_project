@@ -4,7 +4,8 @@ import pytest
 import pytest_asyncio
 from functional.test_data.mongo_data import (test_movieLikes,
                                              test_reviews_assessments_data,
-                                             test_reviews_data)
+                                             test_reviews_data,
+                                             test_user_bookmarks)
 from functional.utils.mongo import drop_collection, insert_data_to_collection
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
@@ -33,6 +34,8 @@ def prepare_mongo(sync_mongo_client: MongoClient) -> None:
     insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'reviews', test_reviews_data)
     insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'review_assessments',
                               test_reviews_assessments_data)
+    insert_data_to_collection(sync_mongo_client, config.social_mongo_database, 'bookmarks', test_user_bookmarks)
+
     ...
 
 
