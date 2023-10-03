@@ -30,6 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'movies',
+    'django_celery_results',
+    'django_celery_beat',
+    'celery_progress',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +127,11 @@ AUTH_USER_MODEL = "movies.User"
 AUTHENTICATION_BACKENDS = [
     'users.auth.CustomBackend',
 ]
+
+# Настройки CELERY
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 90 * 60
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://redis:6379')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_BACKEND', 'django-db')
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
