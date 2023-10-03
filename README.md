@@ -16,6 +16,7 @@
    5. `admin` - админ-панель.
    6. `ugc_api` - сервис пользовательского контента.
    7. `social_api` - сервис лайков и рецензий.
+   8`notification_api` - сервис отправки сообщений.
 4. OpenAPI сервисов станут доступны по адресам: `http://localhost/content/api/openapi/` для сервиса выдачи контента, и `http://localhost/auth/api/openapi/` для сервиса авторизации. 
 5. Jaeger UI будет доступен по адресу `http://localhost/`.  
 

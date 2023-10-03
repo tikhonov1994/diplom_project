@@ -12,6 +12,7 @@ x-elk-profiles:
     - "admin"
     - "ugc_api"
     - "social_api"
+    - "notification_api"
 
 networks:
   elk_network:
