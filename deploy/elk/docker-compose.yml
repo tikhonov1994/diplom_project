@@ -32,7 +32,7 @@ services:
     ports:
       - "9200:9200"
     volumes:
-      - /esdata:/tmp/elasticsearch/data
+      - esdata:/tmp/elasticsearch/data
     healthcheck:
       test: curl --fail http://elk-elastic:9200/_cat/indices?v || exit 1
       interval: 10s
@@ -49,7 +49,7 @@ services:
         hard: 65536
 
   logstash:
-    image: logstash:7.10.1
+    image: logstash:8.10.2
     container_name: logstash
     <<: *elk-profiles
     environment:

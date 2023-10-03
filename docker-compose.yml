@@ -5,6 +5,7 @@ volumes:
   pg_volume:
   nginx_volume:
   redis_volume:
+  esdata:
 
 include:
   - ./deploy/mongo/docker-compose.yml
