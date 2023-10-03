@@ -1,0 +1,39 @@
+version: '3.9'
+
+x-rabbitmq-profiles:
+  &rabbitmq-profiles
+  profiles:
+    - "all"
+    - "rabbitmq"
+    - "notify"
+
+networks:
+  rabbitmq_network:
+    name: rabbitmq_network
+    driver: bridge
+
+volumes:
+  rabbitmq_data:
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    <<: *rabbitmq-profiles
+    expose:
+      - "5672"
+      - "15672"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - ../../.env
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    restart:
+      always
