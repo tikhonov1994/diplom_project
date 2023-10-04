@@ -1,3 +1,4 @@
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _ENV_FILE_NAME = './.env'
@@ -6,12 +7,12 @@ _ENV_FILE_NAME = './.env'
 class RabbitMqConfig(BaseSettings):
     host: str
     port: int = 5672
-    user: str
-    password: str
+    default_user: str
+    default_pass: str
 
     @property
     def dsn(self) -> str:
-        return f'amqp://{self.user}:{self.password}@{self.host}:{self.port}/'
+        return f'amqp://{self.default_user}:{self.default_pass}@{self.host}:{self.port}/'
 
     model_config = SettingsConfigDict(
         env_prefix='RABBITMQ_',

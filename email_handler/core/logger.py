@@ -150,7 +150,7 @@ logger = logging.getLogger('main')
 
 if app_config.export_logs:
     logstash_handler = logstash.LogstashHandler(app_config.logstash.host,
-                                                app_config.logstash_port,
+                                                app_config.worker.logstash_port,
                                                 version=1)
     logger.addHandler(logstash_handler)
 
