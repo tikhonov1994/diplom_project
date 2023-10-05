@@ -1,0 +1,28 @@
+@startuml
+'!theme vibrant
+
+collections ExternalAPIs
+component PeriodicEventsService
+component NotificationAPI
+component NotificationAdminPanel
+component MessageBus
+component AuthAPI
+collections NotificationWorkers
+
+database NotificationsDb
+database MessageTemplates
+
+
+ExternalAPIs -down-> NotificationAPI: События-триггеры\nрассылки
+PeriodicEventsService --> NotificationAPI: Запуск\nрассылки
+NotificationAPI -down-> MessageBus
+MessageBus -down-> NotificationWorkers
+NotificationAdminPanel -down-> NotificationAPI: Запуск рассылки
+NotificationAdminPanel <-down-> PeriodicEventsService: управление\nпериодическими\nрассылками
+AuthAPI --> NotificationWorkers: Данные о\nпользователях
+
+NotificationWorkers <-- MessageTemplates: Шаблоны сообщений
+NotificationAdminPanel <-- MessageTemplates: Шаблоны сообщений
+NotificationAPI <--> NotificationsDb: Данные рассылок
+NotificationAdminPanel <--> NotificationsDb: Данные рассылок
+@enduml
