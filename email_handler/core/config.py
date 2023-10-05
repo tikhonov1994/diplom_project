@@ -20,6 +20,16 @@ class RabbitMqConfig(BaseSettings):
         extra='ignore')
 
 
+class SendgridConfig(BaseSettings):
+    api_endpoint: str
+    api_key: str
+
+    model_config = SettingsConfigDict(
+        env_prefix='SENDGRID_',
+        env_file=_ENV_FILE_NAME,
+        extra='ignore')
+
+
 class EmailWorkerConfig(BaseSettings):
     version: str = '0.0.1'
     name: str = 'EmailHandler'
@@ -27,6 +37,11 @@ class EmailWorkerConfig(BaseSettings):
     prefetch_count: int = 4
     debug: bool = False
     logstash_port: int
+
+    email_address: str
+    email_password: str
+    smtp_host: str
+    smtp_port: int
 
     model_config = SettingsConfigDict(
         env_prefix='EMAIL_HANDLER_',
@@ -49,6 +64,7 @@ class AppConfig(BaseSettings):
     rabbitmq: RabbitMqConfig = RabbitMqConfig()
     worker: EmailWorkerConfig = EmailWorkerConfig()
     logstash: LogstashConfig = LogstashConfig()
+    sendgrid: SendgridConfig = SendgridConfig()
 
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE_NAME,
