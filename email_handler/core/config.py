@@ -20,12 +20,22 @@ class RabbitMqConfig(BaseSettings):
         extra='ignore')
 
 
-class SendgridConfig(BaseSettings):
-    api_endpoint: str
-    api_key: str
+class AuthServiceConfig(BaseSettings):
+    host: str
+    port: int
 
     model_config = SettingsConfigDict(
-        env_prefix='SENDGRID_',
+        env_prefix='AUTH_',
+        env_file=_ENV_FILE_NAME,
+        extra='ignore')
+
+
+class NotificationServiceConfig(BaseSettings):
+    host: str
+    port: int
+
+    model_config = SettingsConfigDict(
+        env_prefix='NOTIFICATION_',
         env_file=_ENV_FILE_NAME,
         extra='ignore')
 
@@ -64,7 +74,8 @@ class AppConfig(BaseSettings):
     rabbitmq: RabbitMqConfig = RabbitMqConfig()
     worker: EmailWorkerConfig = EmailWorkerConfig()
     logstash: LogstashConfig = LogstashConfig()
-    sendgrid: SendgridConfig = SendgridConfig()
+    auth: AuthServiceConfig = AuthServiceConfig()
+    notification: NotificationServiceConfig = NotificationServiceConfig()
 
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE_NAME,
