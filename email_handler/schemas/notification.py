@@ -3,6 +3,6 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class MailTemplate(BaseModel):
+class MailTemplateSchema(BaseModel):
     id: UUID
     body: str

@@ -3,9 +3,10 @@ from functools import wraps
 from time import sleep
 
 
-def backoff(exceptions: type | tuple[type, ...], start_sleep_time=0.1, factor=2, border_sleep_time=10, max_retries=10):
+def async_backoff(exceptions: type | tuple[type, ...], start_sleep_time=0.1, factor=2, border_sleep_time=10,
+                  max_retries=10):
     """
-    Декоратор, перезапускающий обернутую функцию при возникновении в ней определенных типов исключений.
+    Декоратор, перезапускающий обернутую async-функцию при возникновении в ней определенных типов исключений.
     Интервал перезапуска вычисляется по формуле:
     wait_time = min(start_sleep_time * factor ** iteration, border_sleep_time)
     Здесь iteration - номер попытки перезапуска.
@@ -20,7 +21,7 @@ def backoff(exceptions: type | tuple[type, ...], start_sleep_time=0.1, factor=2,
     def func_wrapper(func):
 
         @wraps(func)
-        def inner(*args, **kwargs):
+        async def inner(*args, **kwargs):
             iteration = 1
             wait_time = start_sleep_time
             while True:
@@ -29,8 +30,7 @@ def backoff(exceptions: type | tuple[type, ...], start_sleep_time=0.1, factor=2,
                     logging.critical(_msg)
                     raise ConnectionError(_msg)
                 try:
-                    results = func(*args, **kwargs)
-                    return results
+                    return await func(*args, **kwargs)
                 except exceptions as exc:
                     logging.warning('\'%s\' exception raised on \'%s\' call, retry in %.2f s..',
                                     exc.__class__.__name__, func.__qualname__, wait_time)

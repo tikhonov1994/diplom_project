@@ -1,4 +1,3 @@
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _ENV_FILE_NAME = './.env'
@@ -52,6 +51,14 @@ class EmailWorkerConfig(BaseSettings):
     email_password: str
     smtp_host: str
     smtp_port: int
+
+    @property
+    def smtp_connect_params(self) -> dict:
+        return {'hostname': self.smtp_host,
+                'port': self.smtp_port,
+                'username': self.email_address,
+                'password': self.email_password,
+                'use_tls': True}
 
     model_config = SettingsConfigDict(
         env_prefix='EMAIL_HANDLER_',

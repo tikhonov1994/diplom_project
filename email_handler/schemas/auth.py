@@ -12,3 +12,7 @@ class UserInfoSchema(BaseModel):
     id: UUID
     email: str
     role: UserRoleSchema
+
+    @property
+    def template_params(self) -> dict[str, any]:
+        return {}

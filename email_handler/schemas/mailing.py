@@ -3,8 +3,9 @@ from uuid import UUID
 from pydantic import BaseModel
 
 
-class Mailing(BaseModel):
+class MailingSchema(BaseModel):
     mailing_id: UUID
     template_id: UUID
-    template_params: UUID
-    recipients_list: list[UUID]
+    subject: str
+    template_params: dict
+    recipients_list: set[UUID]

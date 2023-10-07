@@ -1,9 +1,15 @@
-from typing import Coroutine
-
 import aio_pika
 
 from core.config import app_config
 
+__connection = None
 
-def connect() -> Coroutine[any, any, aio_pika.abc.AbstractRobustConnection]:
-    return aio_pika.connect_robust(app_config.rabbitmq.dsn)
+
+async def connect() -> aio_pika.abc.AbstractRobustConnection:
+    global __connection
+    if not __connection:
+        __connection = await aio_pika.connect_robust(app_config.rabbitmq.dsn)
+    return __connection
+
+
+__all__ = ['connect']
