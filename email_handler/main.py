@@ -1,6 +1,5 @@
 import asyncio
 
-# import aio_pika.exchange
 import sentry_sdk
 
 from rabbitmq import connect
