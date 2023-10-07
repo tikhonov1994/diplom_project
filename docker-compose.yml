@@ -8,6 +8,7 @@ volumes:
   esdata:
 
 include:
+  # - ./celery/docker-compose.yml
   - ./deploy/mongo/docker-compose.yml
   - ./deploy/elk/docker-compose.yml
   - ./deploy/kafka/docker-compose.yml
@@ -152,6 +153,7 @@ services:
       - "admin"
     build: ./admin
     image: movies_admin
+    command: celery -A tasks worker -l info
     depends_on:
       db:
         condition: service_started
@@ -162,6 +164,24 @@ services:
     volumes:
       - nginx_volume:/opt/app/static
     <<: *container_networks
+
+  # celery_app:
+  #   build: ./admin/celery_admin
+  #   container_name: celery_app
+  #   profiles:
+  #   - "all"
+  #   - "admin"
+  #   command: bash -c "celery -A service worker -l info"
+  #   <<: *container_networks
+      
+  # celery-beat:
+  #   build: ./admin/celery_admin
+  #   container_name: celery_beat
+  #   profiles:
+  #   - "all"
+  #   - "admin"
+  #   command: bash -c "celery -A service beat -l info"
+  #   <<: *container_networks
 
   ugc_api:
     container_name: ugc_api

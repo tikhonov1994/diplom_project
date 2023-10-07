@@ -33,3 +33,4 @@ EXPOSE 8000
 RUN ["chmod", "+x", "run_uwsgi.sh"]
 
 ENTRYPOINT [ "./run_uwsgi.sh"]
+CMD celery -A tasks beat -l info -S django
