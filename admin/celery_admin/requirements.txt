@@ -1,7 +1,0 @@
-django==4.1.7
-python-dotenv==1.0.0
-celery==5.3.4
-celery-progress==0.3
-django-celery-beat==2.5.0
-django-celery-results==2.5.1
-redis==4.6.0

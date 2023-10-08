@@ -6,7 +6,7 @@ from movies.models import UUIDMixin
 
 
 class Template(UUIDMixin):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     html_template = models.TextField()
     attributes = models.JSONField()
 

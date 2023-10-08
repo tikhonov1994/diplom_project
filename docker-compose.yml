@@ -153,7 +153,8 @@ services:
       - "admin"
     build: ./admin
     image: movies_admin
-    command: celery -A tasks worker -l info
+    command: /bin/sh "run_uwsgi.sh"
+    entrypoint: /bin/sh "run_uwsgi.sh"
     depends_on:
       db:
         condition: service_started
@@ -165,23 +166,27 @@ services:
       - nginx_volume:/opt/app/static
     <<: *container_networks
 
-  # celery_app:
-  #   build: ./admin/celery_admin
-  #   container_name: celery_app
-  #   profiles:
-  #   - "all"
-  #   - "admin"
-  #   command: bash -c "celery -A service worker -l info"
-  #   <<: *container_networks
+  celery_app:
+    build: ./admin
+    container_name: celery_app
+    profiles:
+    - "all"
+    - "admin"
+    env_file:
+      - .env
+    command: ["python3", '-m', "celery", "-A", "tasks", "worker", "-l", "info"]
+    <<: *container_networks
       
-  # celery-beat:
-  #   build: ./admin/celery_admin
-  #   container_name: celery_beat
-  #   profiles:
-  #   - "all"
-  #   - "admin"
-  #   command: bash -c "celery -A service beat -l info"
-  #   <<: *container_networks
+  celery-beat:
+    build: ./admin
+    container_name: celery_beat
+    profiles:
+    - "all"
+    - "admin"
+    env_file:
+      - .env
+    command: ["python3", '-m', "celery", "-A", "tasks", "beat", "-l", "info"]
+    <<: *container_networks
 
   ugc_api:
     container_name: ugc_api

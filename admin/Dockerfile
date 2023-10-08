@@ -30,7 +30,6 @@ COPY . .
 # Порт, на котором приложение будет доступно внутри Docker-сети
 EXPOSE 8000
 
-RUN ["chmod", "+x", "run_uwsgi.sh"]
+# RUN ["chmod", "+x", "run_uwsgi.sh"]
 
-ENTRYPOINT [ "./run_uwsgi.sh"]
-CMD celery -A tasks beat -l info -S django
+# ENTRYPOINT [ "./run_uwsgi.sh"]

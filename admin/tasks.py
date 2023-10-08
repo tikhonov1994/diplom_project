@@ -19,8 +19,8 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
 @shared_task(name='send_messages')
-def send_messages(mailing_id: dict, params: dict):
-    mailing = Mailing.objects.get(id=UUID(mailing_id.get('mailing_id')))
+def send_messages(mailing_id: str, params: dict):
+    mailing = Mailing.objects.get(id=UUID(mailing_id))
     return {
         'template': mailing.template.html_template,
         'params': params,
