@@ -1,12 +1,15 @@
 import os
 from uuid import UUID
+# from django.conf import settings
+
+# settings.configure()
 
 from django import setup
-from celery import Celery, shared_task
-
-from mailing.models import Mailing
-
 setup()
+
+from mailing.models import Template, Mailing
+
+from celery import Celery, shared_task
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'example.settings')
 
@@ -14,7 +17,6 @@ app = Celery('tasks')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
-
 
 @shared_task(name='send_messages')
 def send_messages(mailing_id: str, params: dict):
