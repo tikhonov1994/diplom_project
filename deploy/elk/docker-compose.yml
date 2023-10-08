@@ -9,7 +9,6 @@ x-elk-profiles:
     - "ugc_etl"
     - "api"
     - "auth"
-    - "admin"
     - "ugc_api"
     - "social_api"
 
