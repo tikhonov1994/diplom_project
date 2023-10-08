@@ -220,6 +220,20 @@ services:
       - .env
     <<: *container_networks
 
+  email_handler:
+    container_name: email_handler
+    profiles:
+      - "all"
+      - "email_handlers"
+    build: ./email_handler
+    image: email_handler
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - .env
+    <<: *container_networks
+
   nginx:
     container_name: nginx
     image: nginx:latest
