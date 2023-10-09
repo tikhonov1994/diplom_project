@@ -5,27 +5,31 @@ from pydantic import BaseSettings, Field
 _ENV_FILE_LOC = '.env'
 
 
-class SocialMongoConfig(BaseSettings):  # type: ignore
-    host: str
-    port: int
+class NotificationRabbitConfig(BaseSettings):  # type: ignore
+    # host: str
+    # port: int
+    default_user: str
+    default_pass: str
+
+    # todo AsyncioRabbitMQ(f'amqp://{user}:{passwd}@{host}:{port}/%2F')
 
     class Config:
         env_file = _ENV_FILE_LOC
-        env_prefix = 'mongo_'
+        env_prefix = 'rabbitmq_'
 
 
-class SocialConfig(BaseSettings):  # type: ignore
+class NotificationConfig(BaseSettings):  # type: ignore
     project_name: str
     host: str
     port: int
     log_level: str
     version: str = 'dev'
     logstash_port: int
-    mongo_database: str
+    db_schema: str
 
     class Config:
         env_file = _ENV_FILE_LOC
-        env_prefix = 'social_'
+        env_prefix = 'notification_'
 
 
 class LogstashConfig(BaseSettings):  # type: ignore
@@ -37,14 +41,26 @@ class LogstashConfig(BaseSettings):  # type: ignore
 
 
 class AppConfig(BaseSettings):  # type: ignore
-    authjwt_secret_key: Optional[str] = Field(None, env='JWT_SECRET_KEY')
     sentry_dsn: str
     debug: bool
     export_logs: bool = False
 
-    api: SocialConfig = SocialConfig()
-    mongo: SocialMongoConfig = SocialMongoConfig()
+    api: NotificationConfig = NotificationConfig()
+    mongo: NotificationRabbitConfig = NotificationRabbitConfig()
     logstash: LogstashConfig = LogstashConfig()
+
+    # Postgres
+    postgres_host: str
+    postgres_port: int
+    postgres_driver: str
+    postgres_db: str
+    postgres_user: str
+    postgres_password: str
+
+    @property
+    def postgres_dsn(self) -> str:
+        return f'postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}' \
+               f'@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}'
 
     class Config:
         env_file = _ENV_FILE_LOC

@@ -43,6 +43,9 @@ services:
       - pg_volume:/var/lib/postgresql/data/
     env_file:
       - .env
+    # todo delete
+    ports:
+      - "5432:5432"
     <<: *container_networks
 
   redis:
@@ -203,6 +206,8 @@ services:
     build: ./notification
     depends_on:
       db:
+        condition: service_started
+      rabbitmq:
         condition: service_started
     expose:
       - "8005"

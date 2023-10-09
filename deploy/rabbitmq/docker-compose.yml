@@ -5,7 +5,9 @@ x-rabbitmq-profiles:
   profiles:
     - "all"
     - "rabbitmq"
-    - "notify"
+    - "notification_api"
+  networks:
+    - rabbitmq_network
 
 networks:
   rabbitmq_network:

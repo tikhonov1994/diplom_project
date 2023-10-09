@@ -50,7 +50,9 @@ services:
         hard: 65536
 
   logstash:
-    image: logstash:7.10.1
+#    image: logstash:7.10.1
+    # todo temp
+    image: logstash:8.10.2
     container_name: logstash
     <<: *elk-profiles
     environment:

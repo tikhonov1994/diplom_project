@@ -1,3 +1,8 @@
 from typing import Annotated  # type: ignore[attr-defined]
 
-__all__ = []
+from fastapi import Depends
+from services.notification import NotificationService
+
+NotificationServiceDep = Annotated[NotificationService, Depends()]
+
+__all__ = ['NotificationServiceDep',]
