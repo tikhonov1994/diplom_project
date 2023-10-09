@@ -1,5 +1,5 @@
-from rest_framework import serializers
 from mailing.models import Template
+from rest_framework import serializers
 
 
 class TemplateSerializer(serializers.ModelSerializer):
