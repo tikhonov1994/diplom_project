@@ -2,8 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 
-from .models import Filmwork, GenreFilmwork, PersonFilmwork, Person, User
-
+from .models import Filmwork, GenreFilmwork, Person, PersonFilmwork, User
 
 # Register your models here
 

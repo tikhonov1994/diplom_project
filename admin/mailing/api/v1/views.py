@@ -1,10 +1,10 @@
-from rest_framework.views import APIView
 from uuid import UUID
-from rest_framework.exceptions import ParseError
-from mailing.models import Template
+
 from django.http import HttpResponse, JsonResponse
-from rest_framework import status
+from mailing.models import Template
 from mailing.serializers import TemplateSerializer
+from rest_framework import status
+from rest_framework.views import APIView
 
 
 class TemplateDataView(APIView):
