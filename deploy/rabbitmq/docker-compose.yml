@@ -5,6 +5,8 @@ x-rabbitmq-profiles:
   profiles:
     - "all"
     - "rabbitmq"
+    - "notify"
+    - "email_handlers"
     - "notification_api"
   networks:
     - rabbitmq_network
@@ -39,3 +41,5 @@ services:
       retries: 3
     restart:
       always
+    networks:
+      - rabbitmq_network

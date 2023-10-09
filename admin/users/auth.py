@@ -5,7 +5,7 @@ import uuid
 import requests
 from urllib.parse import urlparse
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+from urllib3.util import Retry
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
 from django.conf import settings
@@ -32,7 +32,7 @@ class CustomBackend(BaseBackend):
         data = response.json()
 
         try:
-            user, created = User.objects.get_or_create(id=data['user_id'], )
+            user, _ = User.objects.get_or_create(id=data['user_id'], )
             user.email = data.get('email')
             user.is_admin = data.get('role') == 'admin'
             user.save()

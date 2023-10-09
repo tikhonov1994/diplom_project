@@ -5,8 +5,10 @@ volumes:
   pg_volume:
   nginx_volume:
   redis_volume:
+  esdata:
 
 include:
+  # - ./celery/docker-compose.yml
   - ./deploy/mongo/docker-compose.yml
   - ./deploy/elk/docker-compose.yml
   - ./deploy/kafka/docker-compose.yml
@@ -54,6 +56,7 @@ services:
       - "all"
       - "api"
       - "auth"
+      - "admin"
     image: redis:7.0.5
     restart: always
     volumes:
@@ -155,6 +158,8 @@ services:
       - "admin"
     build: ./admin
     image: movies_admin
+    command: /bin/sh "run_uwsgi.sh"
+    entrypoint: /bin/sh "run_uwsgi.sh"
     depends_on:
       db:
         condition: service_started
@@ -164,6 +169,28 @@ services:
       - .env
     volumes:
       - nginx_volume:/opt/app/static
+    <<: *container_networks
+
+  celery_app:
+    build: ./admin
+    container_name: celery_app
+    profiles:
+    - "all"
+    - "admin"
+    env_file:
+      - .env
+    command: ["python3", '-m', "celery", "-A", "tasks", "worker", "-l", "info"]
+    <<: *container_networks
+
+  celery-beat:
+    build: ./admin
+    container_name: celery_beat
+    profiles:
+    - "all"
+    - "admin"
+    env_file:
+      - .env
+    command: ["python3", '-m', "celery", "-A", "tasks", "beat", "-l", "info"]
     <<: *container_networks
 
   ugc_api:
@@ -194,6 +221,20 @@ services:
         condition: service_started
     expose:
       - "8010"
+    env_file:
+      - .env
+    <<: *container_networks
+
+  email_handler:
+    container_name: email_handler
+    profiles:
+      - "all"
+      - "email_handlers"
+    build: ./email_handler
+    image: email_handler
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     env_file:
       - .env
     <<: *container_networks

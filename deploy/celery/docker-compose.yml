@@ -1,0 +1,34 @@
+version: "3.9"
+
+x-celery-profiles:
+  &celery-profiles
+  profiles:
+    - "all"
+    - "celery"
+    - "admin"
+
+networks:
+  celery_network:
+    name: celery_network
+    driver: bridge
+
+services:
+  celery_app:
+    build: ./admin
+    container_name: celery_app
+    <<: *celery-profiles
+    env_file:
+      - ../../.env
+    command: ["python3", '-m', "celery", "-A", "tasks", "worker", "-l", "info"]
+    networks:
+      - celery_network
+
+  celery-beat:
+    build: ./admin
+    container_name: celery_beat
+    <<: *celery-profiles
+    env_file:
+      - ../../.env
+    command: ["python3", '-m', "celery", "-A", "tasks", "beat", "-l", "info"]
+    networks:
+      - celery_network

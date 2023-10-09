@@ -13,7 +13,7 @@ from redis.asyncio.retry import Retry
 from redis.backoff import ExponentialBackoff
 from redis.exceptions import BusyLoadingError, ConnectionError, TimeoutError
 from utils.tracer import configure_tracer
-from api.v1 import auth, roles, users
+from api.v1 import auth, roles, users, info
 from db import redis
 
 if config.export_logs:
@@ -49,6 +49,7 @@ root_router = APIRouter(prefix='/auth/api')
 root_router.include_router(users.router, prefix='/v1/users', tags=['users'])
 root_router.include_router(roles.router, prefix='/v1/roles', tags=['roles'])
 root_router.include_router(auth.router, prefix='/v1/auth', tags=['auth'])
+root_router.include_router(info.router, prefix='/v1/info', tags=['internal', 'info'])
 app.include_router(root_router)
 
 if __name__ == '__main__':

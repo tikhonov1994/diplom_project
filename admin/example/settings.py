@@ -11,7 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = os.environ.get('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', False) == 'True'
@@ -30,6 +30,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'movies',
+    'mailing',
+    'django_celery_results',
+    'django_celery_beat',
+    'celery_progress',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +128,12 @@ AUTH_USER_MODEL = "movies.User"
 AUTHENTICATION_BACKENDS = [
     'users.auth.CustomBackend',
 ]
+
+# Настройки CELERY
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 90 * 60
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER', 'redis://redis:6379')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_BACKEND', 'django-db')
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
