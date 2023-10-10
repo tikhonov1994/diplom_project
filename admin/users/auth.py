@@ -1,14 +1,14 @@
 import http
 import json
 import uuid
+from urllib.parse import urlparse
 
 import requests
-from urllib.parse import urlparse
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.backends import BaseBackend
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
-from django.contrib.auth.backends import BaseBackend
-from django.contrib.auth import get_user_model
-from django.conf import settings
 
 User = get_user_model()
 
