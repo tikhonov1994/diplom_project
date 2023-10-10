@@ -20,7 +20,7 @@ def singleton(class_):
 
 
 class ConfiguredRabbitmqChannel:
-    def __init__(self, channel: aio_pika.abc.AbstractRobustChannel) -> None:
+    def __init__(self, channel: aio_pika.abc.AbstractChannel) -> None:
         self._channel = channel
 
     async def get_queue(self, queue_name: str) -> aio_pika.abc.AbstractQueue:
@@ -55,7 +55,8 @@ class ConfiguredRabbitmq:
 
     @asynccontextmanager
     async def get_configured_channel(self) -> ConfiguredRabbitmqChannel:
-        async with self._channel_pool.acquire() as _channel:
+        async with self._channel_pool.acquire() as _channel:  # type: aio_pika.abc.AbstractChannel
+            await _channel.set_qos(prefetch_count=cfg.worker.prefetch_count)
             yield ConfiguredRabbitmqChannel(_channel)
 
     async def configure_broker(self) -> None:
