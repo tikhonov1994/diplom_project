@@ -4,6 +4,9 @@ from contextlib import asynccontextmanager
 
 from core.config import app_config as cfg
 
+_CONN_POOL_SIZE = 2
+_CHANNEL_POOL_SIZE = 10
+
 
 def singleton(class_):
     instances = {}
@@ -39,7 +42,7 @@ class ConfiguredRabbitmq:
 
         self._conn_pool = aio_pika.pool.Pool(
             _get_connection,
-            max_size=5,
+            max_size=_CONN_POOL_SIZE,
             loop=asyncio.get_running_loop()
         )
 
@@ -47,7 +50,8 @@ class ConfiguredRabbitmq:
             async with self._conn_pool.acquire() as connection:
                 return await connection.channel()
 
-        self._channel_pool = aio_pika.pool.Pool(get_channel, max_size=10, loop=asyncio.get_running_loop())
+        self._channel_pool = aio_pika.pool.Pool(get_channel, max_size=_CHANNEL_POOL_SIZE,
+                                                loop=asyncio.get_running_loop())
 
     @asynccontextmanager
     async def get_configured_channel(self) -> ConfiguredRabbitmqChannel:
