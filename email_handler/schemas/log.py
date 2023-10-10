@@ -14,5 +14,6 @@ class BaseJsonLogSchema(BaseModel):
     trace_id: str = None
     span_id: str = None
     parent_id: str = None
+    request_id: str | None = None
 
     model_config = ConfigDict(populate_by_name=True)
