@@ -8,7 +8,6 @@ volumes:
   esdata:
 
 include:
-  # - ./celery/docker-compose.yml
   - ./deploy/mongo/docker-compose.yml
   - ./deploy/elk/docker-compose.yml
   - ./deploy/kafka/docker-compose.yml
@@ -231,6 +230,20 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    env_file:
+      - .env
+    <<: *container_networks
+
+  websocket:
+    container_name: websocket
+    profiles:
+      - "all"
+      - "websocket"
+    build: ./websocket
+    image: websocket
+    # depends_on:
+    #   rabbitmq:
+    #     condition: service_healthy
     env_file:
       - .env
     <<: *container_networks
