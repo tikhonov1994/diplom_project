@@ -24,8 +24,6 @@ class MailingStorage:
 
             return model.id
         except IntegrityError as e:
-            print('tuyttt?')
-            print(e)
             self._session.rollback()
 
     async def update_status(self, mailing_id: UUID, status: str) -> None:

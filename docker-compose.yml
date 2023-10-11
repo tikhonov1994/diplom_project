@@ -249,7 +249,7 @@ services:
       db:
         condition: service_started
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
     expose:
       - "8005"
     env_file:
