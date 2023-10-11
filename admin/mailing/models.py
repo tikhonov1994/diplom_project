@@ -14,14 +14,27 @@ class Template(UUIDMixin):
         return self.name
 
     class Meta:
+        db_table = "notification\".\"template"
         verbose_name = _('template')
         verbose_name_plural = _('templates')
 
 
 class Mailing(UUIDMixin):
-    users_ids = ArrayField(models.UUIDField())
+    class Statuses(models.TextChoices):
+        CREATED = 'CREATED', _('Created')
+        IN_PROGRESS = 'IN_PROGRESS', _('In progress')
+        DONE = 'DONE', _('Done')
+        FAILED = 'FAILED', _('Failed')
+
+    receiver_ids = ArrayField(models.UUIDField())
+    status = models.CharField(max_length=50, choices=Statuses.choices, default=Statuses.CREATED,)
+    subject = models.CharField(max_length=255)
     template = models.ForeignKey(Template, on_delete=models.CASCADE)
+    template_params = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = "notification\".\"mailing"
         verbose_name = _('mailing')
         verbose_name_plural = _('mailings')

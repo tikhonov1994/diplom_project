@@ -5,7 +5,7 @@ from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 import sentry_sdk
 
-from api.v1 import notification
+from api.v1 import mailing
 from core.config import app_config as config
 from core.middleware import LoggingMiddleware
 from db.rabbit_connection import rabbit_connection
@@ -16,6 +16,7 @@ if config.export_logs:
         traces_sample_rate=0.1,
         profiles_sample_rate=0.1,
     )
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -31,11 +32,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# app.middleware('http')(LoggingMiddleware())
-
+app.middleware('http')(LoggingMiddleware())
 
 root_router = APIRouter(prefix='/notification_api/api')
-root_router.include_router(notification.router, prefix='/v1/notification', tags=['notification'])
+root_router.include_router(mailing.router, prefix='/v1/mailing', tags=['mailing'])
 app.include_router(root_router)
 
 if __name__ == '__main__':

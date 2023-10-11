@@ -52,6 +52,7 @@ class AppConfig(BaseSettings):
     debug: bool = False
     enable_tracer: bool = True
     request_limit_per_minute: int
+    notification_api_send_email_url: str
 
     sentry: SentryConfig = SentryConfig()
     logstash: LogstashConfig = LogstashConfig()

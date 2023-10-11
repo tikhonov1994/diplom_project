@@ -1,8 +1,8 @@
 from typing import Annotated  # type: ignore[attr-defined]
 
 from fastapi import Depends
-from services.notification import NotificationService
+from services.mailing import MailingService
 
-NotificationServiceDep = Annotated[NotificationService, Depends()]
+MailingServiceDep = Annotated[MailingService, Depends()]
 
-__all__ = ['NotificationServiceDep',]
+__all__ = ['MailingServiceDep',]

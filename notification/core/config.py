@@ -1,17 +1,17 @@
-from typing import Optional
-
 from pydantic import BaseSettings, Field
 
 _ENV_FILE_LOC = '.env'
 
 
-class NotificationRabbitConfig(BaseSettings):  # type: ignore
-    # host: str
-    # port: int
+class RabbitMqConfig(BaseSettings):  # type: ignore
+    host: str
+    port: int = 5672
     default_user: str
     default_pass: str
 
-    # todo AsyncioRabbitMQ(f'amqp://{user}:{passwd}@{host}:{port}/%2F')
+    @property
+    def dsn(self) -> str:
+        return f'amqp://{self.default_user}:{self.default_pass}@{self.host}:{self.port}/'
 
     class Config:
         env_file = _ENV_FILE_LOC
@@ -45,8 +45,11 @@ class AppConfig(BaseSettings):  # type: ignore
     debug: bool
     export_logs: bool = False
 
+    queue_name: str = Field(None, env='EMAIL_HANDLER_QUEUE_NAME')
+    exchange_name: str = Field(None, env='EMAIL_HANDLER_EXCHANGE_NAME')
+
     api: NotificationConfig = NotificationConfig()
-    mongo: NotificationRabbitConfig = NotificationRabbitConfig()
+    rabbitmq: RabbitMqConfig = RabbitMqConfig()
     logstash: LogstashConfig = LogstashConfig()
 
     # Postgres

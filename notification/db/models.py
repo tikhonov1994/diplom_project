@@ -1,7 +1,9 @@
+import uuid
 from typing import Any
+from datetime import datetime
 from uuid import uuid4, UUID
 
-from sqlalchemy import Column, Integer, String, ARRAY
+from sqlalchemy import Column, Integer, String, ARRAY, Enum, Uuid
 from sqlalchemy.dialects.postgresql import JSONB
 
 from core.config import app_config
@@ -21,7 +23,6 @@ name_convention = {
 }
 
 
-print(app_config.api.db_schema)
 metadata = MetaData(naming_convention=name_convention, schema=app_config.api.db_schema)
 
 
@@ -30,6 +31,7 @@ class Base(DeclarativeBase):
     type_annotation_map = {
         dict[str, Any]: JSONB,
         list[str]: ARRAY(String),
+        list[uuid]: ARRAY(Uuid),
     }
 
 
@@ -37,11 +39,32 @@ class IdMixin:
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
 
 
-class Notification(Base, IdMixin):
-    __tablename__ = 'notification'
+class MailingStatusEnum(Enum):
+    created = 'CREATED'
+    in_progress = 'IN_PROGRESS'
+    done = 'DONE'
+    failed = 'FAILED'
+
+
+class Mailing(Base, IdMixin):
+    __tablename__ = 'mailing'
 
     subject: Mapped[str]
-    receiver_ids: Mapped[list[str]]
-    template_id: Mapped[UUID]
+    status: Mapped[str]
+    receiver_ids: Mapped[list[uuid]]
+    template_id: Mapped[UUID] = mapped_column(ForeignKey('template.id', ondelete="CASCADE"))
     template_params: Mapped[dict[str, Any]]
+    created_at: Mapped[datetime]
+    updated_at: Mapped[datetime]
+
+
+
+class Template(Base, IdMixin):
+    __tablename__ = 'template'
+
+    name: Mapped[str]
+    html_template: Mapped[UUID]
+    attributes: Mapped[dict[str, Any]]
+    created_at: Mapped[datetime]
+    updated_at: Mapped[datetime]
 
