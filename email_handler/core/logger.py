@@ -5,6 +5,7 @@ import datetime
 from logging.config import dictConfig
 from typing import cast
 from types import FrameType
+from uuid import UUID
 
 import logstash
 import loguru
@@ -70,6 +71,7 @@ class JSONLogFormatter(logging.Formatter):
             duration=duration,
             app_name=app_config.worker.name,
             app_version=app_config.worker.version,
+            request_id=record.__dict__.get('request_id', None)
         )
 
         if hasattr(record, 'props'):
@@ -146,12 +148,36 @@ LOG_CONFIG = {
 }
 
 dictConfig(LOG_CONFIG)
-logger = logging.getLogger('main')
+_logger = logging.getLogger('main')
 
 if app_config.export_logs:
     logstash_handler = logstash.LogstashHandler(app_config.logstash.host,
                                                 app_config.worker.logstash_port,
                                                 version=1)
-    logger.addHandler(logstash_handler)
+    _logger.addHandler(logstash_handler)
 
-__all__ = ['logger']
+
+class LoggerProxy:
+    def __init__(self, logger_impl: logging.Logger, request_id: UUID) -> None:
+        self._r_id = request_id
+        self._log = logger_impl
+
+    def debug(self, message: str, *args) -> None:
+        self._log.debug(message, *args, extra={'request_id': self._r_id})
+
+    def info(self, message: str, *args) -> None:
+        self._log.info(message, *args, extra={'request_id': self._r_id})
+
+    def warning(self, message: str, *args) -> None:
+        self._log.warning(message, *args, extra={'request_id': self._r_id})
+
+    def error(self, message: str, *args) -> None:
+        self._log.error(message, *args, extra={'request_id': self._r_id})
+
+
+def get_logger(request_id: UUID | None = None) -> LoggerProxy:
+    global _logger
+    return LoggerProxy(_logger, request_id)
+
+
+__all__ = ['get_logger']
