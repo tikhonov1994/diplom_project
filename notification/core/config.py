@@ -47,6 +47,7 @@ class AppConfig(BaseSettings):  # type: ignore
 
     queue_name: str = Field(None, env='EMAIL_HANDLER_QUEUE_NAME')
     exchange_name: str = Field(None, env='EMAIL_HANDLER_EXCHANGE_NAME')
+    queue_routing_key: str = Field(None, env='EMAIL_HANDLER_ROUTING_KEY')
 
     api: NotificationConfig = NotificationConfig()
     rabbitmq: RabbitMqConfig = RabbitMqConfig()

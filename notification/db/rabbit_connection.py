@@ -30,13 +30,11 @@ class RabbitConnection:
         )
 
         queue = await self._channel.declare_queue(app_config.queue_name, durable=True, exclusive=True)
-        await queue.bind(self._exchange, routing_key='test')
+        await queue.bind(self._exchange, routing_key=app_config.queue_routing_key)
 
     async def send_messages(
             self,
             message_data: MailingMessageSchema,
-            *,
-            routing_key: str = 'test',
     ) -> None:
         async with self._channel.transaction():
             message = Message(
@@ -45,7 +43,7 @@ class RabbitConnection:
             )
             await self._exchange.publish(
                 message,
-                routing_key=routing_key,
+                routing_key=app_config.queue_routing_key,
             )
 
 
