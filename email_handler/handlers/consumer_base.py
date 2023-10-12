@@ -4,7 +4,7 @@ import aio_pika
 
 
 class EmailConsumerBase(ABC):
-    @staticmethod
+    @classmethod
     @abstractmethod
-    async def process_message(message: aio_pika.abc.AbstractIncomingMessage) -> None:
+    async def process_message(cls, message: aio_pika.abc.AbstractIncomingMessage) -> None:
         raise NotImplementedError

@@ -56,30 +56,24 @@ class ConfiguredRabbitmq:
     @asynccontextmanager
     async def get_configured_channel(self) -> ConfiguredRabbitmqChannel:
         async with self._channel_pool.acquire() as _channel:  # type: aio_pika.abc.AbstractChannel
-            await _channel.set_qos(prefetch_count=cfg.worker.prefetch_count)
+            await _channel.set_qos(prefetch_count=cfg.ws.prefetch_count)
             yield ConfiguredRabbitmqChannel(_channel)
 
     async def configure_broker(self) -> None:
         async with self._channel_pool.acquire() as _channel:
             _queue: aio_pika.abc.AbstractRobustQueue = await _channel.declare_queue(
-                cfg.worker.queue_name,
+                cfg.ws.queue_name,
                 durable=True
 
-            )
-
-            _queue_dl: aio_pika.abc.AbstractRobustQueue = await _channel.declare_queue(
-                cfg.worker.dl_queue_name,
-                durable=True
             )
 
             _exchange = await _channel.declare_exchange(
-                cfg.worker.exchange_name,
+                cfg.ws.exchange_name,
                 durable=True,
                 type=aio_pika.ExchangeType.DIRECT
             )
 
-            await _queue.bind(_exchange, routing_key=cfg.worker.routing_key)
-            await _queue_dl.bind(_exchange, routing_key=cfg.worker.dl_routing_key)
+            await _queue.bind(_exchange, routing_key=cfg.ws.routing_key)
 
 
 __all__ = ['ConfiguredRabbitmq']
