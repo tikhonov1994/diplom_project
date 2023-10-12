@@ -31,39 +31,6 @@ app = FastAPI(lifespan=lifespan)
 app.middleware('http')(LoggingMiddleware())
 app.include_router(ws_router)
 
-######################################
-from fastapi.responses import HTMLResponse
-
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>WebSocket-тест</title>
-    </head>
-    <body>
-        <h1>WebSocket-тест</h1>
-        Для отключения клиента от сокета закройте эту страницу.
-        <ul id='messages'>
-        </ul>
-        <script>
-            var ws = new WebSocket("ws://localhost:8011/websocket/notify?access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzMmJiODg5Yy00MzkzLTQyMGMtOGE0Yy1hMTczMTVhMzE4MTQiLCJpYXQiOjE2OTcwMzM3NTQsIm5iZiI6MTY5NzAzMzc1NCwianRpIjoiZjAyZjEyYzYtNWNkNC00YzgwLTg1YzAtMzVjNzM5MWVjZjlkIiwiZXhwIjoxNjk3MDM0OTU0LCJ0eXBlIjoiYWNjZXNzIiwiZnJlc2giOmZhbHNlLCJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20iLCJyb2xlIjoidXNlciIsInVzZXJfYWdlbnQiOiJNb3ppbGxhLzUuMCAoV2luZG93cyBOVCAxMC4wOyBXaW42NDsgeDY0KSBBcHBsZVdlYktpdC81MzcuMzYgKEtIVE1MLCBsaWtlIEdlY2tvKSBDaHJvbWUvMTE3LjAuMC4wIFNhZmFyaS81MzcuMzYiLCJyZWZyZXNoX2p0aSI6ImY2ODczMWM4LWE5M2EtNDAwZi1hYzA2LWIxZTkwNTRhN2U5NCJ9.saXTqdXrB2sYFsyM9pzcwrtudk7luCVxZ3ugFO8ju08");
-            ws.onmessage = function(event) {
-                alert(event.data)
-            };
-        </script>
-    </body>
-</html>
-"""
-
-
-@app.get("/")
-async def get():
-    return HTMLResponse(html)
-
-
-######################################
-
-
 if __name__ == '__main__':
     logger.info(f'%s is up and running at %s:%d.',
                 cfg.ws.project_name,

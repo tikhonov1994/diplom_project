@@ -159,7 +159,7 @@ if app_config.export_logs:
 
 class LoggerProxy:
     def __init__(self, logger_impl: logging.Logger, request_id: UUID) -> None:
-        self._r_id = request_id
+        self._r_id = str(request_id)
         self._log = logger_impl
 
     def debug(self, message: str, *args) -> None:

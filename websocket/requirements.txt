@@ -12,3 +12,4 @@ sentry-sdk==1.31.0
 aio-pika==9.3.0
 httpx==0.25.0
 websockets==11.0.3
+python-jose==3.3.0

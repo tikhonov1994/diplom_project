@@ -22,16 +22,6 @@ class RabbitMqConfig(BaseSettings):
         extra='ignore')
 
 
-class AuthServiceConfig(BaseSettings):
-    host: str
-    port: int
-
-    model_config = SettingsConfigDict(
-        env_prefix='AUTH_',
-        env_file=_ENV_FILE_LOC,
-        extra='ignore')
-
-
 class LogstashConfig(BaseSettings):
     host: str
 
@@ -69,7 +59,6 @@ class AppConfig(BaseSettings):
 
     ws: WebsocketConfig = WebsocketConfig()
     rabbitmq: RabbitMqConfig = RabbitMqConfig()
-    auth: AuthServiceConfig = AuthServiceConfig()
     logstash: LogstashConfig = LogstashConfig()
 
     model_config = SettingsConfigDict(
