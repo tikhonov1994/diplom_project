@@ -230,6 +230,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    expose:
+      - "8011"
     env_file:
       - .env
     <<: *container_networks
@@ -238,12 +240,12 @@ services:
     container_name: websocket
     profiles:
       - "all"
-      - "websocket"
+      - "websocket_handlers"
     build: ./websocket
     image: websocket
-    # depends_on:
-    #   rabbitmq:
-    #     condition: service_healthy
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     env_file:
       - .env
     <<: *container_networks

@@ -1,27 +1,81 @@
 from typing import Optional
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _ENV_FILE_LOC = '.env'
 
 
-class WebsocketConfig(BaseSettings):  # type: ignore
-    project_name: str
+class RabbitMqConfig(BaseSettings):
+    host: str
+    port: int = 5672
+    default_user: str
+    default_pass: str
+
+    @property
+    def dsn(self) -> str:
+        return f'amqp://{self.default_user}:{self.default_pass}@{self.host}:{self.port}/'
+
+    model_config = SettingsConfigDict(
+        env_prefix='RABBITMQ_',
+        env_file=_ENV_FILE_LOC,
+        extra='ignore')
+
+
+class AuthServiceConfig(BaseSettings):
     host: str
     port: int
 
+    model_config = SettingsConfigDict(
+        env_prefix='AUTH_',
+        env_file=_ENV_FILE_LOC,
+        extra='ignore')
+
+
+class LogstashConfig(BaseSettings):
+    host: str
+
     class Config:
         env_file = _ENV_FILE_LOC
-        env_prefix = 'websocket_'
+        env_prefix = "logstash_"
 
 
-class AppConfig(BaseSettings):  # type: ignore
-    authjwt_secret_key: Optional[str] = Field(None, env='JWT_SECRET_KEY')
+class WebsocketConfig(BaseSettings):
+    version: str = '0.0.1'
+    project_name: str = 'WebsocketHandler'
+    host: str
+    port: int
+    debug: bool = False
+    logstash_port: int
 
-    api: WebsocketConfig = WebsocketConfig()
+    # rabbitmq-related:
+    queue_name: str
+    exchange_name: str
+    routing_key: str
+    prefetch_count: int = 4
 
-    class Config:
-        env_file = _ENV_FILE_LOC
+    model_config = SettingsConfigDict(
+        env_prefix='WEBSOCKET_',
+        env_file=_ENV_FILE_LOC,
+        extra='ignore'
+    )
+
+
+class AppConfig(BaseSettings):
+    export_logs: bool = False
+    sentry_dsn: str
+
+    jwt_secret_key: str
+
+    ws: WebsocketConfig = WebsocketConfig()
+    rabbitmq: RabbitMqConfig = RabbitMqConfig()
+    auth: AuthServiceConfig = AuthServiceConfig()
+    logstash: LogstashConfig = LogstashConfig()
+
+    model_config = SettingsConfigDict(
+        env_file=_ENV_FILE_LOC,
+        extra='ignore'
+    )
 
 
 app_config = AppConfig()
