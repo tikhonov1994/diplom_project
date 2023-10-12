@@ -31,10 +31,10 @@ class ConnectionManager:
             websocket = self.connections[user_id]
             await websocket.send_text(json.dumps(message.model_dump(mode='json')))
             _logger.debug('Sent websocket message to user [%s]: %s - %s',
-                         str(user_id), message.subject, message.body)
+                          str(user_id), message.subject, message.body)
         except KeyError:
             _logger.debug('User [%s] is offline, can\'t send websocket message, skipping...',
-                         str(user_id))
+                          str(user_id))
 
 
 __ws_conn_mgr = ConnectionManager()

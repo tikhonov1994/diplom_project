@@ -32,7 +32,7 @@ app.middleware('http')(LoggingMiddleware())
 app.include_router(ws_router)
 
 if __name__ == '__main__':
-    logger.info(f'%s is up and running at %s:%d.',
+    logger.info('%s is up and running at %s:%d.',
                 cfg.ws.project_name,
                 cfg.ws.host,
                 cfg.ws.port)
