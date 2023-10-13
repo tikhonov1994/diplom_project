@@ -21,5 +21,5 @@ class NotificationServiceAdapter(ServiceAdapterBase):
                                   mailing_status: MailingStatusEnum) -> None:
         headers = {'x-request-id': str(request_id)}
         body = MailingStatusSchema(mailing_id=mailing_id, status=mailing_status).model_dump()
-        response = await self._client.post(f'/mailing/update_status', headers=headers, data=body)
+        response = await self._client.post('/mailing/update_status', headers=headers, data=body)
         response.raise_for_status()
