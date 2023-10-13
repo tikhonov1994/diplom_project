@@ -23,7 +23,7 @@ class MailingStorage:
             await self._session.refresh(model)
 
             return model.id
-        except IntegrityError as e:
+        except IntegrityError:
             self._session.rollback()
 
     async def update_status(self, mailing_id: UUID, status: str) -> None:

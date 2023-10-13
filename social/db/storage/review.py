@@ -95,16 +95,15 @@ class ReviewStorage(MongoStorageBase):
             }},
             {'$group': {
                 '_id': "$review_id",
-                'count': {"$sum": 1}}
-            },
+                'count': {"$sum": 1}}},
             {"$sort": {"count": -1}}
         ])
 
-        likes = await cursor_likes.to_list(length=None)
+        likes = await cursor_likes.to_list(length=None)  # type: ignore[arg-type]
 
         result = []
         cursor_reviews = self.reviews.find({'review_id': {'$in': [item['_id'] for item in likes]}})
-        reviews = await cursor_reviews.to_list(length=None)
+        reviews = await cursor_reviews.to_list(length=None)  # type: ignore[arg-type]
         for like in likes:
             for review in reviews:
                 if like['_id'] == review['review_id']:

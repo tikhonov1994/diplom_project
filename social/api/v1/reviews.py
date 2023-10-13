@@ -64,5 +64,5 @@ async def get_rating_review(review_id: UUID, service: ReviewServiceDep,
 
 
 @router.get('/daily-top-reviews', description='Самые популярные рецензии за день')
-async def get_rating_review(service: ReviewServiceDep):
+async def get_daily_review_likes(service: ReviewServiceDep):
     return await service.get_daily_top_reviews()

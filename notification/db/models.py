@@ -3,7 +3,7 @@ from typing import Any
 from datetime import datetime
 from uuid import uuid4, UUID
 
-from sqlalchemy import String, ARRAY, Enum, Uuid
+from sqlalchemy import String, ARRAY, Uuid
 from sqlalchemy.dialects.postgresql import JSONB
 
 from core.config import app_config
@@ -49,7 +49,6 @@ class Mailing(Base, IdMixin):
     template_params: Mapped[dict[str, Any]]
     created_at: Mapped[datetime]
     updated_at: Mapped[datetime]
-
 
 
 class Template(Base, IdMixin):
