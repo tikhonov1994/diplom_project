@@ -44,9 +44,6 @@ services:
       - pg_volume:/var/lib/postgresql/data/
     env_file:
       - .env
-    # todo delete
-    ports:
-      - "5432:5432"
     <<: *container_networks
 
   redis:
