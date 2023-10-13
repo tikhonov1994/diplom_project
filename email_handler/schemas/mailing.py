@@ -23,5 +23,5 @@ class MailingSchema(BaseModel):
 
 class MailingStatusSchema(BaseModel):
     mailing_id: UUID
-    mailing_status: MailingStatusEnum
+    status: MailingStatusEnum
     message: str | None = None
