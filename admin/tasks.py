@@ -1,4 +1,5 @@
 import os
+import requests
 from uuid import UUID
 
 from django import setup
@@ -19,8 +20,10 @@ app.autodiscover_tasks()
 @shared_task(name='send_messages')
 def send_messages(mailing_id: str, params: dict):
     mailing = Mailing.objects.get(id=UUID(mailing_id))
-    return {
-        'template': mailing.template.html_template,
-        'params': params,
-        'users_ids': mailing.users_ids
+    data = {
+        'template_id': mailing.template.pk,
+        'template_params': params,
+        'recipients_list': mailing.users_ids,
+        'subject': None
     }
+    requests.post('notification_api/notification_api/api/v1/mailing/send', data=data)
