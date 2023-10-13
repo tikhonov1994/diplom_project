@@ -33,4 +33,4 @@ def send_messages(mailing_id: str, params: dict):
         'recipients_list': mailing.users_ids,
         'subject': params.get('subject')
     }
-    requests.post('notification_api/notification_api/api/v1/mailing/send', data=data)
+    requests.post('notification_api:8005/notification_api/api/v1/mailing/send', data=data)
