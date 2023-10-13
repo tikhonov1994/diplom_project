@@ -69,8 +69,8 @@ class JSONLogFormatter(logging.Formatter):
             message=message,
             source_log=record.name,
             duration=duration,
-            app_name=app_config.worker.name,
-            app_version=app_config.worker.version,
+            app_name=app_config.ws.project_name,
+            app_version=app_config.ws.version,
             request_id=record.__dict__.get('request_id', None)
         )
 
@@ -108,7 +108,7 @@ def handlers():
 
 
 LOG_HANDLER = handlers()
-LOGGING_LEVEL = logging.DEBUG if app_config.worker.debug else logging.WARNING
+LOGGING_LEVEL = logging.DEBUG if app_config.ws.debug else logging.WARNING
 
 LOG_CONFIG = {
     'version': 1,
@@ -147,12 +147,18 @@ LOG_CONFIG = {
     },
 }
 
+if not app_config.ws.debug:
+    uvicorn_error = logging.getLogger("uvicorn.error")
+    uvicorn_error.disabled = True
+    uvicorn_access = logging.getLogger("uvicorn.access")
+    uvicorn_access.disabled = True
+
 dictConfig(LOG_CONFIG)
 _logger = logging.getLogger('main')
 
 if app_config.export_logs:
     logstash_handler = logstash.LogstashHandler(app_config.logstash.host,
-                                                app_config.worker.logstash_port,
+                                                app_config.ws.logstash_port,
                                                 version=1)
     _logger.addHandler(logstash_handler)
 
@@ -161,6 +167,10 @@ class LoggerProxy:
     def __init__(self, logger_impl: logging.Logger, request_id: UUID) -> None:
         self._r_id = str(request_id)
         self._log = logger_impl
+
+    @property
+    def impl(self) -> logging.Logger:
+        return self._log
 
     def debug(self, message: str, *args) -> None:
         self._log.debug(message, *args, extra={'request_id': self._r_id})

@@ -17,7 +17,7 @@ class MailingSchema(BaseModel):
     subject: str
     template_params: dict
     recipients_list: set[UUID]
-    request_id: UUID
+    request_id: UUID | None = None
     retries_cnt: int = 0
 
 

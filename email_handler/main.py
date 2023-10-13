@@ -22,10 +22,7 @@ async def main() -> None:
 
     async with rabbitmq.get_configured_channel() as channel:
         message_queue = await channel.get_queue(app_config.worker.queue_name)
-        logger.info('Connecting to %s...', app_config.rabbitmq.dsn)
-        logger.debug('Worker subscribed on queue: \'%s\'', app_config.worker.queue_name)
-        logger.debug('Set prefetch count to %d', app_config.worker.prefetch_count)
-        logger.info('Connected, ready to handle messages!')
+        logger.info('Connected to %s, ready to handle messages!', app_config.rabbitmq.dsn)
 
         try:
             await message_queue.consume(sender_type().process_message)

@@ -1,9 +1,7 @@
 import json
-from typing import Annotated  # type: ignore[attr-defined]
 from aio_pika import connect_robust
 from aio_pika.message import Message
-from aio_pika.abc import AbstractRobustConnection, AbstractRobustChannel, AbstractRobustExchange, ExchangeType, \
-    DeliveryMode
+from aio_pika.abc import AbstractRobustConnection, AbstractRobustChannel, AbstractRobustExchange, DeliveryMode
 from schemas.mailing import MailingMessageSchema
 from core.config import app_config
 
