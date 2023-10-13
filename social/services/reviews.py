@@ -45,3 +45,6 @@ class ReviewService:
 
     async def get_review_rating(self, review_id: UUID) -> ReviewRating:
         return await self.mongo_storage.get_review_rating(review_id)
+
+    async def get_daily_top_reviews(self):
+        return await self.mongo_storage.get_most_liked_daily_reviews()

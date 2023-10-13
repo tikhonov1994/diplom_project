@@ -8,6 +8,9 @@ x-rabbitmq-profiles:
     - "notify"
     - "email_handlers"
     - "websocket_handlers"
+    - "notification_api"
+  networks:
+    - rabbitmq_network
 
 networks:
   rabbitmq_network:

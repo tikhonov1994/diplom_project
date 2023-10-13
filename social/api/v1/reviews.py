@@ -61,3 +61,8 @@ async def delete_assessment_review(review_id: UUID, service: ReviewServiceDep,
 async def get_rating_review(review_id: UUID, service: ReviewServiceDep,
                             _: UserIdDep) -> ReviewRating:
     return await service.get_review_rating(review_id)
+
+
+@router.get('/daily-top-reviews', description='Самые популярные рецензии за день')
+async def get_daily_review_likes(service: ReviewServiceDep):
+    return await service.get_daily_top_reviews()

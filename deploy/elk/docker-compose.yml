@@ -14,6 +14,7 @@ x-elk-profiles:
     - "websocket"
     - "email_handlers"
     - "websocket_handlers"
+    - "notification_api"
 
 networks:
   elk_network:

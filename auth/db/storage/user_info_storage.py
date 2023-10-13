@@ -51,6 +51,8 @@ class UserInfoStorage(GenericStorageMixin):
     async def add_user(self, user: UserInfo):
         await self.generic.add(user)
 
+        return user
+
     @sub_span
     async def get_user_by_email(self, email: str) -> UserInfo:
         stmt = select(UserInfo).where(UserInfo.email == email)

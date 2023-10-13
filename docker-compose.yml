@@ -38,6 +38,7 @@ services:
       - "etl"
       - "auth"
       - "admin"
+      - "notification_api"
     image: postgres:13.0-alpine
     volumes:
       - pg_volume:/var/lib/postgresql/data/
@@ -246,6 +247,23 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    env_file:
+      - .env
+    <<: *container_networks
+
+  notification_api:
+    container_name: notification_api
+    profiles:
+      - "all"
+      - "notification_api"
+    build: ./notification
+    depends_on:
+      db:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+    expose:
+      - "8005"
     env_file:
       - .env
     <<: *container_networks
