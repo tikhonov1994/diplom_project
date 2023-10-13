@@ -3,12 +3,12 @@ from typing import Any
 from datetime import datetime
 from uuid import uuid4, UUID
 
-from sqlalchemy import Column, Integer, String, ARRAY, Enum, Uuid
+from sqlalchemy import String, ARRAY, Enum, Uuid
 from sqlalchemy.dialects.postgresql import JSONB
 
 from core.config import app_config
-from sqlalchemy import ForeignKey, MetaData, UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import ForeignKey, MetaData
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 name_convention = {
@@ -37,13 +37,6 @@ class Base(DeclarativeBase):
 
 class IdMixin:
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-
-
-class MailingStatusEnum(Enum):
-    created = 'CREATED'
-    in_progress = 'IN_PROGRESS'
-    done = 'DONE'
-    failed = 'FAILED'
 
 
 class Mailing(Base, IdMixin):

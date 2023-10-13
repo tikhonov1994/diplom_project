@@ -1,10 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List
 from uuid import UUID, uuid4
 
 from db.storage.base import MongoStorageBase
 from models.review import Review, ReviewAssessment, ReviewRating
 from motor.core import AgnosticCollection
+from schemas.reviews import DailyTopReviewsSchema
 
 
 class ReviewStorage(MongoStorageBase):
@@ -57,7 +58,8 @@ class ReviewStorage(MongoStorageBase):
         doc = ReviewAssessment(
             review_id=review_id,
             liked=liked,
-            user_id=user_id
+            user_id=user_id,
+            added=datetime.now()
         )
         await self.review_assessments.replace_one({'$and': [
             {'user_id': {'$eq': user_id}},
@@ -84,3 +86,32 @@ class ReviewStorage(MongoStorageBase):
             {'user_id': {'$eq': user_id}},
             {'review_id': {'$eq': review_id}}
         ]})
+
+    async def get_most_liked_daily_reviews(self) -> List[DailyTopReviewsSchema]:
+        cursor_likes = self.review_assessments.aggregate([
+            {'$match': {
+                'liked': True,
+                'added': {'$gte': datetime.now() - timedelta(days=1)}
+            }},
+            {'$group': {
+                '_id': "$review_id",
+                'count': {"$sum": 1}}
+            },
+            {"$sort": {"count": -1}}
+        ])
+
+        likes = await cursor_likes.to_list(length=None)
+
+        result = []
+        cursor_reviews = self.reviews.find({'review_id': {'$in': [item['_id'] for item in likes]}})
+        reviews = await cursor_reviews.to_list(length=None)
+        for like in likes:
+            for review in reviews:
+                if like['_id'] == review['review_id']:
+                    result.append(DailyTopReviewsSchema(
+                        review_id=review['review_id'],
+                        film_id=review['film_id'],
+                        text=review['text'],
+                        likes_count=like['count']))
+
+        return result
