@@ -29,6 +29,16 @@ class AuthServiceConfig(BaseSettings):
         extra='ignore')
 
 
+class AdminServiceConfig(BaseSettings):
+    host: str
+    port: int
+
+    model_config = SettingsConfigDict(
+        env_prefix='ADMIN_',
+        env_file=_ENV_FILE_NAME,
+        extra='ignore')
+
+
 class NotificationServiceConfig(BaseSettings):
     host: str
     port: int
@@ -42,15 +52,29 @@ class NotificationServiceConfig(BaseSettings):
 class EmailWorkerConfig(BaseSettings):
     version: str = '0.0.1'
     name: str = 'EmailHandler'
-    queue_name: str
-    prefetch_count: int = 4
     debug: bool = False
     logstash_port: int
 
+    # rabbitmq-related:
+    queue_name: str
+    exchange_name: str
+    routing_key: str
+    prefetch_count: int = 4
+
+    @property
+    def dl_queue_name(self) -> str:
+        return f'{self.queue_name}-dead-letter'
+
+    @property
+    def dl_routing_key(self) -> str:
+        return f'dead-letter.{self.routing_key}'
+
+    # smtp-related:
     email_address: str
     email_password: str
     smtp_host: str
     smtp_port: int
+    smtp_use_tls: bool
 
     @property
     def smtp_connect_params(self) -> dict:
@@ -58,7 +82,7 @@ class EmailWorkerConfig(BaseSettings):
                 'port': self.smtp_port,
                 'username': self.email_address,
                 'password': self.email_password,
-                'use_tls': True}
+                'use_tls': self.smtp_use_tls}
 
     model_config = SettingsConfigDict(
         env_prefix='EMAIL_HANDLER_',
@@ -82,6 +106,7 @@ class AppConfig(BaseSettings):
     worker: EmailWorkerConfig = EmailWorkerConfig()
     logstash: LogstashConfig = LogstashConfig()
     auth: AuthServiceConfig = AuthServiceConfig()
+    admin: AdminServiceConfig = AdminServiceConfig()
     notification: NotificationServiceConfig = NotificationServiceConfig()
 
     model_config = SettingsConfigDict(

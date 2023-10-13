@@ -23,3 +23,4 @@ class ReviewAssessment(BaseModel):
     review_id: UUID
     user_id: UUID
     liked: bool
+    added: datetime

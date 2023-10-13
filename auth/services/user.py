@@ -1,13 +1,15 @@
-from uuid import UUID
+import aiohttp
 
+from uuid import UUID
 from db.model import UserInfo
 from db.storage import (ItemNotFoundException, UserInfoStorageDep,
                         UserRoleStorageDep)
-from schemas.user import PatchUserInfoSchema, UserInfoSchema
+from schemas.user import PatchUserInfoSchema, UserInfoSchema, UserSendEmailPayloadSchema
 from services.exceptions import (ServiceItemNotFound,
                                  ServiceItemSearchException,
                                  ServiceUniqueFieldViolation)
 from services.utils import generate_hashed_password
+from core.config import app_config as config
 
 
 class UserService:
@@ -46,7 +48,14 @@ class UserService:
         role = await self._role_storage.get_default_role()
         user = UserInfo(email=email, password_hash=hashed_password,
                         user_role_id=role.id)
-        await self._user_info_storage.add_user(user)
+        user = await self._user_info_storage.add_user(user)
+        await self._send_welcome_email(user)
+
+    @staticmethod
+    async def _send_welcome_email(user: UserInfo):
+        payload = UserSendEmailPayloadSchema(user_id=user.id, email=user.email)
+        async with aiohttp.ClientSession() as session:
+            await session.post(config.notification_api_send_email_url, data=payload.dict())
 
     async def update_credentials(self, user_id: UUID,
                                  changes: PatchUserInfoSchema) -> None:

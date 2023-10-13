@@ -13,6 +13,11 @@ class UserInfoSchema(BaseModel):
         orm_mode = True
 
 
+class UserSendEmailPayloadSchema(BaseModel):
+    user_id: UUID
+    email: EmailStr
+
+
 class PatchUserInfoSchema(BaseModel):
     email: EmailStr | None = None
     password: str | None = None
