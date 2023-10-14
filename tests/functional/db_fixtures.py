@@ -2,7 +2,7 @@ import pytest
 import pytest_asyncio
 from functional.test_data.db_data import (test_admin_info, test_admin_role, test_notification_register_template,
                                           test_user_info, test_user_role, test_notification_template)
-from functional.utils.db import insert_into_db
+from functional.utils.db import insert_into_db, setup_notification_schema
 from settings import test_settings as config
 from sqlalchemy import Engine, MetaData, create_engine, inspect, text
 from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
@@ -81,6 +81,12 @@ async def db_session(db_session_factory) -> AsyncSession:
         yield _ses
     finally:
         await _ses.close()
+
+
+@pytest_asyncio.fixture(scope='session', autouse=True)
+async def create_notification_schema(db_session_factory, db_clean_up) -> None:
+    _session = db_session_factory()
+    await setup_notification_schema(_session)
 
 
 @pytest_asyncio.fixture(scope='session')

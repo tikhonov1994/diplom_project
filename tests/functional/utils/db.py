@@ -32,16 +32,29 @@ async def clear_db_table(session: AsyncSession,
     await session.commit()
 
 
-
-async def create_notification_structure(session: AsyncSession,
-                         table_name: str,
-                         schema: str = 'public') -> None:
-    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
-    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
-    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
-    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
-    await session.execute(query)
-    await session.commit()
+async def setup_notification_schema(session: AsyncSession) -> None:
+    queries = [
+        text('CREATE SCHEMA notification;'),
+        text("""CREATE TABLE notification.mailing (
+            id uuid NOT NULL,
+            receiver_ids uuid[] NOT NULL,
+            status character varying(50) NOT NULL,
+            subject character varying(255) NOT NULL,
+            template_params jsonb NOT NULL,
+            created_at timestamp with time zone NOT NULL,
+            updated_at timestamp with time zone NOT NULL,
+            template_id uuid NOT NULL
+        );"""),
+        text("""CREATE TABLE notification.template (
+                id uuid NOT NULL,
+                name character varying(64) NOT NULL,
+                html_template text NOT NULL,
+                attributes jsonb NOT NULL
+        );"""),
+    ]
+    for query in queries:
+        await session.execute(query)
+        await session.commit()
 
 
 async def get_from_db(session: AsyncSession,
