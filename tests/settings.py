@@ -31,6 +31,7 @@ class TestSettings(BaseSettings):
     postgres_password: str
     postgres_driver: str
     auth_db_schema: str
+    notification_db_schema: str
     default_user_role: str = 'user'
     admin_user_role: str = 'admin'
 

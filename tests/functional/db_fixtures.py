@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
-from functional.test_data.db_data import (test_admin_info, test_admin_role,
-                                          test_user_info, test_user_role)
+from functional.test_data.db_data import (test_admin_info, test_admin_role, test_notification_register_template,
+                                          test_user_info, test_user_role, test_notification_template)
 from functional.utils.db import insert_into_db
 from settings import test_settings as config
 from sqlalchemy import Engine, MetaData, create_engine, inspect, text
@@ -37,7 +37,8 @@ def db_clean_up(db_engine_sync) -> None:
 
     allowed_schemas = ['public',
                        'content',
-                       config.auth_db_schema]
+                       config.auth_db_schema,
+                       config.notification_db_schema]
 
     prohibited_tables = ['alembic_version']
 
@@ -80,3 +81,19 @@ async def db_session(db_session_factory) -> AsyncSession:
         yield _ses
     finally:
         await _ses.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def add_test_template(db_session_factory, db_clean_up) -> None:
+    _session = db_session_factory()
+    await insert_into_db(_session, 'template', test_notification_template, 'notification')
+    await _session.commit()
+    await _session.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def add_register_template(db_session_factory, db_clean_up) -> None:
+    _session = db_session_factory()
+    await insert_into_db(_session, 'template', test_notification_register_template, 'notification')
+    await _session.commit()
+    await _session.close()

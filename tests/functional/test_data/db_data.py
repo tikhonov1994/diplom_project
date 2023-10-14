@@ -38,3 +38,17 @@ test_register = {
     'email': 'new_user@testservice.com',
     'password': 'hackme',
 }
+
+test_notification_template = {
+    'id': str(uuid4()),
+    'name': 'test_template',
+    'html_template': 'test_html',
+    'attributes': {"param1": "value1", "param2": "value2"},
+}
+
+test_notification_register_template = {
+    'id': str(uuid4()),
+    'name': 'registration',
+    'html_template': 'test_html',
+    'attributes': {"param1": "value1", "param2": "value2"},
+}
