@@ -16,7 +16,7 @@ router = APIRouter()
 
 @router.get('/{film_id}', response_model=Film, description='Получить фильм по id')
 @cache(expire=config.api.cache_expire_seconds)
-async def film_details(film_id: UUID, service: FilmServiceDep, _: UserRequiredDep) -> Film:
+async def film_details(film_id: UUID, service: FilmServiceDep) -> Film:
     if film := await service.get_by_id(film_id):
         return film
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Film not found')
