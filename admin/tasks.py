@@ -36,6 +36,7 @@ def send_messages(mailing_id: str, params: dict):
     requests.post('notification_api:8005/notification_api/api/v1/mailing/send', data=data)
 
 
+# Для этой задачи предполагается наличие шаблона, который отрендерит список рецензий.
 @shared_task(name='notify_new_popular_reviews')
 def notify_new_popular_reviews(mailing_id: str, params: dict):
     mailing = Mailing.objects.get(id=UUID(mailing_id))
