@@ -1,10 +1,10 @@
 from time import sleep
-from uuid import uuid4, UUID
+from uuid import uuid4
 import pytest
 from http import HTTPStatus
 from functional.utils.db import get_from_db
 
-from functional.test_data.db_data import test_notification_template, test_notification_register_template
+from functional.test_data.db_data import test_notification_template
 
 pytestmark = pytest.mark.asyncio
 
@@ -28,7 +28,7 @@ async def test_send_mailing(http_social_client, db_session, add_test_template) -
         assert notification_in_db is not None
 
 
-async def test_send_registration_mailing(http_social_client, add_register_template) -> None:
+async def test_send_registration_mailing(http_social_client, db_session, add_register_template) -> None:
     body = {'user_id': str(uuid4()), 'email': 'test_welcome@mail.com'}
     async with http_social_client.post(f'{ENDPOINT}welcome_user',
                                        json=body) as response:

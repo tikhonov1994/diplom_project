@@ -32,6 +32,18 @@ async def clear_db_table(session: AsyncSession,
     await session.commit()
 
 
+
+async def create_notification_structure(session: AsyncSession,
+                         table_name: str,
+                         schema: str = 'public') -> None:
+    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
+    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
+    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
+    query = text(f'DELETE FROM {schema}.{table_name} WHERE TRUE;')
+    await session.execute(query)
+    await session.commit()
+
+
 async def get_from_db(session: AsyncSession,
                       table_name: str,
                       eq_condition: tuple[str, any],
