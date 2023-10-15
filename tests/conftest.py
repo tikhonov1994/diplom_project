@@ -51,3 +51,11 @@ async def http_social_client() -> ClientSession:
     _client = ClientSession(base_url=f'http://{settings.social_host}:{settings.social_port}')
     yield _client
     await _client.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def http_notification_client() -> ClientSession:
+    # noinspection HttpUrlsUsage
+    _client = ClientSession(base_url=f'http://{settings.notification_host}:{settings.notification_port}')
+    yield _client
+    await _client.close()

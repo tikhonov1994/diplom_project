@@ -5,6 +5,8 @@ from schemas.reviews_query import QueryParams
 
 
 class ReviewService:
+    TOP_DAILY_REVIEWS_COUNT = 5
+
     def __init__(self, mongo_storage: ReviewStorageDep) -> None:
         self.mongo_storage = mongo_storage
 
@@ -47,4 +49,4 @@ class ReviewService:
         return await self.mongo_storage.get_review_rating(review_id)
 
     async def get_daily_top_reviews(self):
-        return await self.mongo_storage.get_most_liked_daily_reviews()
+        return await self.mongo_storage.get_most_liked_daily_reviews(self.TOP_DAILY_REVIEWS_COUNT)

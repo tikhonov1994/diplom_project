@@ -87,7 +87,7 @@ class ReviewStorage(MongoStorageBase):
             {'review_id': {'$eq': review_id}}
         ]})
 
-    async def get_most_liked_daily_reviews(self) -> List[DailyTopReviewsSchema]:
+    async def get_most_liked_daily_reviews(self, count: int) -> List[DailyTopReviewsSchema]:
         cursor_likes = self.review_assessments.aggregate([
             {'$match': {
                 'liked': True,
@@ -96,7 +96,8 @@ class ReviewStorage(MongoStorageBase):
             {'$group': {
                 '_id': "$review_id",
                 'count': {"$sum": 1}}},
-            {"$sort": {"count": -1}}
+            {"$sort": {"count": -1}},
+            {"$limit": count}
         ])
 
         likes = await cursor_likes.to_list(length=None)  # type: ignore[arg-type]

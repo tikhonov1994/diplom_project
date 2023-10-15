@@ -55,8 +55,6 @@ class Template(Base, IdMixin):
     __tablename__ = 'template'
 
     name: Mapped[str]
-    html_template: Mapped[UUID]
+    html_template: Mapped[str]
     attributes: Mapped[dict[str, Any]]
-    created_at: Mapped[datetime]
-    updated_at: Mapped[datetime]
 

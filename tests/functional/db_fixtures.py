@@ -1,7 +1,7 @@
 import pytest
 import pytest_asyncio
-from functional.test_data.db_data import (test_admin_info, test_admin_role,
-                                          test_user_info, test_user_role)
+from functional.test_data.db_data import (test_admin_info, test_admin_role, test_notification_register_template,
+                                          test_user_info, test_user_role, test_notification_template)
 from functional.utils.db import insert_into_db
 from settings import test_settings as config
 from sqlalchemy import Engine, MetaData, create_engine, inspect, text
@@ -37,7 +37,8 @@ def db_clean_up(db_engine_sync) -> None:
 
     allowed_schemas = ['public',
                        'content',
-                       config.auth_db_schema]
+                       config.auth_db_schema,
+                       config.notification_db_schema]
 
     prohibited_tables = ['alembic_version']
 
@@ -80,3 +81,47 @@ async def db_session(db_session_factory) -> AsyncSession:
         yield _ses
     finally:
         await _ses.close()
+
+
+@pytest_asyncio.fixture(scope='session', autouse=True)
+async def create_notification_schema(db_session_factory, db_clean_up) -> None:
+    _session = db_session_factory()
+
+    queries = [
+        text('CREATE SCHEMA IF NOT EXISTS notification;'),
+        text("""CREATE TABLE IF NOT EXISTS notification.mailing (
+            id uuid NOT NULL,
+            receiver_ids uuid[] NOT NULL,
+            status character varying(50) NOT NULL,
+            subject character varying(255) NOT NULL,
+            template_params jsonb NOT NULL,
+            created_at timestamp with time zone NOT NULL,
+            updated_at timestamp with time zone NOT NULL,
+            template_id uuid NOT NULL
+        );"""),
+        text("""CREATE TABLE IF NOT EXISTS notification.template (
+                id uuid NOT NULL,
+                name character varying(64) NOT NULL,
+                html_template text NOT NULL,
+                attributes jsonb NOT NULL
+        );"""),
+    ]
+    for query in queries:
+        await _session.execute(query)
+    await _session.commit()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def add_test_template(db_session_factory, db_clean_up) -> None:
+    _session = db_session_factory()
+    await insert_into_db(_session, 'template', test_notification_template, 'notification')
+    await _session.commit()
+    await _session.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def add_register_template(db_session_factory, db_clean_up) -> None:
+    _session = db_session_factory()
+    await insert_into_db(_session, 'template', test_notification_register_template, 'notification')
+    await _session.commit()
+    await _session.close()
