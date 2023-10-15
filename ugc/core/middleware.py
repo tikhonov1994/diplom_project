@@ -33,8 +33,8 @@ class ReceiveProxy:
 
     async def __call__(self):
         # First call will be for getting request body => returns cached result
-        if self._is_first_call:
-            self._is_first_call = False
+        if ReceiveProxy._is_first_call:
+            ReceiveProxy._is_first_call = False
             return {
                 "type": "http.request",
                 "body": self.cached_body,
