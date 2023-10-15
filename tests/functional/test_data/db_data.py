@@ -43,12 +43,13 @@ test_notification_template = {
     'id': str(uuid4()),
     'name': 'test_template',
     'html_template': 'test_html',
-    'attributes': {"param1": "value1", "param2": "value2"},
+    'attributes': '[{"param1": "value1", "param2": "value2"}]',
 }
 
 test_notification_register_template = {
     'id': str(uuid4()),
     'name': 'registration',
-    'html_template': 'test_html',
-    'attributes': {"param1": "value1", "param2": "value2"},
+    'html_template': 'test_register_html',
+    'attributes': '[{"param1": "value1", "param2": "value2"}]',
+
 }
