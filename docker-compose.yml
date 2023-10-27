@@ -48,15 +48,16 @@ services:
     <<: *container_networks
 
   secure_db:
-    container_name: postgres
+    container_name: secure_postgres
     profiles:
       - "all"
-      # - "any"
+      - "admin"
+      - "user_api"
     image: postgres:13.0-alpine
     volumes:
       - secure_pg_volume:/var/lib/postgresql/data/
     env_file:
-      - .env
+      - .env.secure
     <<: *container_networks
 
   redis:
@@ -230,6 +231,22 @@ services:
         condition: service_started
     expose:
       - "8010"
+    env_file:
+      - .env
+    <<: *container_networks
+
+  user_api:
+    container_name: user_api
+    profiles:
+      - "all"
+      - "user_api"
+    build: ./user
+    image: movies_user
+    depends_on:
+      secure_db:
+        condition: service_started
+    expose:
+      - "8012"
     env_file:
       - .env
     <<: *container_networks
