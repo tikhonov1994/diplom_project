@@ -1,9 +1,8 @@
-from datetime import datetime
 from uuid import UUID, uuid4
 
 from core.config import app_config
-from sqlalchemy import ForeignKey, MetaData, UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy import MetaData
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 name_convention = {
     'all_column_names': lambda constraint, table: '_'.join([

@@ -4,9 +4,6 @@ from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 import sentry_sdk
 
-# from api.v1 import rating
-# from api.v1 import reviews
-# from api.v1 import bookmarks
 from core.config import app_config as config
 from core.middleware import LoggingMiddleware
 
@@ -34,9 +31,8 @@ def get_config():
 
 
 root_router = APIRouter(prefix='/user_api/api')
-# root_router.include_router(rating.router, prefix='/v1/rating', tags=['rating'])
-# root_router.include_router(reviews.router, prefix='/v1/reviews', tags=['reviews'])
-# root_router.include_router(bookmarks.router, prefix='/v1/bookmarks', tags=['bookmarks'])
+# insert: root_router.include_router(...) here.
+# ...
 app.include_router(root_router)
 
 if __name__ == '__main__':
