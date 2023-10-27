@@ -3,6 +3,7 @@ version: '3.9'
 volumes:
   nginx_logs:
   pg_volume:
+  secure_pg_volume:
   nginx_volume:
   redis_volume:
   esdata:
@@ -42,6 +43,18 @@ services:
     image: postgres:13.0-alpine
     volumes:
       - pg_volume:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    <<: *container_networks
+
+  secure_db:
+    container_name: postgres
+    profiles:
+      - "all"
+      # - "any"
+    image: postgres:13.0-alpine
+    volumes:
+      - secure_pg_volume:/var/lib/postgresql/data/
     env_file:
       - .env
     <<: *container_networks
