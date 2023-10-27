@@ -11,6 +11,7 @@ x-elk-profiles:
     - "auth"
     - "ugc_api"
     - "social_api"
+    - "user_api"
     - "websocket"
     - "email_handlers"
     - "websocket_handlers"
