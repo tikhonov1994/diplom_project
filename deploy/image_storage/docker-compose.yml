@@ -1,0 +1,41 @@
+version: '3.9'
+
+x-img-profiles:
+  &img-profiles
+  profiles:
+    - "all"
+    - "image_storage"
+    - "user_api"
+
+networks:
+  img_network:
+    name: img_network
+    driver: bridge
+
+services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    <<: *img-profiles
+    env_file:
+      - ../../.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - img_network
+    volumes:
+      - minio_storage:/data
+    command: server --console-address ":9001" /data
+
+  image_checker:
+    image: andresribeiroo/nsfwjs:1.6
+    container_name: image_checker
+    <<: *img-profiles
+    ports:
+      - "9002:3333"
+    networks:
+      - img_network
+
+volumes:
+  minio_storage:
