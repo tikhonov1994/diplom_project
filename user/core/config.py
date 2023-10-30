@@ -54,7 +54,7 @@ class AppConfig(BaseSettings):  # type: ignore
 
     api: UserConfig = UserConfig()
     logstash: LogstashConfig = LogstashConfig()
-    db: SecurePostgresConfig = SecurePostgresConfig()
+    secure_db: SecurePostgresConfig = SecurePostgresConfig()
 
     class Config:
         env_file = _ENV_FILE_LOC

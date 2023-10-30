@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'movies',
     'mailing',
+    'user_profiles',
     'django_celery_results',
     'django_celery_beat',
     'celery_progress',
@@ -79,7 +80,15 @@ DATABASES = {
             # Нужно явно указать схемы, с которыми будет работать приложение.
             'options': '-c search_path=public,content,notification'
         }
-    }
+    },
+    'user_profile': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('SECURE_POSTGRES_DB'),
+        'USER': os.environ.get('SECURE_POSTGRES_USER'),
+        'PASSWORD': os.environ.get('SECURE_POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('SECURE_POSTGRES_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('SECURE_POSTGRES_PORT', 5432),
+    },
 }
 
 # Password validation
@@ -125,10 +134,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_API_LOGIN_URL = os.environ.get('AUTH_API_LOGIN_URL')
-AUTH_USER_MODEL = "movies.User"
+AUTH_USER_MODEL = 'movies.User'
 AUTHENTICATION_BACKENDS = [
     'users.auth.CustomBackend',
 ]
+
+DATABASE_ROUTERS = ["example.db_router.DBRouter",]
 
 # Настройки CELERY
 CELERY_TIMEZONE = TIME_ZONE

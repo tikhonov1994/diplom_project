@@ -24,3 +24,13 @@ class Base(DeclarativeBase):
 
 class IdMixin:
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
+
+
+class UserProfile(Base, IdMixin):
+    __tablename__ = 'user_profile'
+
+    email: Mapped[str] = mapped_column(unique=True)
+    time_zone: Mapped[str] = mapped_column()
+    phone_number: Mapped[int] = mapped_column(unique=True)
+    avatar_link: Mapped[str] = mapped_column(nullable=True)
+    avatar_status: Mapped[str] = mapped_column(nullable=True)

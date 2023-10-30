@@ -58,6 +58,8 @@ services:
       - secure_pg_volume:/var/lib/postgresql/data/
     env_file:
       - .env.secure
+    ports:
+      - "5432:5432"
     <<: *container_networks
 
   redis:

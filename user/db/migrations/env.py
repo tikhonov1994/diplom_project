@@ -36,7 +36,7 @@ def include_name(name, type_, _):
 
 
 def create_schema_if_not_exists() -> None:
-    _engine = create_engine(app_config.db.dsn)
+    _engine = create_engine(app_config.secure_db.dsn)
     _conn_attempts = 10
     _conn = None
 
@@ -45,7 +45,7 @@ def create_schema_if_not_exists() -> None:
             _conn = _engine.connect()
             break
         except Exception as exc:
-            logging.warning('Alembic failed to connect to \'%s\': %s', app_config.db.dsn, str(exc))
+            logging.warning('Alembic failed to connect to \'%s\': %s', app_config.secure_db.dsn, str(exc))
         sleep(1)
         _conn_attempts -= 1
 
@@ -60,7 +60,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 config.set_main_option(
     "sqlalchemy.url",
-    str(app_config.db.dsn))
+    str(app_config.secure_db.dsn))
 
 target_metadata = metadata
 create_schema_if_not_exists()
