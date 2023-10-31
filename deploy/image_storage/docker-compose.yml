@@ -33,7 +33,7 @@ services:
     container_name: image_checker
     <<: *img-profiles
     ports:
-      - "9002:3333"
+      - "3333:3333"
     networks:
       - img_network
 
