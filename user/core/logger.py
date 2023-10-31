@@ -69,7 +69,7 @@ class JSONLogFormatter(logging.Formatter):
         duration = (
             record.duration
             if hasattr(record, 'duration')
-            else record.msecs
+            else int(record.msecs)
         )
 
         json_log_fields = BaseJsonLogSchema(

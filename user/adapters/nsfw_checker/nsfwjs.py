@@ -26,12 +26,12 @@ class NsfwJSChecker(BaseNsfwChecker):
         async with AsyncClient(verify=False) as client:
             response = await client.post(url=app_config.nsfw.url, files=files)
             response.raise_for_status()
-        return self.__grant_permission(NsfwPredictionList.parse_obj(response.json()))
+        return self.__grant_permission(NsfwPredictionList.model_validate(response.json()))
 
     @staticmethod
     def __grant_permission(predictions: NsfwPredictionList) -> NsfwCheckResult:
-        # if app_config.debug:
-        #     logger.debug(predictions.model_dump_json())
+        if app_config.debug:
+            logger.debug(predictions.model_dump_json())
         _allow = True
         for pred in predictions.predictions:
             if pred.probability > _PERMISSION_WEIGHTS[pred.class_name]:

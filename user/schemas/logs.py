@@ -1,5 +1,5 @@
 from typing import Union, List, Optional
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class BaseJsonLogSchema(BaseModel):
@@ -19,8 +19,7 @@ class BaseJsonLogSchema(BaseModel):
     span_id: Optional[str] = None
     parent_id: Optional[str] = None
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class RequestJsonLogSchema(BaseModel):
