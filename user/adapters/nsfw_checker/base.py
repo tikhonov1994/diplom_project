@@ -12,4 +12,4 @@ class NsfwCheckResult(str, Enum):
 class BaseNsfwChecker(ABC):
     @abstractmethod
     async def check(self, image: UserImageSchema) -> NsfwCheckResult:
-        raise NotImplemented
+        raise NotImplementedError
