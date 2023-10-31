@@ -30,8 +30,8 @@ class NsfwJSChecker(BaseNsfwChecker):
 
     @staticmethod
     def __grant_permission(predictions: NsfwPredictionList) -> NsfwCheckResult:
-        if app_config.debug:
-            logger.debug(predictions.json())
+        # if app_config.debug:
+        #     logger.debug(predictions.model_dump_json())
         _allow = True
         for pred in predictions.predictions:
             if pred.probability > _PERMISSION_WEIGHTS[pred.class_name]:

@@ -35,27 +35,8 @@ class RequestJsonLogSchema(BaseModel):
     request_size: int
     request_content_type: str
     request_headers: dict
-    request_body: Optional[str]
     request_direction: str
     response_status_code: int
     response_size: int
     response_headers: dict
-    response_body: Optional[str]
     duration: int
-
-    # noinspection PyMethodParameters
-    @validator(
-        'request_body',
-        'response_body',
-        pre=True,
-    )
-    def valid_body(cls, field):
-        if isinstance(field, bytes):
-            try:
-                field = field.decode()
-            except UnicodeDecodeError:
-                field = b'file_bytes'
-            return field
-
-        if isinstance(field, str):
-            return field

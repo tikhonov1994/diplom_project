@@ -1,6 +1,7 @@
 from typing import Optional
 
-from pydantic import BaseSettings, Field
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _ENV_FILE_LOC = '.env'
 _SECURE_ENV_FILE_LOC = '.env.secure'
@@ -16,17 +17,21 @@ class UserConfig(BaseSettings):  # type: ignore
     db_schema: str
     minio_image_bucket: str
 
-    class Config:
-        env_file = _ENV_FILE_LOC
-        env_prefix = 'user_'
+    model_config = SettingsConfigDict(
+        env_file=_ENV_FILE_LOC,
+        env_prefix='user_',
+        extra='ignore'
+    )
 
 
 class LogstashConfig(BaseSettings):  # type: ignore
     host: str
 
-    class Config:
-        env_file = _ENV_FILE_LOC
-        env_prefix = 'logstash_'
+    model_config = SettingsConfigDict(
+        env_file=_ENV_FILE_LOC,
+        env_prefix='logstash_',
+        extra='ignore'
+    )
 
 
 class SecurePostgresConfig(BaseSettings):
@@ -42,9 +47,11 @@ class SecurePostgresConfig(BaseSettings):
         return f'postgresql+{self.driver}://{self.user}:{self.password}' \
                f'@{self.host}:{self.port}/{self.db}'
 
-    class Config:
-        env_file = _SECURE_ENV_FILE_LOC
-        env_prefix = 'postgres_'
+    model_config = SettingsConfigDict(
+        env_file=_SECURE_ENV_FILE_LOC,
+        env_prefix='postgres_',
+        extra='ignore'
+    )
 
 
 class NsfwJSServiceConfig(BaseSettings):
@@ -55,9 +62,11 @@ class NsfwJSServiceConfig(BaseSettings):
     def url(self) -> str:
         return f'http://{self.host}:{self.port}/single/multipart-form'
 
-    class Config:
-        env_file = _ENV_FILE_LOC
-        env_prefix = 'nsfwjs_'
+    model_config = SettingsConfigDict(
+        env_file=_ENV_FILE_LOC,
+        env_prefix='nsfwjs_',
+        extra='ignore'
+    )
 
 
 class MinioConfig(BaseSettings):
@@ -70,9 +79,11 @@ class MinioConfig(BaseSettings):
     def endpoint(self) -> str:
         return f'{self.host}:{self.port}'
 
-    class Config:
-        env_file = _ENV_FILE_LOC
-        env_prefix = 'minio_'
+    model_config = SettingsConfigDict(
+        env_file=_ENV_FILE_LOC,
+        env_prefix='minio_',
+        extra='ignore'
+    )
 
 
 class AppConfig(BaseSettings):  # type: ignore
@@ -80,6 +91,7 @@ class AppConfig(BaseSettings):  # type: ignore
     sentry_dsn: str
     debug: bool
     export_logs: bool = False
+    enable_tracer: bool = False
 
     api: UserConfig = UserConfig()
     logstash: LogstashConfig = LogstashConfig()
@@ -87,8 +99,10 @@ class AppConfig(BaseSettings):  # type: ignore
     nsfw: NsfwJSServiceConfig = NsfwJSServiceConfig()
     minio: MinioConfig = MinioConfig()
 
-    class Config:
-        env_file = _ENV_FILE_LOC
+    model_config = SettingsConfigDict(
+        env_file=_ENV_FILE_LOC,
+        extra='ignore',
+    )
 
 
 app_config = AppConfig()

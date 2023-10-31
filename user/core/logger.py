@@ -106,7 +106,7 @@ class JSONLogFormatter(logging.Formatter):
             json_log_fields.exceptions = record.exc_text
 
         # Pydantic to dict
-        json_log_object = json_log_fields.dict(
+        json_log_object = json_log_fields.model_dump(
             exclude_unset=True,
             by_alias=True,
         )

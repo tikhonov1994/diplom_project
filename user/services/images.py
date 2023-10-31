@@ -21,9 +21,9 @@ class ImagesService:
         check_result = await self.checker.check(image)
         try:
             user = await self.user_storage.generic.get(image.user_id)
-            user.avatar_link = await self.file_storage.save(image.name, image.data, image.mime)
+            user.avatar_link = self.file_storage.save(image.name, image.data, image.mime)
             user.avatar_status = check_result.value
-            await self.user_storage.generic.update([user, ])
+            await self.user_storage.generic.update(user)
         except DbConflictException:
             raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='Two users can\'t have the same avatar.')
         except ItemNotFoundException:

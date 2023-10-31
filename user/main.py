@@ -1,5 +1,6 @@
+import asyncio
+import sys
 import uvicorn
-from async_fastapi_jwt_auth import AuthJWT
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 import sentry_sdk
@@ -22,14 +23,8 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
 )
 
-app.middleware('http')(LoggingMiddleware())
-
-
-# callback to get your configuration
-@AuthJWT.load_config
-def get_config():
-    return config
-
+if not config.debug:
+    app.middleware('http')(LoggingMiddleware())
 
 root_router = APIRouter(prefix='/user_api/api/v1')
 root_router.include_router(images_router, prefix='/images', tags=['images'])
@@ -38,6 +33,8 @@ root_router.include_router(images_router, prefix='/images', tags=['images'])
 app.include_router(root_router)
 
 if __name__ == '__main__':
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     uvicorn.run(
         'main:app',
         host=config.api.host,

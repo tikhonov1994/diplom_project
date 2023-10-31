@@ -59,9 +59,9 @@ class GenericStorage(Generic[DbModelType]):
             raise DbConflictException
 
     @sub_span
-    async def update(self, items: list[DbModelType]) -> None:
+    async def update(self, item: DbModelType) -> None:
         try:
-            await self._session.flush(items)
+            await self._session.flush([item, ])
         except IntegrityError:
             raise DbConflictException
 
