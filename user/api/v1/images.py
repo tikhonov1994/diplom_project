@@ -1,6 +1,5 @@
 from contextlib import closing
 from http import HTTPStatus
-from uuid import UUID
 
 from fastapi import APIRouter, UploadFile, HTTPException
 from fastapi.responses import JSONResponse

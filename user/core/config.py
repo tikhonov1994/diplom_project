@@ -1,6 +1,3 @@
-from typing import Optional
-
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _ENV_FILE_LOC = '.env'
