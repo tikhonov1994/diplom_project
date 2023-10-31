@@ -18,3 +18,4 @@ alembic==1.11.1
 python-multipart==0.0.6
 httpx==0.25.0
 minio==7.1.17
+python-jose==3.3.0

@@ -5,16 +5,17 @@ from uuid import UUID
 from fastapi import APIRouter, UploadFile, HTTPException
 from fastapi.responses import JSONResponse
 
-from services import ImagesServiceDep
 from adapters import NsfwCheckResult
+from core.auth import AuthorizedUserId
 from schemas.image import UserImageSchema
+from services import ImagesServiceDep
 
 router = APIRouter()
 
 
-@router.post('/{user_id}/avatar',
+@router.post('/user-avatar',
              description='Обновить аватар пользователя')
-async def add_user_avatar(user_id: UUID,
+async def add_user_avatar(user_id: AuthorizedUserId,
                           image: UploadFile,
                           service: ImagesServiceDep) -> JSONResponse:
     if image.content_type.find('image') == -1:

@@ -87,7 +87,8 @@ class MinioConfig(BaseSettings):
 
 
 class AppConfig(BaseSettings):  # type: ignore
-    authjwt_secret_key: Optional[str] = Field(None, env='JWT_SECRET_KEY')
+    jwt_secret_key: str
+    jwt_algorithm: str
     sentry_dsn: str
     debug: bool
     export_logs: bool = False
