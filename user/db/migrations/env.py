@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 from logging.config import fileConfig
 from time import sleep
 from typing import Literal
@@ -11,6 +12,9 @@ from sqlalchemy import create_engine, pool, schema
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy.sql.schema import SchemaItem
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 SaSchemaObjType = Literal[
                       "schema",
@@ -36,7 +40,7 @@ def include_name(name, type_, _):
 
 
 def create_schema_if_not_exists() -> None:
-    _engine = create_engine(app_config.db.dsn)
+    _engine = create_engine(app_config.secure_db.dsn)
     _conn_attempts = 10
     _conn = None
 
@@ -45,7 +49,7 @@ def create_schema_if_not_exists() -> None:
             _conn = _engine.connect()
             break
         except Exception as exc:
-            logging.warning('Alembic failed to connect to \'%s\': %s', app_config.db.dsn, str(exc))
+            logging.warning('Alembic failed to connect to \'%s\': %s', app_config.secure_db.dsn, str(exc))
         sleep(1)
         _conn_attempts -= 1
 
@@ -60,7 +64,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 config.set_main_option(
     "sqlalchemy.url",
-    str(app_config.db.dsn))
+    str(app_config.secure_db.dsn))
 
 target_metadata = metadata
 create_schema_if_not_exists()

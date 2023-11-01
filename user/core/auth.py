@@ -1,27 +1,29 @@
-from typing import Annotated  # type: ignore[attr-defined]
+from http import HTTPStatus
+from typing import Annotated
 from uuid import UUID
 
-from async_fastapi_jwt_auth import AuthJWT
-from async_fastapi_jwt_auth.exceptions import (MissingTokenError,
-                                               RevokedTokenError)
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer
+from fastapi import Depends, HTTPException
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from jose import jwt
 
-_bearer = HTTPBearer(auto_error=False)
+from core.config import app_config as cfg
+
+scheme = HTTPBearer()
 
 
-async def get_user_id(_=Depends(_bearer), authorize: AuthJWT = Depends()) -> UUID:
+async def get_user_id(token: Annotated[HTTPAuthorizationCredentials, Depends(scheme)]) -> UUID:
     try:
-        await authorize.jwt_required()
-        user_id = await authorize.get_jwt_subject()
-
-        return UUID(user_id)
-    except (MissingTokenError, RevokedTokenError):
+        payload = jwt.decode(token=token.credentials,
+                             key=cfg.jwt_secret_key,
+                             algorithms=[cfg.jwt_algorithm])
+        return UUID(payload.get('sub'))
+    except (KeyError, jwt.JWTError):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Auth header is missing",
-            headers={"Authorization": "Bearer"}
+            status_code=HTTPStatus.UNAUTHORIZED,
+            detail='Bad auth credentials.'
         )
 
 
-UserIdDep = Annotated[UUID, Depends(get_user_id)]
+AuthorizedUserId = Annotated[UUID, Depends(get_user_id)]
+
+__all__ = ['AuthorizedUserId']
