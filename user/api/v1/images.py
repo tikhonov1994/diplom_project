@@ -1,10 +1,9 @@
 from contextlib import closing
 from http import HTTPStatus
 
-from fastapi import APIRouter, UploadFile, HTTPException
+from fastapi import APIRouter, UploadFile, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 
-from adapters import NsfwCheckResult
 from core.auth import AuthorizedUserId
 from schemas.image import UserImageSchema
 from services import ImagesServiceDep
@@ -16,7 +15,8 @@ router = APIRouter()
              description='Обновить аватар пользователя')
 async def add_user_avatar(user_id: AuthorizedUserId,
                           image: UploadFile,
-                          service: ImagesServiceDep) -> JSONResponse:
+                          service: ImagesServiceDep,
+                          tasks: BackgroundTasks) -> JSONResponse:
     if image.content_type.find('image') == -1:
         raise HTTPException(status_code=HTTPStatus.UNSUPPORTED_MEDIA_TYPE,
                             detail='Bad Avatar mime-type (should be \'image\').')
@@ -25,8 +25,6 @@ async def add_user_avatar(user_id: AuthorizedUserId,
                                      data=file.read(),
                                      mime=image.content_type,
                                      name=image.filename)
-    if await service.handle_new_user_image(img_schema) != NsfwCheckResult.accepted:
-        return JSONResponse(status_code=HTTPStatus.NOT_ACCEPTABLE,
-                            content={'detail': 'User Avatar content is not acceptable.'})
-    return JSONResponse(status_code=HTTPStatus.OK,
-                        content={'detail': 'User Avatar changed successfully.'})
+    await service.handle_new_user_image(img_schema, tasks)
+    return JSONResponse(status_code=HTTPStatus.ACCEPTED,
+                        content='New avatar processing started.')

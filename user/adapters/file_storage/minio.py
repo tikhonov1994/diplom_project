@@ -44,8 +44,7 @@ class MinioFileStorage(BaseSyncFileStorage):
                                               data=BytesIO(image_bytes),
                                               length=len(image_bytes),
                                               content_type=content_type)
-        # TODO: Check This :>
-        return write_result.object_name
+        return f'{write_result.bucket_name}/{write_result.object_name}'
 
     def load(self, object_name: str) -> bytes:
         with self.client.get_object(app_config.api.minio_image_bucket, object_name) as response:
