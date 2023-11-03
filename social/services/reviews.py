@@ -2,6 +2,7 @@ from uuid import UUID
 from db.storage import ReviewStorageDep
 from models.review import ReviewRating
 from schemas.reviews_query import QueryParams
+from schemas.reviews import UserReviewInfoSchema, UserReviewsResponseSchema
 
 
 class ReviewService:
@@ -48,3 +49,33 @@ class ReviewService:
 
     async def get_daily_top_reviews(self):
         return await self.mongo_storage.get_most_liked_daily_reviews()
+
+    async def get_user_reviews(self, user_id: UUID) -> list[UserReviewInfoSchema]:
+        filter_query = {'user_id': {'$eq': user_id}}
+        sort = ('added', -1)
+        reviews = await self.mongo_storage.get_reviews(sort, filter_query)
+
+        review_list = []
+        total_count_positive_reviews = total_count_negative_reviews = 0
+        total_reviews_likes_count = total_reviews_dislikes_count = 0
+        for review in reviews:
+            rating = await self.get_review_rating(review.review_id)
+            if review.author_rating == 10:
+                total_count_positive_reviews += 1
+            elif review.author_rating == 0:
+                total_count_negative_reviews += 1
+
+            total_reviews_likes_count += rating.likes_count
+            total_reviews_dislikes_count += rating.dislikes_count
+
+            review_list.append(
+                UserReviewInfoSchema(review_id=review.review_id, film_id=review.film_id, text=review.text,
+                                     author_rating=review.author_rating, added=review.added, rating=rating)
+            )
+
+        return UserReviewsResponseSchema(reviews=review_list, total_count=len(review_list),
+                                         total_count_positive_reviews=total_count_positive_reviews,
+                                         total_count_negative_reviews=total_count_negative_reviews,
+                                         total_reviews_likes_count=total_reviews_likes_count,
+                                         total_reviews_dislikes_count=total_reviews_dislikes_count
+                                         )
