@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 from logging.config import fileConfig
 from time import sleep
 from typing import Literal
@@ -11,6 +12,9 @@ from sqlalchemy import create_engine, pool, schema
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlalchemy.sql.schema import SchemaItem
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 SaSchemaObjType = Literal[
                       "schema",

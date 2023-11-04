@@ -69,7 +69,7 @@ class JSONLogFormatter(logging.Formatter):
         duration = (
             record.duration
             if hasattr(record, 'duration')
-            else record.msecs
+            else int(record.msecs)
         )
 
         json_log_fields = BaseJsonLogSchema(
@@ -106,7 +106,7 @@ class JSONLogFormatter(logging.Formatter):
             json_log_fields.exceptions = record.exc_text
 
         # Pydantic to dict
-        json_log_object = json_log_fields.dict(
+        json_log_object = json_log_fields.model_dump(
             exclude_unset=True,
             by_alias=True,
         )

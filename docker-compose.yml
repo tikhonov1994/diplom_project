@@ -15,6 +15,7 @@ include:
   - ./deploy/clickhouse/docker-compose.yml
   - ./deploy/elastic/docker-compose.yml
   - ./deploy/rabbitmq/docker-compose.yml
+  - ./deploy/image_storage/docker-compose.yml
 
 networks:
   application_network:
@@ -30,6 +31,7 @@ x-net-topology:
     - elastic_network
     - kafka_network
     - rabbitmq_network
+    - img_network
 
 services:
   db:
