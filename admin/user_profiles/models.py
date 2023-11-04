@@ -8,7 +8,7 @@ class AvatarStatuses(models.TextChoices):
     WITHOUT = 'WITHOUT'
     ON_INSPECTION = 'ON_INSPECTION'
     ACCEPTED = 'ACCEPTED'
-    NON_ACCEPTED = 'NON_ACCEPTED'    
+    NON_ACCEPTED = 'NON_ACCEPTED'
 
 
 class UserProfile(UUIDMixin):
