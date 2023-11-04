@@ -55,4 +55,3 @@ class CustomUserAdmin(UserAdmin):
 
 # Re-register UserAdmin
 admin.site.register(User, CustomUserAdmin)
-# admin.site.unregister(Group)
