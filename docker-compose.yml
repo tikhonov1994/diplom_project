@@ -3,6 +3,7 @@ version: '3.9'
 volumes:
   nginx_logs:
   pg_volume:
+  secure_pg_volume:
   nginx_volume:
   redis_volume:
   esdata:
@@ -14,6 +15,7 @@ include:
   - ./deploy/clickhouse/docker-compose.yml
   - ./deploy/elastic/docker-compose.yml
   - ./deploy/rabbitmq/docker-compose.yml
+  - ./deploy/image_storage/docker-compose.yml
 
 networks:
   application_network:
@@ -29,6 +31,7 @@ x-net-topology:
     - elastic_network
     - kafka_network
     - rabbitmq_network
+    - img_network
 
 services:
   db:
@@ -44,6 +47,19 @@ services:
       - pg_volume:/var/lib/postgresql/data/
     env_file:
       - .env
+    <<: *container_networks
+
+  secure_db:
+    container_name: secure_postgres
+    profiles:
+      - "all"
+      - "admin"
+      - "user_api"
+    image: postgres:13.0-alpine
+    volumes:
+      - secure_pg_volume:/var/lib/postgresql/data/
+    env_file:
+      - .env.secure
     <<: *container_networks
 
   redis:
@@ -217,6 +233,22 @@ services:
         condition: service_started
     expose:
       - "8010"
+    env_file:
+      - .env
+    <<: *container_networks
+
+  user_api:
+    container_name: user_api
+    profiles:
+      - "all"
+      - "user_api"
+    build: ./user
+    image: movies_user
+    depends_on:
+      secure_db:
+        condition: service_started
+    expose:
+      - "8012"
     env_file:
       - .env
     <<: *container_networks

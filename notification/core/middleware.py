@@ -33,8 +33,8 @@ class ReceiveProxy:
 
     async def __call__(self):
         # First call will be for getting request body => returns cached result
-        if self._is_first_call:
-            self._is_first_call = False
+        if ReceiveProxy._is_first_call:
+            ReceiveProxy._is_first_call = False
             return {
                 "type": "http.request",
                 "body": self.cached_body,
@@ -45,13 +45,6 @@ class ReceiveProxy:
 
 
 class LoggingMiddleware:
-    """ Middleware that saves logs to JSON
-        The main problem is
-        After getting request_body
-            body = await request.body()
-        Body is removed from requests. I found solution as ReceiveProxy
-    """
-
     @staticmethod
     async def get_protocol(request: Request) -> str:
         protocol = str(request.scope.get('type', ''))
@@ -59,15 +52,6 @@ class LoggingMiddleware:
         if protocol.lower() == 'http' and http_version:
             return f'{protocol.upper()}/{http_version}'
         return EMPTY_VALUE
-
-    @staticmethod
-    async def get_request_body(request: Request) -> bytes:
-        body = await request.body()
-
-        request._receive = ReceiveProxy(
-            receive=request.receive, cached_body=body
-        )
-        return body
 
     async def __call__(
             self,
@@ -78,7 +62,6 @@ class LoggingMiddleware:
     ):
         start_time = time.time()
         exception_object = None
-        request_body = await self.get_request_body(request)
         server: tuple = request.get('server', ('localhost', PORT))
         request_headers: dict = dict(request.headers.items())
 
@@ -129,14 +112,12 @@ class LoggingMiddleware:
             request_content_type=request_headers.get(
                 'content-type', EMPTY_VALUE),
             request_headers=request_headers,
-            request_body=request_body,
             request_direction='in',
 
             # Response side
             response_status_code=response.status_code,
             response_size=int(response_headers.get('content-length', 0)),
             response_headers=response_headers,
-            response_body=response_body,
 
             duration=duration
         ).dict()

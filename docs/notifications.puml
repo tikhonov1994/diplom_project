@@ -1,28 +1,32 @@
 @startuml
 '!theme vibrant
 
-collections ExternalAPIs
-component PeriodicEventsService
+collections OtherAPIs
+component CeleryBeat
 component NotificationAPI
-component NotificationAdminPanel
-component MessageBus
+component NotificationAdmin
+component RabbitMQ
 component AuthAPI
-collections NotificationWorkers
+collections EmailWorkers
+collections WebsocketWorkers
 
 database NotificationsDb
 database MessageTemplates
 
 
-ExternalAPIs -down-> NotificationAPI: События-триггеры\nрассылки
-PeriodicEventsService --> NotificationAPI: Запуск\nрассылки
-NotificationAPI -down-> MessageBus
-MessageBus -down-> NotificationWorkers
-NotificationAdminPanel -down-> NotificationAPI: Запуск рассылки
-NotificationAdminPanel <-down-> PeriodicEventsService: управление\nпериодическими\nрассылками
-AuthAPI --> NotificationWorkers: Данные о\nпользователях
+OtherAPIs -down-> NotificationAPI: События-триггеры\nрассылки
+CeleryBeat --> NotificationAPI: Запуск\nрассылки
+NotificationAPI -down-> RabbitMQ
+RabbitMQ -down-> EmailWorkers
+RabbitMQ -down-> WebsocketWorkers
+NotificationAdmin -down-> NotificationAPI: Запуск рассылки
+NotificationAdmin <-down-> CeleryBeat: управление\nпериодическими\nрассылками
+AuthAPI --> EmailWorkers: Данные о\nпользователях
+AuthAPI --> WebsocketWorkers: Данные о\nпользователях
 
-NotificationWorkers <-- MessageTemplates: Шаблоны сообщений
-NotificationAdminPanel <-- MessageTemplates: Шаблоны сообщений
+EmailWorkers <-- MessageTemplates: Шаблоны сообщений
+WebsocketWorkers <-- MessageTemplates: Шаблоны сообщений
+NotificationAdmin <-- MessageTemplates: Шаблоны сообщений
 NotificationAPI <--> NotificationsDb: Данные рассылок
-NotificationAdminPanel <--> NotificationsDb: Данные рассылок
+NotificationAdmin <--> NotificationsDb: Данные рассылок
 @enduml

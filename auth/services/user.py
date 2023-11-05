@@ -4,7 +4,7 @@ from uuid import UUID
 from db.model import UserInfo
 from db.storage import (ItemNotFoundException, UserInfoStorageDep,
                         UserRoleStorageDep)
-from schemas.user import PatchUserInfoSchema, UserInfoSchema, UserSendEmailPayloadSchema
+from schemas.user import PatchUserInfoSchema, UserInfoSchema
 from services.exceptions import (ServiceItemNotFound,
                                  ServiceItemSearchException,
                                  ServiceUniqueFieldViolation)
@@ -53,9 +53,9 @@ class UserService:
 
     @staticmethod
     async def _send_welcome_email(user: UserInfo):
-        payload = UserSendEmailPayloadSchema(user_id=user.id, email=user.email)
+        payload = {'email': user.email, 'user_id': str(user.id)}
         async with aiohttp.ClientSession() as session:
-            await session.post(config.notification_api_send_email_url, data=payload.dict())
+            await session.post(config.notification_api_send_email_url, json=payload)
 
     async def update_credentials(self, user_id: UUID,
                                  changes: PatchUserInfoSchema) -> None:

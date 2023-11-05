@@ -15,6 +15,10 @@ class TestSettings(BaseSettings):
     social_port: int
     social_mongo_database: str
 
+    notification_host: str
+    notification_port: int
+    notification_db_schema: str
+
     elastic_host: str
     elastic_port: int
 
