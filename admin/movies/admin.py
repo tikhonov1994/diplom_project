@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.auth.models import Group
 
 from .models import Filmwork, GenreFilmwork, Person, PersonFilmwork, User
 
@@ -40,6 +39,7 @@ class CustomUserAdmin(UserAdmin):
     list_filter = ('email',)
     fieldsets = (
         (None, {'fields': ('email',)}),
+        ('Groups', {'fields': ('groups',)}),
     )
     add_fieldsets = (
         (None, {
@@ -55,4 +55,3 @@ class CustomUserAdmin(UserAdmin):
 
 # Re-register UserAdmin
 admin.site.register(User, CustomUserAdmin)
-admin.site.unregister(Group)
