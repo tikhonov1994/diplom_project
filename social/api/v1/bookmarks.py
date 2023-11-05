@@ -26,6 +26,5 @@ async def delete_bookmark(bookmark_id: UUID, service: BookmarkServiceDep, _: Use
 
 
 @router.get('', description='Получить все закладки пользователя')
-# todo pagination?
 async def get_user_bookmarks(service: BookmarkServiceDep, user_id: UserIdDep) -> List[Bookmark]:
     return await service.get_user_bookmarks_list(user_id)

@@ -119,31 +119,3 @@ class ReviewStorage(MongoStorageBase):
                         likes_count=like['count']))
 
         return result
-
-    async def get_most_liked_daily_reviews(self) -> List[DailyTopReviewsSchema]:
-        cursor_likes = self.review_assessments.aggregate([
-            {'$match': {
-                'liked': True,
-                'added': {'$gte': datetime.now() - timedelta(days=1)}
-            }},
-            {'$group': {
-                '_id': "$review_id",
-                'count': {"$sum": 1}}},
-            {"$sort": {"count": -1}}
-        ])
-
-        likes = await cursor_likes.to_list(length=None)  # type: ignore[arg-type]
-
-        result = []
-        cursor_reviews = self.reviews.find({'review_id': {'$in': [item['_id'] for item in likes]}})
-        reviews = await cursor_reviews.to_list(length=None)  # type: ignore[arg-type]
-        for like in likes:
-            for review in reviews:
-                if like['_id'] == review['review_id']:
-                    result.append(DailyTopReviewsSchema(
-                        review_id=review['review_id'],
-                        film_id=review['film_id'],
-                        text=review['text'],
-                        likes_count=like['count']))
-
-        return result

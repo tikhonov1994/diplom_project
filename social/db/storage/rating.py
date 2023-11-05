@@ -30,10 +30,10 @@ class RatingStorage(MongoStorageBase):
         cursor = self.movie_likes.aggregate([
             {'$match': {'user_id': user_id}},
             {'$group': {
-                 '_id': "null",
-                 'total_sum': {
-                     '$sum': "$value"
-            }}}])
+                '_id': "null",
+                'total_sum': {
+                    '$sum': "$value"
+                }}}])
 
         return await cursor.to_list(length=None)
 

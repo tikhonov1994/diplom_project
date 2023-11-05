@@ -6,7 +6,7 @@ from schemas.rating import MovieRatingStats, RateMovieSchema, UserRatingStats
 from services.rating import MovieRatingNotFound
 from starlette import status
 
-from services import MovieRatingServiceDep, ReviewServiceDep
+from services import MovieRatingServiceDep
 
 router = APIRouter()
 
@@ -64,9 +64,8 @@ async def get_movie_rating_stats(movie_id: UUID,
             description='Получить данные пользователя о его оценках фильмов.',
             response_model=UserRatingStats)
 async def get_user_rating_stats(service: MovieRatingServiceDep,
-                                # user_id: UserIdDep,
+                                user_id: UserIdDep,
                                 limit: int = 10,
                                 offset: int = 0
                                 ) -> MovieRatingStats:
-    user_id = '5751ac0f-fcf7-43e2-a288-fa2b06895e7d'
     return await service.get_user_ratings(user_id, limit=limit, offset=offset)
