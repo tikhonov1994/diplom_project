@@ -33,11 +33,8 @@ async def update_profile(user_id: AuthorizedUserId,
 
 @router.get('/get', description='Получить профиль пользователя')
 async def get_profile(user_id: AuthorizedUserId,
-                      service: UserProfileServiceDep) -> JSONResponse:
-    await service.get_profile(user_id)
-
-    return JSONResponse(status_code=HTTPStatus.OK,
-                        content={'detail': 'User profile save successfully.'})
+                      service: UserProfileServiceDep):
+    return await service.get_profile(user_id)
 
 
 @router.delete('/{user_id}/delete', description='Удалить профиль пользователя')

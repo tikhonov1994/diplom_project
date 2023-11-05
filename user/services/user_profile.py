@@ -33,7 +33,7 @@ class UserProfileService:
         except ItemNotFoundException:
             raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='User profile not found.')
 
-    async def get_profile(self, user_id: UUID) -> None:
+    async def get_profile(self, user_id: UUID):
         try:
             return await self.storage.generic.get(user_id)
         except ItemNotFoundException:
