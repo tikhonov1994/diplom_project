@@ -8,6 +8,7 @@ import sentry_sdk
 from core.config import app_config as config
 from core.middleware import LoggingMiddleware
 from api.v1.images import router as images_router
+from api.v1.profile import router as profile_router
 
 if config.export_logs:
     sentry_sdk.init(
@@ -28,8 +29,8 @@ if not config.debug:
 
 root_router = APIRouter(prefix='/user_api/api/v1')
 root_router.include_router(images_router, prefix='/images', tags=['images'])
-# insert: root_router.include_router(...) here.
-# ...
+root_router.include_router(profile_router, prefix='/profile', tags=['profile'])
+
 app.include_router(root_router)
 
 if __name__ == '__main__':
