@@ -35,7 +35,7 @@ class RatingStorage(MongoStorageBase):
                     '$sum': "$value"
                 }}}])
 
-        return await cursor.to_list(length=None)
+        return await cursor.to_list(length=None)  # type: ignore
 
     async def upsert_user_rating_for_movie(self, user_id: UUID, movie_id: UUID, rating_value: int) -> None:
         new_doc = EntityRating(
