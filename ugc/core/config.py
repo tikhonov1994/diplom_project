@@ -1,6 +1,6 @@
 import os
 
-from pydantic import BaseSettings, Field
+from pydantic import BaseSettings
 
 
 _ENV_FILE_LOC = '.env'

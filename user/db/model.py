@@ -1,4 +1,3 @@
-from _decimal import Decimal
 from uuid import UUID, uuid4
 
 from core.config import app_config
