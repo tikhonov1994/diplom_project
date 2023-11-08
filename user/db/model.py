@@ -1,3 +1,4 @@
+from _decimal import Decimal
 from uuid import UUID, uuid4
 
 from core.config import app_config
@@ -29,8 +30,10 @@ class IdMixin:
 class UserProfile(Base, IdMixin):
     __tablename__ = 'user_profile'
 
-    email: Mapped[str] = mapped_column(unique=True)
+    name: Mapped[str] = mapped_column()
+    surname: Mapped[str] = mapped_column()
+    country: Mapped[str] = mapped_column()
     time_zone: Mapped[str] = mapped_column()
-    phone_number: Mapped[int] = mapped_column(unique=True)
+    phone_number: Mapped[str] = mapped_column(unique=True)
     avatar_link: Mapped[str] = mapped_column(nullable=True)
     avatar_status: Mapped[str] = mapped_column(nullable=True)

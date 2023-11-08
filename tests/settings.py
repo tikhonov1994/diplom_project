@@ -19,6 +19,10 @@ class TestSettings(BaseSettings):
     notification_port: int
     notification_db_schema: str
 
+    user_host: str
+    user_port: int
+    user_minio_image_bucket: str
+
     elastic_host: str
     elastic_port: int
 
@@ -37,6 +41,11 @@ class TestSettings(BaseSettings):
     auth_db_schema: str
     default_user_role: str = 'user'
     admin_user_role: str = 'admin'
+
+    minio_host: str
+    minio_port: int
+    minio_root_user: str
+    minio_root_password: str
 
     # Token settings
     jwt_algorithm: str

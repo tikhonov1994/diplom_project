@@ -59,3 +59,19 @@ async def http_notification_client() -> ClientSession:
     _client = ClientSession(base_url=f'http://{settings.notification_host}:{settings.notification_port}')
     yield _client
     await _client.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def http_user_client() -> ClientSession:
+    # noinspection HttpUrlsUsage
+    _client = ClientSession(base_url=f'http://{settings.user_host}:{settings.user_port}')
+    yield _client
+    await _client.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def http_minio_client() -> ClientSession:
+    # noinspection HttpUrlsUsage
+    _client = ClientSession(base_url=f'http://{settings.minio_host}:{settings.minio_port}')
+    yield _client
+    await _client.close()

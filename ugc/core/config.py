@@ -41,8 +41,8 @@ class AppConfig(BaseSettings):  # type: ignore
     # Logging
     log_level: str
     export_logs: bool = False
-
-    authjwt_secret_key: str = Field(env='JWT_SECRET_KEY')
+    jwt_secret_key: str
+    jwt_algorithm: str
 
     # Service
     api: UgcConfig = UgcConfig()
