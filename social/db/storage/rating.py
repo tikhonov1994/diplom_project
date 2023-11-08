@@ -26,7 +26,7 @@ class RatingStorage(MongoStorageBase):
 
         return await cursor
 
-    async def get_user_ratings_total_sum(self, user_id: UUID):
+    async def get_user_ratings_total_sum(self, user_id: UUID) -> list[int]:
         cursor = self.movie_likes.aggregate([
             {'$match': {'user_id': user_id}},
             {'$group': {
