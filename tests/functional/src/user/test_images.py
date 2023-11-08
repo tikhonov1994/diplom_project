@@ -22,7 +22,7 @@ async def test_add_safe_avatar(http_user_client: ClientSession,
                                http_minio_client: ClientSession) -> None:
     with open('./functional/test_data/test-image-good.jpg', 'rb') as f:
         data = FormData()
-        data.add_field('image', f, content_type='image/jpg')
+        data.add_field('image', f, content_type='image/jpeg', filename='image.jpg')
         async with http_user_client.post(ENDPOINT, data=data, headers=test_auth_headers) as response:
             # raise ValueError(await response.json())
             assert response.status == HTTPStatus.ACCEPTED

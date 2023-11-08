@@ -45,8 +45,8 @@ class SecurePostgresConfig(BaseSettings):
                f'@{self.host}:{self.port}/{self.db}'
 
     model_config = SettingsConfigDict(
-        env_file=_SECURE_ENV_FILE_LOC,
-        env_prefix='postgres_',
+        env_file=_ENV_FILE_LOC,
+        env_prefix='secure_postgres_',
         extra='ignore'
     )
 

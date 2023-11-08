@@ -22,6 +22,7 @@ class TestSettings(BaseSettings):
     user_host: str
     user_port: int
     user_minio_image_bucket: str
+    user_db_schema: str
 
     elastic_host: str
     elastic_port: int
@@ -42,6 +43,13 @@ class TestSettings(BaseSettings):
     default_user_role: str = 'user'
     admin_user_role: str = 'admin'
 
+    secure_postgres_host: str
+    secure_postgres_port: int
+    secure_postgres_db: str
+    secure_postgres_user: str
+    secure_postgres_password: str
+    secure_postgres_driver: str
+
     minio_host: str
     minio_port: int
     minio_root_user: str
@@ -55,6 +63,12 @@ class TestSettings(BaseSettings):
     def postgres_dsn(self) -> str:
         return f'postgresql+{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}' \
                f'@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}'
+
+    @property
+    def secure_postgres_dsn(self) -> str:
+        return f'postgresql+{self.secure_postgres_driver}://{self.secure_postgres_user}:' \
+               f'{self.secure_postgres_password}' \
+               f'@{self.secure_postgres_host}:{self.secure_postgres_port}/{self.secure_postgres_db}'
 
     class Config:
         env_file = '../.env'
