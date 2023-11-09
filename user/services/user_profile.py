@@ -8,7 +8,7 @@ from fastapi import Depends, HTTPException
 
 from db.storage import UserStorageDep, ItemNotFoundException, DbConflictException
 from db.model import UserProfile
-from schemas.profile import UserProfileSchema, AvatarStatusesSchema, UserRatingStatsSchema, UserReviewsStatsSchema,\
+from schemas.profile import UserProfileSchema, AvatarStatusesSchema, UserRatingStatsSchema, UserReviewsStatsSchema, \
     UserProfileResponseSchema
 from core.config import app_config
 
@@ -43,10 +43,10 @@ class UserProfileService:
 
             rating_data = await self._make_request_to_social_api(token, app_config.rating_stats_url)
             rating_stats = UserRatingStatsSchema(
-                    ratings=rating_data['ratings'],
-                    total_count=rating_data['total_count'],
-                    average_rating=rating_data['average_rating'],
-                )
+                ratings=rating_data['ratings'],
+                total_count=rating_data['total_count'],
+                average_rating=rating_data['average_rating'],
+            )
 
             reviews_data = await self._make_request_to_social_api(token, app_config.review_stats_url)
             reviews_stats = UserReviewsStatsSchema(
