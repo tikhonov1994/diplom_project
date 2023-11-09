@@ -10,3 +10,13 @@ test_user_profile = {
     'avatar_link': None,
     'avatar_status': 'WITHOUT'
 }
+
+test_user_profile_create_schema = {
+    'name': 'test_create_name',
+    'surname': 'test_create_surname',
+    'country': 'Countryname',
+    'time_zone': 'UTC+4',
+    'phone_number': '+79123123123',
+    'avatar_link': None,
+    'avatar_status': 'WITHOUT'
+}
