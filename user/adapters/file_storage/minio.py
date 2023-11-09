@@ -39,8 +39,8 @@ class MinioFileStorage(BaseSyncFileStorage):
 
     def save(self, origin_file_name: str, image_bytes: bytes, content_type: str) -> str:
         write_result = self.client.put_object(bucket_name=app_config.api.minio_image_bucket,
-                                              object_name=f'{md5(image_bytes).hexdigest()}'
-                                                          f'{self._get_ext(origin_file_name)}',
+                                              object_name=MinioFileStorage.get_filename(image_bytes,
+                                                                                        origin_file_name),
                                               data=BytesIO(image_bytes),
                                               length=len(image_bytes),
                                               content_type=content_type)
@@ -53,11 +53,18 @@ class MinioFileStorage(BaseSyncFileStorage):
                                     detail='File service temporarily unavailable.')
             return response.data
 
+    def delete(self, object_name: str) -> None:
+        self.client.remove_object(app_config.api.minio_image_bucket, object_name)
+
     def _check_buckets(self):
         if not self.client.bucket_exists(app_config.api.minio_image_bucket):
             self.client.make_bucket(app_config.api.minio_image_bucket)
             self.client.set_bucket_policy(app_config.api.minio_image_bucket,
                                           json.dumps(_BUCKET_POLICY))
+
+    @classmethod
+    def get_filename(cls, payload: bytes, name: str) -> str:
+        return f'{md5(payload).hexdigest()}{cls._get_ext(name)}'
 
     @staticmethod
     def _get_ext(filename: str) -> str:
