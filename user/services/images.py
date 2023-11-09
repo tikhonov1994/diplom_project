@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, BackgroundTasks
 
-from adapters import FileStorageDep, NsfwCheckerDep
+from adapters import FileStorageDep, NsfwCheckerDep, NsfwCheckResult
 from db.storage import UserStorageDep, ItemNotFoundException, DbConflictException
 from db.model import UserProfile
 from schemas.image import UserImageSchema
@@ -32,7 +32,12 @@ class ImagesService:
     async def _process_new_image_in_background(self, user: UserProfile, image: UserImageSchema) -> None:
         check_result = await self.checker.check(image)
         try:
-            user.avatar_link = self.file_storage.save(image.name, image.data, image.mime)
+            if user.avatar_link:
+                *_, avatar_file_name = str(user.avatar_link).split('/')
+                self.file_storage.delete(avatar_file_name)
+            user.avatar_link = self.file_storage.save(image.name, image.data, image.mime) \
+                if check_result == NsfwCheckResult.accepted \
+                else None
             user.avatar_status = check_result.value
             await self.user_storage.generic.update(user)
         except DbConflictException:
