@@ -38,5 +38,5 @@ class UserGradeService:
     def _calc_rating(cls, rating: UserRatingStats,
                      reviews: UserReviewsResponseSchema) -> float:
         return rating.total_count * cls.__RATING_GRADE_WEIGHT \
-               + reviews.total_reviews_likes_count * cls.__REVIEW_LIKE_GRADE_WEIGHT \
-               + reviews.total_count * cls.__REVIEW_GRADE_WEIGHT
+            + reviews.total_reviews_likes_count * cls.__REVIEW_LIKE_GRADE_WEIGHT \
+            + reviews.total_count * cls.__REVIEW_GRADE_WEIGHT
