@@ -9,7 +9,8 @@ from settings import test_settings as settings
 pytest_plugins = ('functional.elastic_fixtures',
                   'functional.redis_fixtures',
                   'functional.db_fixtures',
-                  'functional.mongo_fixtures')
+                  'functional.mongo_fixtures',
+                  'functional.minio_fixtures')
 
 
 @pytest_asyncio.fixture(scope="session")
