@@ -163,7 +163,7 @@ LOG_CONFIG = {
     },
 }
 
-dictConfig(LOG_CONFIG)
+# dictConfig(LOG_CONFIG)
 logger = logging.getLogger('main')
 
 if app_config.export_logs:

@@ -1,7 +1,6 @@
 import uvicorn
 import sentry_sdk
 
-from async_fastapi_jwt_auth import AuthJWT
 from fastapi import FastAPI, APIRouter
 from fastapi.responses import ORJSONResponse
 from api.v1 import view
@@ -23,13 +22,6 @@ app = FastAPI(
 )
 
 app.middleware('http')(LoggingMiddleware())
-
-
-# callback to get your configuration
-@AuthJWT.load_config
-def get_config():
-    return config
-
 
 root_router = APIRouter(prefix='/ugc_api/api')
 root_router.include_router(view.router, prefix='/v1/views', tags=['views'])

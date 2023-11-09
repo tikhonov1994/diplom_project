@@ -1,7 +1,7 @@
 from enum import Enum
 
-from pydantic import BaseModel, Field
-from decimal import Decimal
+from pydantic import BaseModel
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
 class UserProfileSchema(BaseModel):
@@ -9,7 +9,7 @@ class UserProfileSchema(BaseModel):
     surname: str
     country: str
     time_zone: str
-    phone_number: Decimal = Field(max_digits=15, decimal_places=0)
+    phone_number: PhoneNumber
 
 
 class AvatarStatusesSchema(str, Enum):
@@ -17,5 +17,3 @@ class AvatarStatusesSchema(str, Enum):
     ON_INSPECTION = 'ON_INSPECTION'
     ACCEPTED = 'ACCEPTED'
     NON_ACCEPTED = 'NON_ACCEPTED'
-
-

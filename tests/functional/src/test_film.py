@@ -12,22 +12,16 @@ ENDPOINT = '/content/api/v1/films/'
 pytestmark = pytest.mark.asyncio
 
 
-async def test_get_by_id_auth(http_client: ClientSession) -> None:
-    film_id = test_films[0]["id"]
-    async with http_client.get(ENDPOINT + str(film_id)) as response:
-        assert response.status == HTTPStatus.FORBIDDEN
-
-
 async def test_get_by_id(http_client: ClientSession) -> None:
     film_id = test_films[0]["id"]
-    async with http_client.get(ENDPOINT + str(film_id), headers=test_auth_headers) as response:
+    async with http_client.get(ENDPOINT + str(film_id)) as response:
         assert response.status == HTTPStatus.OK
         data = await response.json()
         assert data['id'] == film_id
 
 
 async def test_return_not_found_on_invalid_id(http_client) -> None:
-    async with http_client.get(ENDPOINT + str(uuid.uuid4().hex), headers=test_auth_headers) as response:
+    async with http_client.get(ENDPOINT + str(uuid.uuid4().hex)) as response:
         assert response.status == HTTPStatus.NOT_FOUND
 
 

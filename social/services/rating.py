@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from db.storage import RatingStorageDep
-from schemas.rating import MovieRatingStats
+from schemas.rating import MovieRatingStats, UserRatingStats
 
 
 class MovieRatingServiceException(Exception):
@@ -54,4 +54,18 @@ class MovieRatingService:
             likes_count=likes_count,
             dislikes_count=dislikes_count,
             rating_value=rating_value
+        )
+
+    async def get_user_ratings(self, user_id: UUID, limit: int, offset: int) -> UserRatingStats:
+        records = await self._storage.get_rating_records_for_user(user_id, limit, offset)
+
+        total_count = await self._storage.get_user_ratings_total_count(user_id)
+        total_sum_query = await self._storage.get_user_ratings_total_sum(user_id)
+        total_sum = total_sum_query[0]['total_sum']
+        average_rating = round(total_sum / total_count, 1)
+
+        return UserRatingStats(
+            ratings=records,
+            total_count=total_count,
+            average_rating=average_rating
         )

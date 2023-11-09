@@ -10,8 +10,7 @@ ENV PYTHONUNBUFFERED 1
 COPY entrypoint.sh entrypoint.sh
 COPY requirements.txt requirements.txt
 
-RUN  apt-get update && apt-get install \
-     && pip install --upgrade pip \
+RUN  pip install --upgrade pip \
      && pip install -r requirements.txt --no-cache-dir \
      && pip install python-dateutil
 

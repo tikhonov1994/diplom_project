@@ -9,7 +9,8 @@ from settings import test_settings as settings
 pytest_plugins = ('functional.elastic_fixtures',
                   'functional.redis_fixtures',
                   'functional.db_fixtures',
-                  'functional.mongo_fixtures')
+                  'functional.mongo_fixtures',
+                  'functional.minio_fixtures')
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -57,5 +58,21 @@ async def http_social_client() -> ClientSession:
 async def http_notification_client() -> ClientSession:
     # noinspection HttpUrlsUsage
     _client = ClientSession(base_url=f'http://{settings.notification_host}:{settings.notification_port}')
+    yield _client
+    await _client.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def http_user_client() -> ClientSession:
+    # noinspection HttpUrlsUsage
+    _client = ClientSession(base_url=f'http://{settings.user_host}:{settings.user_port}')
+    yield _client
+    await _client.close()
+
+
+@pytest_asyncio.fixture(scope='session')
+async def http_minio_client() -> ClientSession:
+    # noinspection HttpUrlsUsage
+    _client = ClientSession(base_url=f'http://{settings.minio_host}:{settings.minio_port}')
     yield _client
     await _client.close()

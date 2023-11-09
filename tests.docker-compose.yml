@@ -2,11 +2,10 @@ version: '3.9'
 
 include:
   - ./deploy/mongo/docker-compose.yml
-#  - ./deploy/elk/docker-compose.yml
-#  - ./deploy/clickhouse/docker-compose.yml
   - ./deploy/elastic/docker-compose.yml
   - ./deploy/kafka/docker-compose.yml
   - ./deploy/rabbitmq/docker-compose.yml
+  - ./deploy/image_storage/docker-compose.yml
 
 networks:
   application_network:
@@ -17,11 +16,10 @@ x-net-topology:
   networks:
     - application_network
     - mongo_network
-#    - elk_network
-#    - clickhouse_network
     - elastic_network
     - kafka_network
     - rabbitmq_network
+    - img_network
 
 services:
   db:
@@ -31,6 +29,17 @@ services:
       - .env
     ports:
       - "5432:5432"
+    volumes:
+      - ./admin/movies/migrations/dump.sql:/docker-entrypoint-initdb.d/init.sql
+    <<: *container_networks
+
+  secure_db:
+    container_name: test_secure_postgres
+    image: postgres:13.0-alpine
+    env_file:
+      - .env.secure
+    ports:
+      - "5433:5432"
     <<: *container_networks
 
   redis:
@@ -130,6 +139,19 @@ services:
       - .env
     <<: *container_networks
 
+  user_api:
+    container_name: test_user_api
+    build: ./user
+    image: movies_user
+    depends_on:
+      secure_db:
+        condition: service_started
+    ports:
+      - "8012:8012"
+    env_file:
+      - .env
+    <<: *container_networks
+
   tests:
     container_name: tests
     build: ./tests
@@ -145,6 +167,8 @@ services:
       social_api:
         condition: service_started
       notification_api:
+        condition: service_started
+      user_api:
         condition: service_started
       elasticsearch:
         condition: service_healthy
