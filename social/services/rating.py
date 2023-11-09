@@ -60,9 +60,12 @@ class MovieRatingService:
         records = await self._storage.get_rating_records_for_user(user_id, limit, offset)
 
         total_count = await self._storage.get_user_ratings_total_count(user_id)
-        total_sum_query = await self._storage.get_user_ratings_total_sum(user_id)
-        total_sum = total_sum_query[0]['total_sum'] if len(total_sum_query) > 0 else 0
-        average_rating = round(total_sum / (total_count or 1), 1)
+        if total_count != 0:
+            total_sum_query = await self._storage.get_user_ratings_total_sum(user_id)
+            total_sum = total_sum_query[0]['total_sum']
+            average_rating = round(total_sum / total_count, 1)
+        else:
+            average_rating = 0
 
         return UserRatingStats(
             ratings=records,

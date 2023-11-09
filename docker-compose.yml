@@ -57,7 +57,7 @@ services:
       - "user_api"
     image: postgres:13.0-alpine
     volumes:
-      - secure_pg_volume:/var/lib/postgresql/data/
+      - secure_pg_volume:/data/postgres
     env_file:
       - .env.secure
     <<: *container_networks
