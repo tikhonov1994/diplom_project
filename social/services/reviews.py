@@ -52,7 +52,7 @@ class ReviewService:
     async def get_daily_top_reviews(self):
         return await self.mongo_storage.get_most_liked_daily_reviews(self.TOP_DAILY_REVIEWS_COUNT)
 
-    async def get_user_reviews(self, user_id: UUID) -> list[UserReviewInfoSchema]:
+    async def get_user_reviews(self, user_id: UUID) -> UserReviewsResponseSchema:
         filter_query = {'user_id': {'$eq': user_id}}
         sort = ('added', -1)
         reviews = await self.mongo_storage.get_reviews(sort, filter_query)

@@ -287,6 +287,7 @@ services:
     container_name: notification_api
     profiles:
       - "all"
+      - "auth"
       - "notification_api"
     build: ./notification
     depends_on:
