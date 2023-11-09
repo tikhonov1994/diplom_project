@@ -1,9 +1,11 @@
 from http import HTTPStatus
+from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from core.auth import AuthorizedUserId
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from schemas.profile import UserProfileSchema
 from services import UserProfileServiceDep
 
@@ -25,7 +27,7 @@ async def create_profile(user_id: AuthorizedUserId,
 async def update_profile(user_id: AuthorizedUserId,
                          data: UserProfileSchema,
                          service: UserProfileServiceDep) -> JSONResponse:
-    await service.update_user(data, user_id)
+    await service.update_profile(data, user_id)
 
     return JSONResponse(status_code=HTTPStatus.OK,
                         content={'detail': 'User profile save successfully.'})
@@ -33,8 +35,9 @@ async def update_profile(user_id: AuthorizedUserId,
 
 @router.get('/get', description='Получить профиль пользователя')
 async def get_profile(user_id: AuthorizedUserId,
+                      token: Annotated[HTTPAuthorizationCredentials, Depends(HTTPBearer())],
                       service: UserProfileServiceDep):
-    return await service.get_profile(user_id)
+    return await service.get_profile(user_id, token.credentials)
 
 
 @router.delete('/{user_id}/delete', description='Удалить профиль пользователя')

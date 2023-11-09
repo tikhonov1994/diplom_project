@@ -91,6 +91,9 @@ class AppConfig(BaseSettings):  # type: ignore
     export_logs: bool = False
     enable_tracer: bool = False
 
+    rating_stats_url: str
+    review_stats_url: str
+
     api: UserConfig = UserConfig()
     logstash: LogstashConfig = LogstashConfig()
     secure_db: SecurePostgresConfig = SecurePostgresConfig()
