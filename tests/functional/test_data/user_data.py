@@ -1,4 +1,4 @@
-from functional.test_data.auth_data import test_user_info
+from functional.test_data.db_data import test_user_info, test_user_profile_create_info
 
 test_user_profile = {
     'id': test_user_info['id'],
@@ -11,7 +11,8 @@ test_user_profile = {
     'avatar_status': 'WITHOUT'
 }
 
-test_user_profile_create_schema = {
+test_user_profile_create = {
+    'id': test_user_profile_create_info['id'],
     'name': 'test_create_name',
     'surname': 'test_create_surname',
     'country': 'Countryname',

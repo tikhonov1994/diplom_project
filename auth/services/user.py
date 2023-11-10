@@ -49,7 +49,7 @@ class UserService:
         user = UserInfo(email=email, password_hash=hashed_password,
                         user_role_id=role.id)
         user = await self._user_info_storage.add_user(user)
-        await self._send_welcome_email(user)
+        # await self._send_welcome_email(user)
 
     @staticmethod
     async def _send_welcome_email(user: UserInfo):
