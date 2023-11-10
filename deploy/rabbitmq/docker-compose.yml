@@ -6,6 +6,7 @@ x-rabbitmq-profiles:
     - "all"
     - "rabbitmq"
     - "notify"
+    - "auth"
     - "email_handlers"
     - "websocket_handlers"
     - "notification_api"

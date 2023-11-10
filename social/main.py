@@ -7,6 +7,7 @@ import sentry_sdk
 from api.v1 import rating
 from api.v1 import reviews
 from api.v1 import bookmarks
+from api.v1 import user_grade
 from core.config import app_config as config
 from core.middleware import LoggingMiddleware
 
@@ -37,6 +38,7 @@ root_router = APIRouter(prefix='/social_api/api')
 root_router.include_router(rating.router, prefix='/v1/rating', tags=['rating'])
 root_router.include_router(reviews.router, prefix='/v1/reviews', tags=['reviews'])
 root_router.include_router(bookmarks.router, prefix='/v1/bookmarks', tags=['bookmarks'])
+root_router.include_router(user_grade.router, prefix='/v1/user_grade', tags=['user_grade'])
 app.include_router(root_router)
 
 if __name__ == '__main__':
