@@ -1,7 +1,8 @@
 import pytest
 import pytest_asyncio
 from functional.test_data.db_data import (test_admin_info, test_admin_role, test_notification_register_template,
-                                          test_user_info, test_user_role, test_notification_template)
+                                          test_user_info, test_user_role, test_notification_template,
+                                          test_user_profile_create_info)
 from functional.test_data.user_data import test_user_profile
 from functional.utils.db import insert_into_db
 from settings import test_settings as config
@@ -100,6 +101,7 @@ async def add_test_users(db_session_factory, secure_db_session_factory, db_clean
     await insert_into_db(_session, 'user_role', test_admin_role, 'auth')
     await insert_into_db(_session, 'user_info', test_user_info, 'auth')
     await insert_into_db(_session, 'user_info', test_admin_info, 'auth')
+    await insert_into_db(_session, 'user_info', test_user_profile_create_info, 'auth')
     await _session.commit()
     await _session.close()
 

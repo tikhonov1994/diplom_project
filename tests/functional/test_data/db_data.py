@@ -27,6 +27,13 @@ test_user_info = {
     'user_role_id': test_user_role['id']
 }
 
+test_user_profile_create_info = {
+    'id': str(uuid4()),
+    'email': 'test_profile@testservice.com',
+    'password_hash': test_password_and_hash_pair.hash,
+    'user_role_id': test_user_role['id']
+}
+
 test_admin_info = {
     'id': str(uuid4()),
     'email': 'test_admin@testservice.com',

@@ -5,8 +5,8 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
 from core.auth import AuthorizedUserId
+from schemas.profile import UserProfileSchema, UserProfileUpdateSchema
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from schemas.profile import UserProfileSchema
 from services import UserProfileServiceDep
 
 router = APIRouter()
@@ -25,7 +25,7 @@ async def create_profile(user_id: AuthorizedUserId,
 
 @router.patch('/update', description='Обновить профиль пользователя')
 async def update_profile(user_id: AuthorizedUserId,
-                         data: UserProfileSchema,
+                         data: UserProfileUpdateSchema,
                          service: UserProfileServiceDep) -> JSONResponse:
     await service.update_profile(data, user_id)
 
@@ -40,7 +40,7 @@ async def get_profile(user_id: AuthorizedUserId,
     return await service.get_profile(user_id, token.credentials)
 
 
-@router.delete('/{user_id}/delete', description='Удалить профиль пользователя')
+@router.delete('/delete', description='Удалить профиль пользователя')
 async def delete(user_id: AuthorizedUserId, service: UserProfileServiceDep) -> JSONResponse:
     await service.destroy_profile(user_id)
 

@@ -9,7 +9,7 @@ from fastapi import Depends, HTTPException
 from db.storage import UserStorageDep, ItemNotFoundException, DbConflictException
 from db.model import UserProfile
 from schemas.profile import UserProfileSchema, AvatarStatusesSchema, UserRatingStatsSchema, UserReviewsStatsSchema, \
-    UserProfileResponseSchema
+    UserProfileResponseSchema, UserProfileUpdateSchema
 from core.config import app_config
 
 
@@ -29,7 +29,7 @@ class UserProfileService:
             print(str(exc))
             raise HTTPException(status_code=HTTPStatus.SERVICE_UNAVAILABLE, detail='Can\'t process user profile.')
 
-    async def update_profile(self, data: UserProfileSchema, user_id: UUID) -> None:
+    async def update_profile(self, data: UserProfileUpdateSchema, user_id: UUID) -> None:
         try:
             user = await self.storage.generic.get(user_id)
             user.__dict__.update(data.dict())
