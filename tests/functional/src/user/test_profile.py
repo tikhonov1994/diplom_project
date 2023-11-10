@@ -15,7 +15,7 @@ pytestmark = pytest.mark.asyncio
 async def test_add_profile_auth(http_user_client: ClientSession) -> None:
     async with http_user_client.post(f'{BASE_ENDPOINT}create',
                                      json=test_user_profile_create) as response:
-        assert response.status == HTTPStatus.UNAUTHORIZED
+        assert response.status == HTTPStatus.FORBIDDEN
 
 
 async def test_add_profile(http_user_client: ClientSession, secure_db_session) -> None:
@@ -37,7 +37,7 @@ async def test_update_profile_auth(http_user_client: ClientSession) -> None:
     body = {'name': 'new_name'}
     async with http_user_client.patch(f'{BASE_ENDPOINT}update',
                                       json=body) as response:
-        assert response.status == HTTPStatus.UNAUTHORIZED
+        assert response.status == HTTPStatus.FORBIDDEN
 
 
 async def test_update_profile(http_user_client: ClientSession, secure_db_session) -> None:
@@ -58,7 +58,7 @@ async def test_update_profile(http_user_client: ClientSession, secure_db_session
 
 async def test_get_profile_auth(http_user_client: ClientSession) -> None:
     async with http_user_client.get(f'{BASE_ENDPOINT}get') as response:
-        assert response.status == HTTPStatus.UNAUTHORIZED
+        assert response.status == HTTPStatus.FORBIDDEN
 
 
 async def test_get_profile(http_user_client: ClientSession, secure_db_session) -> None:
@@ -76,16 +76,16 @@ async def test_get_profile(http_user_client: ClientSession, secure_db_session) -
 
 async def test_delete_profile_auth(http_user_client: ClientSession) -> None:
     async with http_user_client.delete(f'{BASE_ENDPOINT}delete') as response:
-        assert response.status == HTTPStatus.UNAUTHORIZED
+        assert response.status == HTTPStatus.FORBIDDEN
 
 
 async def test_delete_profile(http_user_client: ClientSession, secure_db_session) -> None:
-    assert get_from_db(secure_db_session, 'user_profile', ('name', test_user_profile['name']), 'public') is not None
+    assert await get_from_db(secure_db_session, 'user_profile', ('name', test_user_profile['name']), 'public') is not None
 
     async with http_user_client.delete(f'{BASE_ENDPOINT}delete',
                                        headers=test_auth_headers) as response:
         assert response.status == HTTPStatus.OK
 
-    time.sleep(0.2)
+    time.sleep(0.3)
 
-    assert get_from_db(secure_db_session, 'user_profile', ('name', test_user_profile['name']), 'public') is None
+    assert await get_from_db(secure_db_session, 'user_profile', ('name', test_user_profile['name']), 'public') is None
