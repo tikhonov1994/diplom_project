@@ -10,7 +10,6 @@ from core.logger import logger
 from schemas.image import UserImageSchema, NsfwPredictionList
 from schemas.image import NsfwPredictionClass as PredClass
 
-
 _PERMISSION_WEIGHTS = {
     PredClass.sexy: 0.9,
     PredClass.porn: 0.5,
@@ -32,11 +31,10 @@ class NsfwJSChecker(BaseNsfwChecker):
     def __grant_permission(predictions: NsfwPredictionList) -> NsfwCheckResult:
         if app_config.debug:
             logger.debug(predictions.model_dump_json())
-        _allow = True
-        for pred in predictions.predictions:
-            if pred.probability > _PERMISSION_WEIGHTS[pred.class_name]:
-                _allow = False
-        return NsfwCheckResult.accepted if _allow else NsfwCheckResult.non_accepted
+
+        if any(pred.probability > _PERMISSION_WEIGHTS[pred.class_name] for pred in predictions.predictions):
+            return NsfwCheckResult.non_accepted
+        return NsfwCheckResult.accepted
 
 
 NsfwJSCheckerDep = Annotated[NsfwJSChecker, Depends()]
