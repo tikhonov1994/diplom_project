@@ -2,6 +2,7 @@ import http
 import json
 import uuid
 from urllib.parse import urlparse
+import logging
 
 import requests
 from django.conf import settings
@@ -9,6 +10,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend
 from requests.adapters import HTTPAdapter
 from urllib3.util import Retry
+
+logging.basicConfig(filename='logging.log', level=int(settings.LOGGING_LEVEL),
+                    format='%(asctime)s  %(message)s')
+logger = logging.getLogger(__name__)
+
 
 User = get_user_model()
 
@@ -36,7 +42,8 @@ class CustomBackend(BaseBackend):
             user.email = data.get('email')
             user.is_admin = data.get('role') == 'admin'
             user.save()
-        except Exception:
+        except Exception as error:
+            logger.error(str(error))
             return None
 
         return user

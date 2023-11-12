@@ -138,6 +138,7 @@ AUTH_USER_MODEL = 'movies.User'
 AUTHENTICATION_BACKENDS = [
     'users.auth.CustomBackend',
 ]
+LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL')
 
 DATABASE_ROUTERS = ["example.db_router.DBRouter",]
 
