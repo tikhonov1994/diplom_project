@@ -1,16 +1,28 @@
 import aiohttp
 
 from uuid import UUID
-from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends
 
 from db.storage import UserStorageDep, ItemNotFoundException, DbConflictException
 from db.model import UserProfile
 from schemas.profile import UserProfileSchema, AvatarStatusesSchema, UserRatingStatsSchema, UserReviewsStatsSchema, \
     UserProfileResponseSchema, UserProfileUpdateSchema
 from core.config import app_config
+
+
+class UserProfileServiceError(Exception):
+    def __init__(self, message: str = 'Internal User Profile Service Error'):
+        self.message = message
+
+
+class UserProfileAlreadyExistsError(UserProfileServiceError):
+    pass
+
+
+class UserProfileNotFoundError(UserProfileServiceError):
+    pass
 
 
 class UserProfileService:
@@ -24,18 +36,18 @@ class UserProfileService:
                                avatar_status=AvatarStatusesSchema.WITHOUT)
             await self.storage.generic.add(user)
         except DbConflictException:
-            raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='Profile fir this user already exists')
+            raise UserProfileAlreadyExistsError(message='Profile fir this user already exists')
         except Exception as exc:
             print(str(exc))
-            raise HTTPException(status_code=HTTPStatus.SERVICE_UNAVAILABLE, detail='Can\'t process user profile.')
+            raise UserProfileServiceError(message='Can\'t process user profile.')
 
     async def update_profile(self, data: UserProfileUpdateSchema, user_id: UUID) -> None:
         try:
             user = await self.storage.generic.get(user_id)
-            user.__dict__.update(data.dict())
+            user.__dict__.update(data.model_dump())
             await self.storage.generic.update(user)
         except ItemNotFoundException:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='User profile not found.')
+            raise UserProfileNotFoundError(message='User profile not found.')
 
     async def get_profile(self, user_id: UUID, token: str):
         try:
@@ -71,13 +83,13 @@ class UserProfileService:
             )
 
         except ItemNotFoundException:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='User profile not found.')
+            raise UserProfileNotFoundError(message='User profile not found.')
 
     async def destroy_profile(self, user_id: UUID) -> None:
         try:
             return await self.storage.generic.delete(user_id)
         except ItemNotFoundException:
-            raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='User profile not found.')
+            UserProfileNotFoundError(message='User profile not found.')
 
     @staticmethod
     async def _make_request_to_social_api(token: str, url: str):
